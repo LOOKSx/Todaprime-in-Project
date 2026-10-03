@@ -27,17 +27,20 @@ export class AppComponent implements OnInit, OnDestroy {
   public contactMessage: string = '';
   public contactSuccessMessage: string = '';
 
-  // Google Login & Email Verification Flow
-  public loginStep: 'input' | 'verify' = 'input';
-  public googleNameInput: string = '';
-  public googleEmailInput: string = '';
-  public verificationCodeInput: string = '';
-  public generatedOtpCode: string = '';
-  public otpCountdown: number = 60;
-  private otpTimerInterval: any = null;
-  public otpNotification: string = '';
-  public otpErrorMessage: string = '';
-  public otpSuccessMessage: string = '';
+  // Authentication State (Google Confirm & Standard Email/Password)
+  public authTab: 'login' | 'register' = 'login';
+  public showGooglePrompt: boolean = false;
+  public googleAccountName: string = 'LOOKSx (Google Account)';
+  public googleAccountEmail: string = 'looks.official@gmail.com';
+  public googleAccountAvatar: string = 'https://api.dicebear.com/7.x/bottts/svg?seed=LOOKSx';
+
+  // Standard Registration & Login Form (รหัสผ่านขั้นต่ำ 8 ตัวอักษร)
+  public authNameInput: string = '';
+  public authEmailInput: string = '';
+  public authPasswordInput: string = '';
+  public authConfirmPasswordInput: string = '';
+  public authErrorMessage: string = '';
+  public authSuccessMessage: string = '';
 
   // Current Date & View
   public selectedDate: string = this.getTodayDateString();
@@ -169,110 +172,102 @@ export class AppComponent implements OnInit, OnDestroy {
     }, 2500);
   }
 
-  // Google Login & Email Verification Handlers
+  // Authentication Handlers (Google Confirm & Standard Email/Password)
   public openLoginModal(): void {
     this.isLoginModalOpen = true;
-    this.loginStep = 'input';
-    this.verificationCodeInput = '';
-    this.otpErrorMessage = '';
-    this.otpSuccessMessage = '';
-    this.otpNotification = '';
-    if (!this.googleEmailInput) {
-      this.googleEmailInput = 'todaprime.user@gmail.com';
-    }
-    if (!this.googleNameInput) {
-      this.googleNameInput = 'Todaprime User';
-    }
+    this.authTab = 'login';
+    this.showGooglePrompt = false;
+    this.authErrorMessage = '';
+    this.authSuccessMessage = '';
     this.closeMenu();
   }
 
   public closeLoginModal(): void {
     this.isLoginModalOpen = false;
-    this.stopOtpTimer();
+    this.showGooglePrompt = false;
+    this.authErrorMessage = '';
+    this.authSuccessMessage = '';
   }
 
-  public sendVerificationCode(): void {
-    const email = this.googleEmailInput.trim();
-    if (!email) {
-      this.otpErrorMessage = 'กรุณากรอกอีเมล Google ของคุณ';
-      return;
-    }
-    if (!email.includes('@')) {
-      this.otpErrorMessage = 'รูปแบบอีเมลไม่ถูกต้อง กรุณาใช้อีเมล เช่น yourname@gmail.com';
-      return;
-    }
-
-    // Generate real 6-digit random security code
-    this.generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    this.loginStep = 'verify';
-    this.verificationCodeInput = '';
-    this.otpErrorMessage = '';
-    this.otpSuccessMessage = '';
-    this.otpNotification = `รหัสยืนยันความปลอดภัยถูกส่งไปยัง ${email} เรียบร้อยแล้ว`;
-    this.soundService.playTaskComplete();
-    this.startOtpTimer();
+  // 1. Google OAuth Flow: Direct account confirmation, pulls Google name & avatar immediately
+  public triggerGoogleSignIn(): void {
+    this.showGooglePrompt = true;
+    this.authErrorMessage = '';
+    this.authSuccessMessage = '';
   }
 
-  public resendVerificationCode(): void {
-    if (this.otpCountdown > 0) return;
-    this.sendVerificationCode();
-  }
-
-  public autoFillOtp(): void {
-    this.verificationCodeInput = this.generatedOtpCode;
-    this.otpErrorMessage = '';
-  }
-
-  public verifyAndLogin(): void {
-    if (!this.verificationCodeInput.trim()) {
-      this.otpErrorMessage = 'กรุณากรอกรหัสยืนยัน 6 หลักที่ส่งไปยังอีเมล';
-      return;
-    }
-
-    if (this.verificationCodeInput.trim() !== this.generatedOtpCode) {
-      this.otpErrorMessage = 'รหัสยืนยันไม่ถูกต้อง กรุณาตรวจสอบรหัส 6 หลักอีกครั้ง';
-      return;
-    }
-
-    // Successful Verification!
-    this.stopOtpTimer();
-    this.otpErrorMessage = '';
-    this.otpSuccessMessage = 'ยืนยันอีเมลสำเร็จ! บัญชี Google ได้รับการยืนยันความปลอดภัยเรียบร้อยแล้ว';
-    this.soundService.playTaskComplete();
-
-    this.authService.loginWithVerifiedGoogle(
-      this.googleNameInput || 'Google User',
-      this.googleEmailInput || 'user@gmail.com'
+  public confirmGoogleLogin(): void {
+    const user = this.authService.loginWithGoogleAccount(
+      this.googleAccountName,
+      this.googleAccountEmail,
+      this.googleAccountAvatar
     );
-
+    this.authSuccessMessage = `เข้าสู่ระบบสำเร็จ! ดึงข้อมูลบัญชี Google "${user.name}" เรียบร้อย`;
+    this.soundService.playTaskComplete();
     setTimeout(() => {
       this.closeLoginModal();
-    }, 1200);
+    }, 800);
   }
 
-  public backToInputStep(): void {
-    this.loginStep = 'input';
-    this.stopOtpTimer();
-    this.otpErrorMessage = '';
-    this.otpSuccessMessage = '';
+  public cancelGooglePrompt(): void {
+    this.showGooglePrompt = false;
   }
 
-  private startOtpTimer(): void {
-    this.stopOtpTimer();
-    this.otpCountdown = 60;
-    this.otpTimerInterval = setInterval(() => {
-      if (this.otpCountdown > 0) {
-        this.otpCountdown--;
-      } else {
-        this.stopOtpTimer();
+  // 2. Standard Email & Password Registration & Login (Minimum 8 chars password)
+  public submitStandardAuth(): void {
+    this.authErrorMessage = '';
+    this.authSuccessMessage = '';
+
+    const email = this.authEmailInput.trim();
+    const password = this.authPasswordInput;
+
+    if (!email || !email.includes('@')) {
+      this.authErrorMessage = 'กรุณากรอกอีเมลให้ถูกต้อง';
+      return;
+    }
+
+    if (!password || password.length < 8) {
+      this.authErrorMessage = 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษรขึ้นไป';
+      return;
+    }
+
+    if (this.authTab === 'register') {
+      const name = this.authNameInput.trim();
+      if (!name) {
+        this.authErrorMessage = 'กรุณาระบุชื่อของคุณ';
+        return;
       }
-    }, 1000);
-  }
 
-  private stopOtpTimer(): void {
-    if (this.otpTimerInterval) {
-      clearInterval(this.otpTimerInterval);
-      this.otpTimerInterval = null;
+      if (password !== this.authConfirmPasswordInput) {
+        this.authErrorMessage = 'รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน';
+        return;
+      }
+
+      const res = this.authService.registerStandard(name, email, password);
+      if (res.success) {
+        this.authSuccessMessage = res.message;
+        this.soundService.playTaskComplete();
+        setTimeout(() => {
+          this.closeLoginModal();
+          this.authPasswordInput = '';
+          this.authConfirmPasswordInput = '';
+        }, 1000);
+      } else {
+        this.authErrorMessage = res.message;
+      }
+    } else {
+      // Login
+      const res = this.authService.loginStandard(email, password);
+      if (res.success) {
+        this.authSuccessMessage = res.message;
+        this.soundService.playTaskComplete();
+        setTimeout(() => {
+          this.closeLoginModal();
+          this.authPasswordInput = '';
+        }, 1000);
+      } else {
+        this.authErrorMessage = res.message;
+      }
     }
   }
 
@@ -303,7 +298,6 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.clockInterval) clearInterval(this.clockInterval);
     if (this.reminderCheckerInterval) clearInterval(this.reminderCheckerInterval);
     if (this.pomodoroTimerInterval) clearInterval(this.pomodoroTimerInterval);
-    this.stopOtpTimer();
   }
 
   public getTodayDateString(): string {

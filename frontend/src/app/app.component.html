@@ -1137,109 +1137,183 @@
     </div>
   </div>
 
-  <!-- MODAL: GOOGLE SIGN-IN & EMAIL VERIFICATION -->
+  <!-- MODAL: AUTHENTICATION (1. GOOGLE 1-CLICK CONFIRM & 2. STANDARD 8-CHAR PASSWORD REGISTRATION/LOGIN) -->
   <div *ngIf="isLoginModalOpen" class="modal-backdrop" (click)="closeLoginModal()">
     <div class="modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3 class="modal-title">🔑 เข้าสู่ระบบด้วย Google</h3>
+        <h3 class="modal-title">
+          {{ showGooglePrompt ? '🌐 บัญชี Google ของคุณ' : '🔑 เข้าสู่ระบบ / ลงทะเบียน' }}
+        </h3>
         <button (click)="closeLoginModal()" class="btn-modal-close">×</button>
       </div>
 
       <div class="modal-body text-center">
-        <!-- Google Brand Header -->
-        <div class="google-logo-big mb-3">
-          <svg class="google-logo-svg" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-          </svg>
-        </div>
-
-        <!-- STEP 1: ENTER GOOGLE EMAIL -->
-        <ng-container *ngIf="loginStep === 'input'">
-          <h4 class="text-xl font-bold mb-1">เข้าสู่ระบบด้วย Google</h4>
+        <!-- 1. GOOGLE ONE-CLICK CONFIRM DIALOG (กดแล้วดึงชื่อบัญชี Google ทันที ไม่ใช้ OTP) -->
+        <ng-container *ngIf="showGooglePrompt">
+          <div class="google-logo-big mb-2">
+            <svg class="google-logo-svg" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+          </div>
+          <h4 class="text-xl font-bold mb-1">ลงชื่อเข้าใช้ด้วย Google</h4>
           <p class="text-xs text-muted mb-4">
-            กรุณากรอกอีเมล Google เพื่อรับรหัสยืนยันความปลอดภัย 6 หลัก
+            Todaprime จะดึงชื่อ อีเมล และรูปโปรไฟล์จากบัญชี Google ของคุณอัตโนมัติ
           </p>
 
-          <div *ngIf="otpErrorMessage" class="alert-error-box mb-3 text-left">
-            ⚠️ {{ otpErrorMessage }}
+          <div *ngIf="authSuccessMessage" class="alert-success-box mb-3 text-left">
+            ✅ {{ authSuccessMessage }}
           </div>
 
-          <div class="text-left">
-            <div class="form-group">
-              <label class="form-label text-xs">ชื่อของคุณ / ชื่อโปรไฟล์</label>
-              <input type="text" [(ngModel)]="googleNameInput" placeholder="เช่น LOOKSx, ธนภัทร" class="form-input text-sm" />
+          <!-- Google Account Preview Card -->
+          <div class="google-account-card mb-3">
+            <img [src]="googleAccountAvatar" alt="Google Avatar" class="google-card-avatar" />
+            <div class="google-card-info text-left flex-1">
+              <div class="font-bold text-sm text-main">{{ googleAccountName }}</div>
+              <div class="text-xs text-muted">{{ googleAccountEmail }}</div>
             </div>
+            <span class="badge-google-sync">🟢 พร้อมเชื่อมต่อ</span>
+          </div>
 
-            <div class="form-group">
-              <label class="form-label text-xs">อีเมล Google ที่ต้องการยืนยัน *</label>
-              <input type="email" [(ngModel)]="googleEmailInput" placeholder="your.name&#64;gmail.com" class="form-input text-sm font-medium" />
-              <p class="text-xs text-muted mt-1">ระบบจะส่งรหัส OTP 6 หลักไปยังอีเมลนี้</p>
-            </div>
+          <!-- Quick Name customization if user wants -->
+          <div class="text-left mb-3">
+            <label class="form-label text-xs">ชื่อบัญชี Google ของคุณ</label>
+            <input type="text" [(ngModel)]="googleAccountName" placeholder="ชื่อที่ต้องการดึงจาก Google" class="form-input text-sm" />
+          </div>
 
-            <button (click)="sendVerificationCode()" class="btn-primary w-full mt-3 py-2.5 flex items-center justify-center gap-2">
-              <span>📨</span> ส่งรหัสยืนยันไปยังอีเมล (Send OTP)
+          <div class="flex flex-col gap-2 mt-4">
+            <button (click)="confirmGoogleLogin()" class="btn-google-confirm">
+              ✅ ยืนยันและเข้าสู่ระบบในชื่อ {{ googleAccountName }}
+            </button>
+            <button (click)="cancelGooglePrompt()" class="btn-secondary py-2 text-xs">
+              ◀ ย้อนกลับ / ใช้วิธีลงทะเบียนทั่วไป
             </button>
           </div>
         </ng-container>
 
-        <!-- STEP 2: VERIFY 6-DIGIT OTP CODE -->
-        <ng-container *ngIf="loginStep === 'verify'">
-          <div class="security-badge-icon mb-2">🛡️</div>
-          <h4 class="text-xl font-bold mb-1">ยืนยันรหัสความปลอดภัย</h4>
-          <p class="text-xs text-muted mb-3">
-            กรอกรหัส 6 หลักที่ส่งไปยัง <strong class="text-primary">{{ googleEmailInput }}</strong>
-          </p>
+        <!-- 2. MAIN AUTH SCREEN (GOOGLE 1-CLICK BUTTON + STANDARD EMAIL/PASSWORD 8 CHARS) -->
+        <ng-container *ngIf="!showGooglePrompt">
+          <!-- Method 1: Google Button -->
+          <button (click)="triggerGoogleSignIn()" class="btn-google-action mb-4">
+            <svg class="google-icon" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>ดำเนินการต่อด้วย Google (ดึงชื่อบัญชีทันที)</span>
+          </button>
 
-          <!-- Notification & Test Helper -->
-          <div *ngIf="otpNotification" class="alert-info-box mb-3 text-left">
-            <div class="text-xs font-semibold">📬 {{ otpNotification }}</div>
-            <div class="mt-1 flex items-center justify-between">
-              <span class="text-xs">รหัสทดสอบ: <strong class="text-primary text-sm tracking-wider">{{ generatedOtpCode }}</strong></span>
-              <button (click)="autoFillOtp()" class="btn-xs-autofill" title="วางรหัส 6 หลักลงในช่องอัตโนมัติ">
-                ⚡ วางรหัสอัตโนมัติ
+          <!-- Divider -->
+          <div class="divider-text">
+            <span>หรือลงทะเบียนทั่วไป (รหัสผ่าน 8 หลัก)</span>
+          </div>
+
+          <!-- Switch Tabs: Login vs Register -->
+          <div class="auth-tabs-bar mb-4">
+            <button
+              (click)="authTab = 'login'; authErrorMessage = ''; authSuccessMessage = ''"
+              class="auth-tab-btn"
+              [class.tab-active]="authTab === 'login'"
+            >
+              🔑 เข้าสู่ระบบ
+            </button>
+            <button
+              (click)="authTab = 'register'; authErrorMessage = ''; authSuccessMessage = ''"
+              class="auth-tab-btn"
+              [class.tab-active]="authTab === 'register'"
+            >
+              📝 ลงทะเบียนใหม่
+            </button>
+          </div>
+
+          <!-- Error & Success Banners -->
+          <div *ngIf="authErrorMessage" class="alert-error-box mb-3 text-left">
+            ⚠️ {{ authErrorMessage }}
+          </div>
+          <div *ngIf="authSuccessMessage" class="alert-success-box mb-3 text-left">
+            ✅ {{ authSuccessMessage }}
+          </div>
+
+          <!-- FORM: STANDARD REGISTRATION -->
+          <div *ngIf="authTab === 'register'" class="text-left">
+            <div class="form-group">
+              <label class="form-label text-xs">ชื่อของคุณ *</label>
+              <input type="text" [(ngModel)]="authNameInput" placeholder="เช่น LOOKSx, ธนภัทร" class="form-input text-sm" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label text-xs">อีเมล *</label>
+              <input type="email" [(ngModel)]="authEmailInput" placeholder="your.name&#64;gmail.com" class="form-input text-sm" />
+            </div>
+
+            <div class="form-group">
+              <div class="flex justify-between items-center">
+                <label class="form-label text-xs">ตั้งรหัสผ่าน *</label>
+                <span class="text-xs text-primary font-bold">อย่างน้อย 8 ตัวอักษร</span>
+              </div>
+              <input
+                type="password"
+                [(ngModel)]="authPasswordInput"
+                placeholder="กรอกรหัสผ่านอย่างน้อย 8 หลัก"
+                class="form-input text-sm font-mono"
+              />
+              <p class="text-xs text-muted mt-1">🔒 รหัสผ่านต้องมีความยาวตั้งแต่ 8 ตัวอักษรขึ้นไป</p>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label text-xs">ยืนยันรหัสผ่าน *</label>
+              <input
+                type="password"
+                [(ngModel)]="authConfirmPasswordInput"
+                placeholder="กรอกรหัสผ่านซ้ำอีกครั้ง"
+                class="form-input text-sm font-mono"
+              />
+            </div>
+
+            <button (click)="submitStandardAuth()" class="btn-primary w-full mt-3 py-2.5 font-bold">
+              📝 ลงทะเบียนบัญชีใหม่ (รหัสผ่าน 8 หลัก)
+            </button>
+
+            <div class="text-center mt-3">
+              <button (click)="authTab = 'login'; authErrorMessage = ''" class="btn-link-sm">
+                มีบัญชีอยู่แล้ว? เข้าสู่ระบบที่นี่
               </button>
             </div>
           </div>
 
-          <div *ngIf="otpErrorMessage" class="alert-error-box mb-3 text-left">
-            ❌ {{ otpErrorMessage }}
-          </div>
+          <!-- FORM: STANDARD LOGIN -->
+          <div *ngIf="authTab === 'login'" class="text-left">
+            <div class="form-group">
+              <label class="form-label text-xs">อีเมล</label>
+              <input type="email" [(ngModel)]="authEmailInput" placeholder="your.name&#64;gmail.com" class="form-input text-sm" />
+            </div>
 
-          <div *ngIf="otpSuccessMessage" class="alert-success-box mb-3 text-left">
-            ✅ {{ otpSuccessMessage }}
-          </div>
+            <div class="form-group">
+              <div class="flex justify-between items-center">
+                <label class="form-label text-xs">รหัสผ่าน (8 หลัก)</label>
+                <span class="text-xs text-muted">ขั้นต่ำ 8 ตัว</span>
+              </div>
+              <input
+                type="password"
+                [(ngModel)]="authPasswordInput"
+                placeholder="กรอกรหัสผ่านของคุณ"
+                class="form-input text-sm font-mono"
+              />
+            </div>
 
-          <!-- 6-digit Code Input -->
-          <div class="otp-input-container my-4">
-            <input
-              type="text"
-              maxlength="6"
-              [(ngModel)]="verificationCodeInput"
-              placeholder="••••••"
-              class="otp-code-input"
-              autofocus
-            />
-          </div>
-
-          <div class="resend-box mb-4">
-            <span *ngIf="otpCountdown > 0" class="text-xs text-muted">
-              ⏱️ สามารถขอรหัสใหม่ได้ในอีก <strong>{{ otpCountdown }}</strong> วินาที
-            </span>
-            <button *ngIf="otpCountdown === 0" (click)="resendVerificationCode()" class="btn-resend-otp">
-              🔄 ส่งรหัสใหม่อีกครั้ง (Resend Code)
+            <button (click)="submitStandardAuth()" class="btn-primary w-full mt-3 py-2.5 font-bold">
+              🔑 เข้าสู่ระบบ
             </button>
+
+            <div class="text-center mt-3">
+              <button (click)="authTab = 'register'; authErrorMessage = ''" class="btn-link-sm">
+                ยังไม่มีบัญชี? ลงทะเบียนใหม่ที่นี่ (รหัสผ่าน 8 หลัก)
+              </button>
+            </div>
           </div>
-
-          <button (click)="verifyAndLogin()" class="btn-verify-submit w-full py-2.5 mb-2 flex items-center justify-center gap-2">
-            <span>✅</span> ยืนยันรหัสและเข้าสู่ระบบ
-          </button>
-
-          <button (click)="backToInputStep()" class="btn-back-step w-full py-1.5 text-xs text-muted">
-            ◀ เปลี่ยนอีเมล Google
-          </button>
         </ng-container>
       </div>
     </div>
