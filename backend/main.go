@@ -75,7 +75,10 @@ func main() {
 	mux.HandleFunc("GET /api/categories", handlers.GetCategories)
 
 	// Static Frontend Serving (Single Page Application fallback)
-	frontendDist := "../frontend/dist/frontend/browser"
+	frontendDist := "../frontend/dist/frontend"
+	if _, err := os.Stat(filepath.Join(frontendDist, "index.html")); err != nil {
+		frontendDist = "../frontend/dist/frontend/browser"
+	}
 	if _, err := os.Stat(frontendDist); err == nil {
 		fs := http.FileServer(http.Dir(frontendDist))
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
