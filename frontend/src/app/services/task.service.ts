@@ -29,13 +29,18 @@ export class TaskService {
   });
   public stats$ = this.statsSubject.asObservable();
 
+  private allCalendarTasksSubject = new BehaviorSubject<Task[]>([]);
+  public allCalendarTasks$ = this.allCalendarTasksSubject.asObservable();
+
   private categoriesSubject = new BehaviorSubject<Category[]>([
-    { id: 1, name: 'Work', color: '#4f46e5', icon: '💼' },
-    { id: 2, name: 'Personal', color: '#06b6d4', icon: '🏠' },
-    { id: 3, name: 'Health', color: '#10b981', icon: '❤️' },
-    { id: 4, name: 'Study', color: '#8b5cf6', icon: '📚' },
-    { id: 5, name: 'Finance', color: '#f59e0b', icon: '💰' },
-    { id: 6, name: 'Urgent', color: '#ef4444', icon: '🚨' }
+    { id: 1, name: 'การบ้าน (Homework)', color: '#8b5cf6', icon: '📚' },
+    { id: 2, name: 'โครงงาน (Project)', color: '#06b6d4', icon: '📝' },
+    { id: 3, name: 'เตรียมสอบ (Exam)', color: '#ef4444', icon: '🎯' },
+    { id: 4, name: 'งานทั่วไป (Work)', color: '#4f46e5', icon: '💼' },
+    { id: 5, name: 'ส่วนตัว (Personal)', color: '#10b981', icon: '🏠' },
+    { id: 6, name: 'สุขภาพ (Health)', color: '#ec4899', icon: '❤️' },
+    { id: 7, name: 'การเงิน (Finance)', color: '#f59e0b', icon: '💰' },
+    { id: 8, name: 'ด่วนมาก (Urgent)', color: '#dc2626', icon: '🚨' }
   ]);
   public categories$ = this.categoriesSubject.asObservable();
 
@@ -45,9 +50,17 @@ export class TaskService {
 
   public refreshAll(filterDate?: string): void {
     this.fetchTasks(filterDate).subscribe();
+    this.fetchAllCalendarTasks().subscribe();
     this.fetchHabits().subscribe();
     this.fetchTodayStats().subscribe();
     this.fetchCategories().subscribe();
+  }
+
+  public fetchAllCalendarTasks(): Observable<Task[]> {
+    return this.http.get<Task[]>(`${this.apiUrl}/tasks`).pipe(
+      tap(tasks => this.allCalendarTasksSubject.next(tasks)),
+      catchError(() => of(this.allCalendarTasksSubject.value))
+    );
   }
 
   public fetchTasks(date?: string, category?: string, priority?: string, status?: string, search?: string): Observable<Task[]> {

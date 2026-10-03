@@ -13,8 +13,11 @@
       <!-- Live Clock & Date Controls -->
       <div class="date-controls">
         <button (click)="setDateOffset(-1)" class="btn-icon" title="วันก่อนหน้า">◀</button>
-        <button (click)="resetToToday()" class="btn-date" [class.active-today]="selectedDate === getTodayDateString()">
+        <button (click)="resetToToday()" class="btn-date" [class.active-today]="selectedDate === getTodayDateString()" title="ดูงานวันนี้">
           📅 {{ displayDateText }}
+        </button>
+        <button (click)="jumpToTomorrow()" class="btn-date" [class.active-today]="selectedDate === getTomorrowDateString()" title="วางแผนสำหรับวันพรุ่งนี้">
+          ⚡ พรุ่งนี้
         </button>
         <button (click)="setDateOffset(1)" class="btn-icon" title="วันถัดไป">▶</button>
         <input type="date" [(ngModel)]="selectedDate" (change)="loadData()" class="input-date" />
@@ -216,13 +219,16 @@
     <div class="content-header mt-6">
       <div class="tab-pills">
         <button (click)="activeTab = 'tasks'" [class.active]="activeTab === 'tasks'" class="tab-pill">
-          📋 รายการงานประจำวัน
+          📋 รายการงาน & การบ้าน
+        </button>
+        <button (click)="activeTab = 'calendar'" [class.active]="activeTab === 'calendar'" class="tab-pill">
+          📅 ปฏิทินกำหนดส่ง & วางแผน (Calendar)
         </button>
         <button (click)="activeTab = 'timeline'" [class.active]="activeTab === 'timeline'" class="tab-pill">
           🕒 ไทม์ไลน์รายชั่วโมง (Timeline)
         </button>
         <button (click)="activeTab = 'habits'" [class.active]="activeTab === 'habits'" class="tab-pill">
-          🎯 ติดตามนิสัย & สถิติ
+          🎯 ติดตามนิสัย (Habits)
         </button>
       </div>
     </div>
@@ -342,6 +348,11 @@
                   {{ task.priority }}
                 </span>
 
+                <!-- Deadline Status Badge -->
+                <span *ngIf="task.due_date" class="badge" [ngClass]="getDeadlineStatus(task.due_date).cssClass">
+                  {{ getDeadlineStatus(task.due_date).text }}
+                </span>
+
                 <!-- Category Badge -->
                 <span class="badge category-badge">
                   {{ task.category }}
@@ -405,7 +416,145 @@
       </div>
     </section>
 
-    <!-- TAB 2: TIMELINE VIEW -->
+    <!-- TAB 2: INTERACTIVE CALENDAR & HOMEWORK PLANNER -->
+    <section *ngIf="activeTab === 'calendar'" class="calendar-section mt-4">
+      <div class="calendar-layout">
+        <!-- LEFT: MONTH CALENDAR GRID -->
+        <div class="card calendar-card">
+          <div class="calendar-top-bar">
+            <div class="calendar-month-title">
+              <h2 class="text-xl font-bold flex items-center gap-2">📅 {{ calendarMonthName }}</h2>
+              <span class="text-xs text-muted">คลิกที่ช่องวันที่เพื่อดูงานหรือลงการบ้านล่วงหน้า</span>
+            </div>
+            <div class="calendar-nav-buttons">
+              <button (click)="prevCalendarMonth()" class="btn-icon" title="เดือนก่อนหน้า">◀</button>
+              <button (click)="todayCalendarMonth()" class="btn-secondary" title="กลับมาเดือนปัจจุบัน">เดือนนี้</button>
+              <button (click)="nextCalendarMonth()" class="btn-icon" title="เดือนถัดไป">▶</button>
+              <button (click)="jumpToTomorrow()" class="btn-focus-sm">⚡ วางแผนวันพรุ่งนี้</button>
+            </div>
+          </div>
+
+          <!-- Weekday Headers -->
+          <div class="calendar-weekdays-row mt-3">
+            <div class="weekday-col text-danger">อา. (Sun)</div>
+            <div class="weekday-col">จ. (Mon)</div>
+            <div class="weekday-col">อ. (Tue)</div>
+            <div class="weekday-col">พ. (Wed)</div>
+            <div class="weekday-col">พฤ. (Thu)</div>
+            <div class="weekday-col">ศ. (Fri)</div>
+            <div class="weekday-col text-info">ส. (Sat)</div>
+          </div>
+
+          <!-- Days Grid -->
+          <div class="calendar-days-grid" *ngIf="taskService.allCalendarTasks$ | async as allTasks">
+            <div *ngFor="let day of calendarDays" 
+                 (click)="selectCalendarDate(day.dateStr)"
+                 class="calendar-day-cell" 
+                 [class.other-month]="!day.isCurrentMonth"
+                 [class.cell-today]="day.isToday"
+                 [class.cell-selected]="day.dateStr === selectedDate">
+              
+              <!-- Day Header -->
+              <div class="day-cell-header">
+                <span class="day-number" [class.badge-today]="day.isToday">{{ day.dayNumber }}</span>
+                <span *ngIf="getTasksForCalendarDay(allTasks, day.dateStr).length > 0" class="task-count-pill">
+                  {{ getTasksForCalendarDay(allTasks, day.dateStr).length }} งาน
+                </span>
+              </div>
+
+              <!-- Day Tasks Preview (up to 3 pills) -->
+              <div class="day-tasks-list">
+                <div *ngFor="let t of getTasksForCalendarDay(allTasks, day.dateStr).slice(0, 3)" 
+                     class="cal-task-chip" 
+                     [class.chip-done]="t.is_completed"
+                     [ngClass]="'p-' + t.priority.toLowerCase()"
+                     [title]="t.title + ' (' + (t.due_time || 'ไม่ระบุเวลา') + ')'">
+                  <span class="chip-cat">{{ t.category.includes('การบ้าน') ? '📚' : (t.is_prime ? '🔥' : '📌') }}</span>
+                  <span class="chip-title">{{ t.title }}</span>
+                </div>
+                <div *ngIf="getTasksForCalendarDay(allTasks, day.dateStr).length > 3" class="cal-more-chip">
+                  + อีก {{ getTasksForCalendarDay(allTasks, day.dateStr).length - 3 }} รายการ
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: SELECTED DATE HOMEWORK & TASK PLANNER -->
+        <div class="card selected-date-planner">
+          <div class="card-header">
+            <div>
+              <span class="card-title">📌 รายการของวันที่เลือก</span>
+              <div class="text-xs text-primary font-bold mt-1">📅 {{ displayDateText }} ({{ selectedDate }})</div>
+            </div>
+            <button (click)="openCreateModal()" class="btn-primary-sm">➕ เพิ่มงานวันที่นี้</button>
+          </div>
+
+          <!-- Quick Homework/Task Add for this selected date -->
+          <div class="calendar-quick-add-box">
+            <div class="text-xs font-bold text-muted mb-2">⚡ ลงการบ้าน / งานที่ต้องทำในวันนี้:</div>
+            <div class="flex gap-2 mb-2">
+              <input 
+                type="text" 
+                [(ngModel)]="quickTitle" 
+                (keyup.enter)="submitQuickAdd()"
+                placeholder="เช่น การบ้านคณิตบท 2, สรุปชีวะ, ส่งรายงาน..." 
+                class="form-input flex-1 text-sm" 
+              />
+            </div>
+            <div class="flex gap-2 flex-wrap items-center">
+              <select [(ngModel)]="quickCategory" class="select-sm flex-1">
+                <option value="การบ้าน (Homework)">📚 การบ้าน (Homework)</option>
+                <option value="โครงงาน (Project)">📝 โครงงาน / รายงาน</option>
+                <option value="เตรียมสอบ (Exam)">🎯 เตรียมสอบ (Exam)</option>
+                <option value="งานทั่วไป (Work)">💼 งานทั่วไป (Work)</option>
+                <option value="ส่วนตัว (Personal)">🏠 ส่วนตัว (Personal)</option>
+              </select>
+              <input type="time" [(ngModel)]="quickDueTime" class="input-time-sm" title="เวลาส่ง / กำหนดเสร็จ" />
+              <button (click)="submitQuickAdd()" class="btn-quick-add">
+                ➕ บันทึกลงวัน
+              </button>
+            </div>
+          </div>
+
+          <!-- Tasks for the Selected Date -->
+          <div class="selected-day-tasks-list mt-4" *ngIf="taskService.tasks$ | async as dayTasks">
+            <div *ngIf="dayTasks.length === 0" class="empty-state-mini py-6 text-center">
+              <div class="text-3xl mb-1">🏖️</div>
+              <div class="text-sm font-semibold">วันนี้ไม่มีภารกิจหรือการบ้านที่ต้องส่ง!</div>
+              <div class="text-xs text-muted">คลิกช่องด้านบนเพื่อลงการบ้านหรือเป้าหมายได้เลย</div>
+            </div>
+
+            <div *ngFor="let t of dayTasks" class="day-task-item" [class.task-done]="t.is_completed">
+              <div class="flex items-start gap-2 flex-1">
+                <input type="checkbox" [checked]="t.is_completed" (change)="toggleTask(t)" class="task-checkbox mt-1" />
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-bold text-sm" [class.strikethrough]="t.is_completed">{{ t.title }}</span>
+                    <span class="badge" [ngClass]="getDeadlineStatus(t.due_date).cssClass">
+                      {{ getDeadlineStatus(t.due_date).text }}
+                    </span>
+                  </div>
+                  <div class="text-xs text-muted flex gap-2 items-center mt-1">
+                    <span>⏰ {{ t.due_time || 'ไม่ระบุเวลา' }}</span>
+                    <span>•</span>
+                    <span class="badge category-badge">{{ t.category }}</span>
+                    <span *ngIf="t.is_prime" class="text-warning font-bold">⭐ Prime Focus</span>
+                  </div>
+                  <p *ngIf="t.description" class="text-xs text-slate-400 mt-1">{{ t.description }}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <button (click)="openEditModal(t)" class="btn-action-icon" title="แก้ไข">✏️</button>
+                <button (click)="deleteTask(t.id)" class="btn-action-icon text-danger" title="ลบ">🗑️</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: TIMELINE VIEW -->
     <section *ngIf="activeTab === 'timeline'" class="timeline-section mt-4">
       <div class="card timeline-card">
         <div class="card-header">

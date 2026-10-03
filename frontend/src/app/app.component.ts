@@ -17,8 +17,20 @@ export class AppComponent implements OnInit, OnDestroy {
   public selectedDate: string = this.getTodayDateString();
   public displayDateText: string = '';
   public currentTimeStr: string = '';
-  public activeTab: 'tasks' | 'timeline' | 'habits' = 'tasks';
+  public activeTab: 'tasks' | 'calendar' | 'timeline' | 'habits' = 'tasks';
   public isDarkMode: boolean = true;
+
+  // Interactive Calendar & Planner
+  public calendarYear: number = new Date().getFullYear();
+  public calendarMonth: number = new Date().getMonth(); // 0-11
+  public calendarMonthName: string = '';
+  public calendarDays: Array<{
+    dateStr: string;
+    dayNumber: number;
+    isCurrentMonth: boolean;
+    isToday: boolean;
+    isSelected: boolean;
+  }> = [];
 
   // Filters & Search
   public searchQuery: string = '';
@@ -30,7 +42,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public quickTitle: string = '';
   public quickDueTime: string = '09:00';
   public quickPriority: Priority = 'MEDIUM';
-  public quickCategory: string = 'Work';
+  public quickCategory: string = 'การบ้าน (Homework)';
   public quickIsPrime: boolean = false;
 
   // Task Edit Modal
@@ -78,6 +90,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.updateClock();
     this.clockInterval = setInterval(() => this.updateClock(), 1000);
     this.startReminderChecker();
+    this.generateCalendar();
     this.loadData();
   }
 
@@ -95,6 +108,15 @@ export class AppComponent implements OnInit, OnDestroy {
     return `${year}-${month}-${day}`;
   }
 
+  public getTomorrowDateString(): string {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   public updateClock(): void {
     const now = new Date();
     this.currentTimeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -103,8 +125,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private updateDisplayDateText(): void {
     const today = this.getTodayDateString();
+    const tomorrow = this.getTomorrowDateString();
     if (this.selectedDate === today) {
       this.displayDateText = 'วันนี้ (Today)';
+    } else if (this.selectedDate === tomorrow) {
+      this.displayDateText = 'พรุ่งนี้ (Tomorrow)';
     } else {
       const d = new Date(this.selectedDate + 'T00:00:00');
       this.displayDateText = d.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
@@ -118,12 +143,149 @@ export class AppComponent implements OnInit, OnDestroy {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     this.selectedDate = `${year}-${month}-${day}`;
+    this.generateCalendar();
     this.loadData();
   }
 
   public resetToToday(): void {
     this.selectedDate = this.getTodayDateString();
+    this.generateCalendar();
     this.loadData();
+  }
+
+  public jumpToTomorrow(): void {
+    this.selectedDate = this.getTomorrowDateString();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    this.calendarYear = tomorrow.getFullYear();
+    this.calendarMonth = tomorrow.getMonth();
+    this.generateCalendar();
+    this.loadData();
+  }
+
+  // Generate 7x5 or 7x6 calendar grid for the month
+  public generateCalendar(): void {
+    const firstDayOfMonth = new Date(this.calendarYear, this.calendarMonth, 1);
+    const lastDayOfMonth = new Date(this.calendarYear, this.calendarMonth + 1, 0);
+    const startDayOfWeek = firstDayOfMonth.getDay(); // 0 = Sun
+    const totalDays = lastDayOfMonth.getDate();
+
+    const todayStr = this.getTodayDateString();
+    const days: Array<{
+      dateStr: string;
+      dayNumber: number;
+      isCurrentMonth: boolean;
+      isToday: boolean;
+      isSelected: boolean;
+    }> = [];
+
+    // Prev month padding
+    const prevMonthLastDay = new Date(this.calendarYear, this.calendarMonth, 0).getDate();
+    for (let i = startDayOfWeek - 1; i >= 0; i--) {
+      const dayNum = prevMonthLastDay - i;
+      const prevM = this.calendarMonth === 0 ? 12 : this.calendarMonth;
+      const prevY = this.calendarMonth === 0 ? this.calendarYear - 1 : this.calendarYear;
+      const dateStr = `${prevY}-${String(prevM).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+      days.push({
+        dateStr,
+        dayNumber: dayNum,
+        isCurrentMonth: false,
+        isToday: dateStr === todayStr,
+        isSelected: dateStr === this.selectedDate
+      });
+    }
+
+    // Current month days
+    for (let day = 1; day <= totalDays; day++) {
+      const monthStr = String(this.calendarMonth + 1).padStart(2, '0');
+      const dayStr = String(day).padStart(2, '0');
+      const dateStr = `${this.calendarYear}-${monthStr}-${dayStr}`;
+      days.push({
+        dateStr,
+        dayNumber: day,
+        isCurrentMonth: true,
+        isToday: dateStr === todayStr,
+        isSelected: dateStr === this.selectedDate
+      });
+    }
+
+    // Next month padding
+    const remaining = (7 - (days.length % 7)) % 7;
+    for (let day = 1; day <= remaining; day++) {
+      const nextM = this.calendarMonth === 11 ? 1 : this.calendarMonth + 2;
+      const nextY = this.calendarMonth === 11 ? this.calendarYear + 1 : this.calendarYear;
+      const dateStr = `${nextY}-${String(nextM).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      days.push({
+        dateStr,
+        dayNumber: day,
+        isCurrentMonth: false,
+        isToday: dateStr === todayStr,
+        isSelected: dateStr === this.selectedDate
+      });
+    }
+
+    this.calendarDays = days;
+    const monthDate = new Date(this.calendarYear, this.calendarMonth, 1);
+    this.calendarMonthName = monthDate.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+  }
+
+  public prevCalendarMonth(): void {
+    if (this.calendarMonth === 0) {
+      this.calendarMonth = 11;
+      this.calendarYear--;
+    } else {
+      this.calendarMonth--;
+    }
+    this.generateCalendar();
+  }
+
+  public nextCalendarMonth(): void {
+    if (this.calendarMonth === 11) {
+      this.calendarMonth = 0;
+      this.calendarYear++;
+    } else {
+      this.calendarMonth++;
+    }
+    this.generateCalendar();
+  }
+
+  public todayCalendarMonth(): void {
+    const now = new Date();
+    this.calendarYear = now.getFullYear();
+    this.calendarMonth = now.getMonth();
+    this.selectedDate = this.getTodayDateString();
+    this.generateCalendar();
+    this.loadData();
+  }
+
+  public selectCalendarDate(dateStr: string): void {
+    this.selectedDate = dateStr;
+    this.generateCalendar();
+    this.loadData();
+  }
+
+  public getTasksForCalendarDay(tasks: Task[], dateStr: string): Task[] {
+    if (!tasks) return [];
+    return tasks.filter(t => t.due_date === dateStr);
+  }
+
+  public getDeadlineStatus(dueDateStr: string): { text: string; cssClass: string } {
+    if (!dueDateStr) return { text: '', cssClass: '' };
+    const today = this.getTodayDateString();
+    if (dueDateStr === today) {
+      return { text: '⚡ ส่งวันนี้!', cssClass: 'deadline-today' };
+    }
+    const d1 = new Date(today + 'T00:00:00');
+    const d2 = new Date(dueDateStr + 'T00:00:00');
+    const diffDays = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) {
+      return { text: '🚨 ส่งพรุ่งนี้!', cssClass: 'deadline-tomorrow' };
+    } else if (diffDays > 1) {
+      return { text: `📅 อีก ${diffDays} วัน`, cssClass: 'deadline-upcoming' };
+    } else {
+      return { text: `⚠️ เลย ${Math.abs(diffDays)} วัน`, cssClass: 'deadline-overdue' };
+    }
   }
 
   public loadData(): void {
