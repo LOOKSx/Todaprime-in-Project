@@ -1,8 +1,8 @@
 <div [class.dark]="isDarkMode" class="min-h-screen bg-app transition-colors duration-300">
-  <!-- TOP NAVBAR -->
+  <!-- TOP NAVBAR: Clean & Minimalist (เอาเมนูด้านบนออกทั้งหมด เหลือแค่ 3 ขีดฝั่งขวา) -->
   <header class="header">
     <div class="header-container">
-      <div class="logo-group">
+      <div class="logo-group" (click)="switchToLanding()" style="cursor: pointer;" title="หน้าแรก Todaprime">
         <div class="logo-icon">🔥</div>
         <div>
           <h1 class="logo-title">Todaprime</h1>
@@ -10,63 +10,22 @@
         </div>
       </div>
 
-      <!-- Live Clock & Date Controls -->
-      <div class="date-controls">
-        <button (click)="setDateOffset(-1)" class="btn-icon" title="วันก่อนหน้า">◀</button>
-        <button (click)="resetToToday()" class="btn-date" [class.active-today]="selectedDate === getTodayDateString()" title="ดูงานวันนี้">
-          📅 {{ displayDateText }}
-        </button>
-        <button (click)="jumpToTomorrow()" class="btn-date" [class.active-today]="selectedDate === getTomorrowDateString()" title="วางแผนสำหรับวันพรุ่งนี้">
-          ⚡ พรุ่งนี้
-        </button>
-        <button (click)="setDateOffset(1)" class="btn-icon" title="วันถัดไป">▶</button>
-        <input type="date" [(ngModel)]="selectedDate" (change)="loadData()" class="input-date" />
-        <span class="live-clock">🕒 {{ currentTimeStr }}</span>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="header-actions">
-        <!-- Switch between Landing and App Dashboard -->
-        <button (click)="currentView === 'landing' ? switchToApp() : switchToLanding()" class="btn-secondary" [title]="currentView === 'landing' ? 'เปิดกระดานงาน' : 'ดูหน้าแรกแนะนำระบบ'">
-          {{ currentView === 'landing' ? '📋 ดูกระดานงาน' : '🌟 หน้าแรก/แนะนำ' }}
+      <!-- Right Side: 3-Bar Hamburger Menu Button & Category Selector -->
+      <div class="header-right">
+        <!-- Active Category Badge (if any filter active) -->
+        <button *ngIf="selectedCategory !== 'All'" (click)="toggleMenu()" class="header-active-cat-btn" title="คลิกเพื่อเปลี่ยนหมวดหมู่">
+          <span class="cat-dot"></span>
+          <span>หมวดหมู่: {{ selectedCategory }}</span>
         </button>
 
-        <button (click)="testReminderSound()" class="btn-secondary" title="ทดสอบเสียงกระดิ่งเตือน">
-          🔔 เสียงเตือน
-        </button>
-        <button (click)="soundService.toggleSound()" class="btn-icon" [title]="soundService.isSoundEnabled() ? 'ปิดเสียง' : 'เปิดเสียง'">
-          {{ soundService.isSoundEnabled() ? '🔊' : '🔇' }}
-        </button>
-        <button (click)="toggleTheme()" class="btn-icon" [title]="isDarkMode ? 'เปลี่ยนเป็นธีมสว่าง' : 'เปลี่ยนเป็นธีมมืด'">
-          {{ isDarkMode ? '☀️' : '🌙' }}
-        </button>
-
-        <!-- Google Login / User Profile -->
-        <ng-container *ngIf="authService.currentUser$ | async as user; else guestUser">
-          <div class="user-profile-badge" (click)="toggleMenu()" title="คลิกเพื่อดูโปรไฟล์">
-            <img [src]="user.avatar" alt="Avatar" class="user-avatar-img" />
-            <span class="user-name-text">{{ user.name }}</span>
+        <!-- 3-line hamburger button -->
+        <button (click)="toggleMenu()" class="btn-hamburger" title="เปิดเมนูและเลือกหมวดหมู่ต่างๆ" aria-label="เมนู">
+          <div class="hamburger-lines">
+            <span class="line"></span>
+            <span class="line"></span>
+            <span class="line"></span>
           </div>
-        </ng-container>
-        <ng-template #guestUser>
-          <button (click)="openLoginModal()" class="btn-google-header" title="เข้าสู่ระบบด้วย Google">
-            <svg class="google-icon" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-            </svg>
-            <span>เข้าสู่ระบบ Google</span>
-          </button>
-        </ng-template>
-
-        <button (click)="openCreateModal()" class="btn-primary">
-          ➕ เพิ่มงาน
-        </button>
-
-        <!-- HAMBURGER MENU BUTTON (3 ขีดฝั่งขวา) -->
-        <button (click)="toggleMenu()" class="btn-hamburger" title="เปิดเมนูตัวเลือก">
-          ☰
+          <span class="hamburger-text">หมวดหมู่ & เมนู</span>
         </button>
       </div>
     </div>
@@ -162,6 +121,38 @@
   </section>
 
   <main *ngIf="currentView === 'app'" class="main-container">
+    <!-- APP TOP TOOLBAR (แถบควบคุมวันที่ & หมวดหมู่ที่เลือก & เพิ่มงาน) -->
+    <div class="app-top-toolbar">
+      <div class="date-controls">
+        <button (click)="setDateOffset(-1)" class="btn-icon" title="วันก่อนหน้า">◀</button>
+        <button (click)="resetToToday()" class="btn-date" [class.active-today]="selectedDate === getTodayDateString()" title="ดูงานวันนี้">
+          📅 {{ displayDateText }}
+        </button>
+        <button (click)="jumpToTomorrow()" class="btn-date" [class.active-today]="selectedDate === getTomorrowDateString()" title="วางแผนสำหรับวันพรุ่งนี้">
+          ⚡ พรุ่งนี้
+        </button>
+        <button (click)="setDateOffset(1)" class="btn-icon" title="วันถัดไป">▶</button>
+        <input type="date" [(ngModel)]="selectedDate" (change)="loadData()" class="input-date" />
+        <span class="live-clock">🕒 {{ currentTimeStr }}</span>
+      </div>
+
+      <div class="app-toolbar-actions">
+        <!-- Active Category Badge -->
+        <div *ngIf="selectedCategory !== 'All'" class="toolbar-cat-badge">
+          <span>หมวดหมู่: <strong>{{ selectedCategory }}</strong></span>
+          <button (click)="filterByCategory('All')" class="btn-clear-cat" title="ล้างตัวกรองหมวดหมู่">✕</button>
+        </div>
+
+        <button (click)="toggleMenu()" class="btn-secondary" title="เลือกหมวดหมู่อื่นๆ">
+          🗂️ เลือกหมวดหมู่ (☰)
+        </button>
+
+        <button (click)="openCreateModal()" class="btn-primary" title="สร้างภารกิจหรือการบ้านใหม่">
+          ➕ เพิ่มงาน
+        </button>
+      </div>
+    </div>
+
     <!-- HERO DASHBOARD: PRIME TASK + STATS + POMODORO + HABITS -->
     <div class="dashboard-grid">
       <!-- 1. PRIME FOCUS (Eat The Frog) -->
@@ -891,50 +882,129 @@
     </div>
   </div>
 
-  <!-- RIGHT-SIDE DRAWER MENU (เมนู 3 ขีดฝั่งขวา) -->
+  <!-- RIGHT-SIDE DRAWER MENU (เมนู 3 ขีดฝั่งขวา: เลือกหมวดหมู่ต่างๆ และตัวเลือกระบบ) -->
   <div *ngIf="isMenuOpen" class="drawer-backdrop" (click)="closeMenu()"></div>
   <div class="drawer-panel" [class.drawer-open]="isMenuOpen">
     <div class="drawer-header">
       <div class="flex items-center gap-2">
         <span class="text-2xl">🔥</span>
-        <h3 class="font-bold text-lg">เมนูตัวเลือก Todaprime</h3>
+        <div>
+          <h3 class="font-bold text-base leading-tight">เมนู & เลือกหมวดหมู่</h3>
+          <p class="text-xs text-muted">Todaprime Management</p>
+        </div>
       </div>
       <button (click)="closeMenu()" class="btn-drawer-close">×</button>
     </div>
 
     <div class="drawer-scroll-body">
-      <!-- User Profile in Drawer -->
-      <div class="drawer-user-box">
-        <ng-container *ngIf="authService.currentUser$ | async as user; else guestDrawer">
-          <div class="flex items-center gap-3">
-            <img [src]="user.avatar" alt="Avatar" class="drawer-avatar" />
-            <div class="flex-1">
-              <div class="font-bold text-sm">{{ user.name }}</div>
-              <div class="text-xs text-muted">{{ user.email }}</div>
-              <span class="google-badge mt-1">🟢 บัญชี Google ยืนยันแล้ว</span>
+      <!-- 1. CATEGORIES SELECTOR (หมวดหมู่การทำงาน - แสดงเป็นส่วนแรกสุด) -->
+      <div class="drawer-section">
+        <div class="drawer-section-header">
+          <div class="drawer-section-title">🗂️ เลือกหมวดหมู่การทำงาน</div>
+          <span class="text-xs text-muted">คลิกเพื่อกรองงาน</span>
+        </div>
+
+        <div class="drawer-categories-list">
+          <button (click)="filterByCategory('All')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'All'">
+            <div class="cat-card-left">
+              <span class="cat-icon">🌐</span>
+              <div class="cat-card-info">
+                <span class="cat-name">ทั้งหมด (All Tasks)</span>
+                <span class="cat-sub">แสดงภารกิจทุกประเภท</span>
+              </div>
             </div>
-          </div>
-          <button (click)="logout()" class="btn-logout-sm mt-3">🚪 ออกจากระบบ</button>
-        </ng-container>
-        <ng-template #guestDrawer>
-          <div class="text-center py-2">
-            <div class="text-xs text-muted mb-2">ยังไม่ได้เข้าสู่ระบบ เข้าสู่ระบบเพื่อซิงก์ข้อมูลส่วนตัว</div>
-            <button (click)="openLoginModal()" class="btn-google-full">
-              <svg class="google-icon" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-              </svg>
-              เข้าสู่ระบบด้วย Google
-            </button>
-          </div>
-        </ng-template>
+            <span *ngIf="selectedCategory === 'All'" class="cat-check">✓</span>
+          </button>
+
+          <button (click)="filterByCategory('การบ้าน (Homework)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'การบ้าน (Homework)'">
+            <div class="cat-card-left">
+              <span class="cat-icon">📚</span>
+              <div class="cat-card-info">
+                <span class="cat-name">การบ้าน & การเรียน</span>
+                <span class="cat-sub">การบ้าน แบบฝึกหัด รายวิชา</span>
+              </div>
+            </div>
+            <span *ngIf="selectedCategory === 'การบ้าน (Homework)'" class="cat-check">✓</span>
+          </button>
+
+          <button (click)="filterByCategory('โครงงาน (Project)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'โครงงาน (Project)'">
+            <div class="cat-card-left">
+              <span class="cat-icon">📝</span>
+              <div class="cat-card-info">
+                <span class="cat-name">โครงงาน / รายงาน</span>
+                <span class="cat-sub">รายงานกลุ่ม นำเสนอ โปรเจกต์</span>
+              </div>
+            </div>
+            <span *ngIf="selectedCategory === 'โครงงาน (Project)'" class="cat-check">✓</span>
+          </button>
+
+          <button (click)="filterByCategory('เตรียมสอบ (Exam)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'เตรียมสอบ (Exam)'">
+            <div class="cat-card-left">
+              <span class="cat-icon">🎯</span>
+              <div class="cat-card-info">
+                <span class="cat-name">เตรียมสอบ (Exam)</span>
+                <span class="cat-sub">อ่านหนังสือ ติว สรุปบทเรียน</span>
+              </div>
+            </div>
+            <span *ngIf="selectedCategory === 'เตรียมสอบ (Exam)'" class="cat-check">✓</span>
+          </button>
+
+          <button (click)="filterByCategory('งานทั่วไป (Work)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'งานทั่วไป (Work)'">
+            <div class="cat-card-left">
+              <span class="cat-icon">💼</span>
+              <div class="cat-card-info">
+                <span class="cat-name">งานทั่วไป & ออฟฟิศ</span>
+                <span class="cat-sub">งานบริษัท ประชุม งานพาร์ทไทม์</span>
+              </div>
+            </div>
+            <span *ngIf="selectedCategory === 'งานทั่วไป (Work)'" class="cat-check">✓</span>
+          </button>
+
+          <button (click)="filterByCategory('ส่วนตัว (Personal)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'ส่วนตัว (Personal)'">
+            <div class="cat-card-left">
+              <span class="cat-icon">🏠</span>
+              <div class="cat-card-info">
+                <span class="cat-name">เรื่องส่วนตัว & ครอบครัว</span>
+                <span class="cat-sub">งานบ้าน ธุระ ซื้อของใช้</span>
+              </div>
+            </div>
+            <span *ngIf="selectedCategory === 'ส่วนตัว (Personal)'" class="cat-check">✓</span>
+          </button>
+
+          <button (click)="filterByCategory('สุขภาพ (Health)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'สุขภาพ (Health)'">
+            <div class="cat-card-left">
+              <span class="cat-icon">❤️</span>
+              <div class="cat-card-info">
+                <span class="cat-name">สุขภาพ & ออกกำลังกาย</span>
+                <span class="cat-sub">วิ่ง ฟิตเนส ทานยา พักผ่อน</span>
+              </div>
+            </div>
+            <span *ngIf="selectedCategory === 'สุขภาพ (Health)'" class="cat-check">✓</span>
+          </button>
+
+          <button (click)="filterByCategory('ด่วนมาก (Urgent)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'ด่วนมาก (Urgent)'">
+            <div class="cat-card-left">
+              <span class="cat-icon">🚨</span>
+              <div class="cat-card-info">
+                <span class="cat-name text-danger">ด่วนมาก (Urgent)</span>
+                <span class="cat-sub">งานด่วนสำคัญที่สุด ต้องเสร็จทันที</span>
+              </div>
+            </div>
+            <span *ngIf="selectedCategory === 'ด่วนมาก (Urgent)'" class="cat-check">✓</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Navigation Section -->
+      <!-- 2. QUICK ACTION (เพิ่มงานใหม่) -->
       <div class="drawer-section">
-        <div class="drawer-section-title">🌟 นำทางระบบ</div>
+        <button (click)="openCreateModal(); closeMenu()" class="btn-drawer-add-task">
+          ➕ เพิ่มงานหรือการบ้านใหม่
+        </button>
+      </div>
+
+      <!-- 3. NAVIGATION SECTION (นำทางระบบ) -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">🌟 หน้าและการนำทาง</div>
         <button (click)="switchToApp(); activeTab = 'tasks'" class="drawer-menu-item" [class.item-active]="currentView === 'app' && activeTab === 'tasks'">
           <span>📋</span> กระดานจัดการงาน (Dashboard)
         </button>
@@ -952,22 +1022,58 @@
         </button>
       </div>
 
-      <!-- Categories Section (หมวดหมู่การทำงาน) -->
+      <!-- 4. CONTROLS, AUDIO & THEME (เครื่องมือ & เสียงแจ้งเตือน & ธีม) -->
       <div class="drawer-section">
-        <div class="drawer-section-title">🗂️ หมวดหมู่การทำงาน</div>
-        <div class="drawer-categories-grid">
-          <button (click)="filterByCategory('All')" class="cat-pill-btn">🌐 ทั้งหมด</button>
-          <button (click)="filterByCategory('การบ้าน (Homework)')" class="cat-pill-btn">📚 การบ้าน & การเรียน</button>
-          <button (click)="filterByCategory('โครงงาน (Project)')" class="cat-pill-btn">📝 โครงงาน / รายงาน</button>
-          <button (click)="filterByCategory('เตรียมสอบ (Exam)')" class="cat-pill-btn">🎯 เตรียมสอบ</button>
-          <button (click)="filterByCategory('งานทั่วไป (Work)')" class="cat-pill-btn">💼 งานทั่วไป</button>
-          <button (click)="filterByCategory('ส่วนตัว (Personal)')" class="cat-pill-btn">🏠 ส่วนตัว</button>
-          <button (click)="filterByCategory('สุขภาพ (Health)')" class="cat-pill-btn">❤️ สุขภาพ</button>
-          <button (click)="filterByCategory('ด่วนมาก (Urgent)')" class="cat-pill-btn">🚨 ด่วนมาก</button>
+        <div class="drawer-section-title">⚙️ เครื่องมือ & เสียงแจ้งเตือน</div>
+        <div class="drawer-tools-grid">
+          <button (click)="testReminderSound()" class="drawer-tool-btn" title="ทดสอบเสียงกระดิ่ง">
+            <span>🔔</span>
+            <span>ทดสอบกระดิ่ง</span>
+          </button>
+          <button (click)="soundService.toggleSound()" class="drawer-tool-btn" [title]="soundService.isSoundEnabled() ? 'ปิดเสียง' : 'เปิดเสียง'">
+            <span>{{ soundService.isSoundEnabled() ? '🔊' : '🔇' }}</span>
+            <span>{{ soundService.isSoundEnabled() ? 'เสียง: เปิด' : 'เสียง: ปิด' }}</span>
+          </button>
+          <button (click)="toggleTheme()" class="drawer-tool-btn" [title]="isDarkMode ? 'เปลี่ยนเป็นธีมสว่าง' : 'เปลี่ยนเป็นธีมมืด'">
+            <span>{{ isDarkMode ? '☀️' : '🌙' }}</span>
+            <span>{{ isDarkMode ? 'โหมดสว่าง' : 'โหมดมืด' }}</span>
+          </button>
         </div>
       </div>
 
-      <!-- Contact Provider Section (การติดต่อผู้ให้บริการอย่างเรา) -->
+      <!-- 5. GOOGLE ACCOUNT -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">👤 บัญชีผู้ใช้งาน</div>
+        <div class="drawer-user-box">
+          <ng-container *ngIf="authService.currentUser$ | async as user; else guestDrawer">
+            <div class="flex items-center gap-3">
+              <img [src]="user.avatar" alt="Avatar" class="drawer-avatar" />
+              <div class="flex-1">
+                <div class="font-bold text-sm">{{ user.name }}</div>
+                <div class="text-xs text-muted">{{ user.email }}</div>
+                <span class="google-badge mt-1">🟢 บัญชี Google ยืนยันแล้ว</span>
+              </div>
+            </div>
+            <button (click)="logout()" class="btn-logout-sm mt-3">🚪 ออกจากระบบ</button>
+          </ng-container>
+          <ng-template #guestDrawer>
+            <div class="text-center py-2">
+              <div class="text-xs text-muted mb-2">เข้าสู่ระบบด้วย Google เพื่อซิงก์ข้อมูลส่วนตัว</div>
+              <button (click)="openLoginModal()" class="btn-google-full">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                เข้าสู่ระบบด้วย Google
+              </button>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- 6. CONTACT PROVIDER (การติดต่อผู้ให้บริการอย่างเรา) -->
       <div class="drawer-section">
         <div class="drawer-section-title">📞 ติดต่อผู้ให้บริการอย่างเรา</div>
         <div class="contact-provider-box">
