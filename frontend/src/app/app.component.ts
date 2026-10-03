@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from './services/task.service';
 import { SoundService } from './services/sound.service';
+import { AuthService, UserProfile } from './services/auth.service';
 import { Task, Subtask, Habit, TodayStats, Priority, RecurringType } from './models/task.model';
 
 @Component({
@@ -13,6 +14,23 @@ import { Task, Subtask, Habit, TodayStats, Priority, RecurringType } from './mod
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
+  // Navigation View (App Dashboard vs Landing Page)
+  public currentView: 'app' | 'landing' = 'app';
+  public isMenuOpen: boolean = false;
+  public isContactModalOpen: boolean = false;
+  public isLoginModalOpen: boolean = false;
+
+  // Contact Provider Form
+  public contactName: string = '';
+  public contactEmail: string = '';
+  public contactSubject: string = 'สอบถามข้อมูลการใช้งาน';
+  public contactMessage: string = '';
+  public contactSuccessMessage: string = '';
+
+  // Google Login Custom Prompt
+  public googleNameInput: string = '';
+  public googleEmailInput: string = '';
+
   // Current Date & View
   public selectedDate: string = this.getTodayDateString();
   public displayDateText: string = '';
@@ -83,8 +101,93 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     public taskService: TaskService,
-    public soundService: SoundService
+    public soundService: SoundService,
+    public authService: AuthService
   ) {}
+
+  // Drawer Menu Handlers
+  public toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  public closeMenu(): void {
+    this.isMenuOpen = false;
+  }
+
+  // Navigation View Switcher
+  public switchToLanding(): void {
+    this.currentView = 'landing';
+    this.closeMenu();
+  }
+
+  public switchToApp(): void {
+    this.currentView = 'app';
+    this.closeMenu();
+  }
+
+  // Contact Provider Modal
+  public openContactModal(): void {
+    this.isContactModalOpen = true;
+    this.contactSuccessMessage = '';
+    this.closeMenu();
+  }
+
+  public closeContactModal(): void {
+    this.isContactModalOpen = false;
+    this.contactSuccessMessage = '';
+  }
+
+  public submitContact(): void {
+    if (!this.contactName.trim() || !this.contactMessage.trim()) {
+      alert('กรุณากรอกชื่อและข้อความที่ต้องการติดต่อ');
+      return;
+    }
+    // Simulate sending message to providers / developers
+    this.contactSuccessMessage = `ขอบคุณครับคุณ ${this.contactName}! ข้อความของคุณถูกส่งไปยังทีมงานผู้ให้บริการ Todaprime เรียบร้อยแล้ว`;
+    this.soundService.playTaskComplete();
+    setTimeout(() => {
+      this.closeContactModal();
+      this.contactName = '';
+      this.contactEmail = '';
+      this.contactMessage = '';
+    }, 2500);
+  }
+
+  // Google Login Handlers
+  public openLoginModal(): void {
+    this.isLoginModalOpen = true;
+    this.closeMenu();
+  }
+
+  public closeLoginModal(): void {
+    this.isLoginModalOpen = false;
+  }
+
+  public loginWithGoogle(): void {
+    this.authService.loginWithGoogle();
+    this.closeLoginModal();
+    this.soundService.playTaskComplete();
+  }
+
+  public loginCustomGoogle(): void {
+    this.authService.loginWithCustomGoogle(this.googleNameInput, this.googleEmailInput);
+    this.closeLoginModal();
+    this.soundService.playTaskComplete();
+  }
+
+  public logout(): void {
+    if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
+      this.authService.logout();
+      this.closeMenu();
+    }
+  }
+
+  public filterByCategory(cat: string): void {
+    this.selectedCategory = cat;
+    this.activeTab = 'tasks';
+    this.switchToApp();
+    this.loadData();
+  }
 
   ngOnInit(): void {
     this.updateClock();

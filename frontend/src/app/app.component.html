@@ -26,8 +26,13 @@
 
       <!-- Action Buttons -->
       <div class="header-actions">
+        <!-- Switch between Landing and App Dashboard -->
+        <button (click)="currentView === 'landing' ? switchToApp() : switchToLanding()" class="btn-secondary" [title]="currentView === 'landing' ? 'เปิดกระดานงาน' : 'ดูหน้าแรกแนะนำระบบ'">
+          {{ currentView === 'landing' ? '📋 ดูกระดานงาน' : '🌟 หน้าแรก/แนะนำ' }}
+        </button>
+
         <button (click)="testReminderSound()" class="btn-secondary" title="ทดสอบเสียงกระดิ่งเตือน">
-          🔔 ทดสอบเสียง
+          🔔 เสียงเตือน
         </button>
         <button (click)="soundService.toggleSound()" class="btn-icon" [title]="soundService.isSoundEnabled() ? 'ปิดเสียง' : 'เปิดเสียง'">
           {{ soundService.isSoundEnabled() ? '🔊' : '🔇' }}
@@ -35,8 +40,33 @@
         <button (click)="toggleTheme()" class="btn-icon" [title]="isDarkMode ? 'เปลี่ยนเป็นธีมสว่าง' : 'เปลี่ยนเป็นธีมมืด'">
           {{ isDarkMode ? '☀️' : '🌙' }}
         </button>
+
+        <!-- Google Login / User Profile -->
+        <ng-container *ngIf="authService.currentUser$ | async as user; else guestUser">
+          <div class="user-profile-badge" (click)="toggleMenu()" title="คลิกเพื่อดูโปรไฟล์">
+            <img [src]="user.avatar" alt="Avatar" class="user-avatar-img" />
+            <span class="user-name-text">{{ user.name }}</span>
+          </div>
+        </ng-container>
+        <ng-template #guestUser>
+          <button (click)="openLoginModal()" class="btn-google-header" title="เข้าสู่ระบบด้วย Google">
+            <svg class="google-icon" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>เข้าสู่ระบบ Google</span>
+          </button>
+        </ng-template>
+
         <button (click)="openCreateModal()" class="btn-primary">
-          ➕ เพิ่มงานใหม่
+          ➕ เพิ่มงาน
+        </button>
+
+        <!-- HAMBURGER MENU BUTTON (3 ขีดฝั่งขวา) -->
+        <button (click)="toggleMenu()" class="btn-hamburger" title="เปิดเมนูตัวเลือก">
+          ☰
         </button>
       </div>
     </div>
@@ -64,7 +94,74 @@
     </div>
   </div>
 
-  <main class="main-container">
+  <!-- LANDING PAGE VIEW (หน้าแรกของเว็บ) -->
+  <section *ngIf="currentView === 'landing'" class="landing-page-container">
+    <div class="landing-hero">
+      <div class="landing-badge">✨ All-in-One Daily Productivity Suite</div>
+      <h1 class="landing-hero-title">
+        โฟกัสสิ่งที่ต้องทำในแต่ละวัน <br/>
+        <span class="gradient-text">เตือนความจำ ปฏิทินการบ้าน และตัวช่วยจัดการครบวงจร</span>
+      </h1>
+      <p class="landing-hero-sub">
+        <strong>Todaprime</strong> เกิดขึ้นมาเพื่อตอบคำถามที่ว่า <em>"What do I need to do today? (วันนี้เราควรทำอะไรดี?)"</em>
+        ช่วยจัดลำดับความสำคัญตามกฎ Eat The Frog, วางแผนตารางการบ้านล่วงหน้า, จับเวลาโฟกัสด้วย Pomodoro และติดตามสร้างนิสัยที่ดีในทุก ๆ วัน
+      </p>
+
+      <div class="landing-cta-buttons">
+        <button (click)="switchToApp()" class="btn-landing-primary">
+          🚀 เข้าสู่กระดานงานทันที (Launch Dashboard)
+        </button>
+        <button (click)="openLoginModal()" class="btn-landing-google" *ngIf="!(authService.currentUser$ | async)">
+          <svg class="google-icon" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          เข้าสู่ระบบด้วย Google
+        </button>
+        <button (click)="openContactModal()" class="btn-landing-secondary">
+          📞 ติดต่อทีมผู้ให้บริการ
+        </button>
+      </div>
+
+      <!-- Feature Grid -->
+      <div class="landing-features-grid mt-12">
+        <div class="landing-feature-card">
+          <div class="feature-icon">🔥</div>
+          <h3 class="feature-title">Prime Focus (Eat The Frog)</h3>
+          <p class="feature-desc">เลือกงานที่สำคัญที่สุดอันดับ 1 ของวัน โฟกัสให้เสร็จก่อนเรื่องอื่นเพื่อผลลัพธ์ที่ก้าวกระโดด</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="feature-icon">📅</div>
+          <h3 class="feature-title">ปฏิทินวางแผน & กำหนดส่งการบ้าน</h3>
+          <p class="feature-desc">ดูภาพรวมทั้งเดือน วางแผนงานล่วงหน้าสำหรับวันพรุ่งนี้ พร้อมป้ายเตือนนับถอยหลังส่งงานอัตโนมัติ</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="feature-icon">⏰</div>
+          <h3 class="feature-title">Smart Reminder & Alarm</h3>
+          <p class="feature-desc">ระบบตรวจจับและส่งเสียงกระดิ่งเตือนเมื่อถึงเวลา ไม่ต้องกลัวลืมภารกิจสำคัญ</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="feature-icon">⏱️</div>
+          <h3 class="feature-title">Pomodoro Focus Timer</h3>
+          <p class="feature-desc">เพิ่มพลังโฟกัสด้วยเทคนิค 25 นาที ผูกเวลากับงานจริงเพื่อบันทึกประวัติการทำงาน</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="feature-icon">🌱</div>
+          <h3 class="feature-title">Daily Habits & Streaks</h3>
+          <p class="feature-desc">สร้างวินัยชีวิต เช็กชื่อกิจกรรมประจำวันพร้อมตัวนับสถิติ 🔥 วันต่อเนื่อง</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="feature-icon">☁️</div>
+          <h3 class="feature-title">Cloud Synced (TiDB Serverless)</h3>
+          <p class="feature-desc">ข้อมูลถูกจัดเก็บและซิงก์บน TiDB Cloud (AWS Singapore) ตลอด 24 ชม. ปลอดภัย รวดเร็ว</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main *ngIf="currentView === 'app'" class="main-container">
     <!-- HERO DASHBOARD: PRIME TASK + STATS + POMODORO + HABITS -->
     <div class="dashboard-grid">
       <!-- 1. PRIME FOCUS (Eat The Frog) -->
@@ -790,6 +887,216 @@
 
       <div class="modal-footer justify-center">
         <button (click)="closeReviewModal()" class="btn-primary">พร้อมลุยวันต่อไป!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT-SIDE DRAWER MENU (เมนู 3 ขีดฝั่งขวา) -->
+  <div *ngIf="isMenuOpen" class="drawer-backdrop" (click)="closeMenu()"></div>
+  <div class="drawer-panel" [class.drawer-open]="isMenuOpen">
+    <div class="drawer-header">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🔥</span>
+        <h3 class="font-bold text-lg">เมนูตัวเลือก Todaprime</h3>
+      </div>
+      <button (click)="closeMenu()" class="btn-drawer-close">×</button>
+    </div>
+
+    <div class="drawer-scroll-body">
+      <!-- User Profile in Drawer -->
+      <div class="drawer-user-box">
+        <ng-container *ngIf="authService.currentUser$ | async as user; else guestDrawer">
+          <div class="flex items-center gap-3">
+            <img [src]="user.avatar" alt="Avatar" class="drawer-avatar" />
+            <div class="flex-1">
+              <div class="font-bold text-sm">{{ user.name }}</div>
+              <div class="text-xs text-muted">{{ user.email }}</div>
+              <span class="google-badge mt-1">🟢 บัญชี Google ยืนยันแล้ว</span>
+            </div>
+          </div>
+          <button (click)="logout()" class="btn-logout-sm mt-3">🚪 ออกจากระบบ</button>
+        </ng-container>
+        <ng-template #guestDrawer>
+          <div class="text-center py-2">
+            <div class="text-xs text-muted mb-2">ยังไม่ได้เข้าสู่ระบบ เข้าสู่ระบบเพื่อซิงก์ข้อมูลส่วนตัว</div>
+            <button (click)="openLoginModal()" class="btn-google-full">
+              <svg class="google-icon" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              เข้าสู่ระบบด้วย Google
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Navigation Section -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">🌟 นำทางระบบ</div>
+        <button (click)="switchToApp(); activeTab = 'tasks'" class="drawer-menu-item" [class.item-active]="currentView === 'app' && activeTab === 'tasks'">
+          <span>📋</span> กระดานจัดการงาน (Dashboard)
+        </button>
+        <button (click)="switchToLanding()" class="drawer-menu-item" [class.item-active]="currentView === 'landing'">
+          <span>🏠</span> หน้าแรกแนะนำระบบ (Landing Page)
+        </button>
+        <button (click)="switchToApp(); activeTab = 'calendar'" class="drawer-menu-item" [class.item-active]="currentView === 'app' && activeTab === 'calendar'">
+          <span>📅</span> ปฏิทินและกำหนดส่งการบ้าน
+        </button>
+        <button (click)="switchToApp(); activeTab = 'timeline'" class="drawer-menu-item" [class.item-active]="currentView === 'app' && activeTab === 'timeline'">
+          <span>🕒</span> ไทม์ไลน์รายชั่วโมง
+        </button>
+        <button (click)="switchToApp(); activeTab = 'habits'" class="drawer-menu-item" [class.item-active]="currentView === 'app' && activeTab === 'habits'">
+          <span>🎯</span> ติดตามนิสัยประจำวัน (Habits)
+        </button>
+      </div>
+
+      <!-- Categories Section (หมวดหมู่การทำงาน) -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">🗂️ หมวดหมู่การทำงาน</div>
+        <div class="drawer-categories-grid">
+          <button (click)="filterByCategory('All')" class="cat-pill-btn">🌐 ทั้งหมด</button>
+          <button (click)="filterByCategory('การบ้าน (Homework)')" class="cat-pill-btn">📚 การบ้าน & การเรียน</button>
+          <button (click)="filterByCategory('โครงงาน (Project)')" class="cat-pill-btn">📝 โครงงาน / รายงาน</button>
+          <button (click)="filterByCategory('เตรียมสอบ (Exam)')" class="cat-pill-btn">🎯 เตรียมสอบ</button>
+          <button (click)="filterByCategory('งานทั่วไป (Work)')" class="cat-pill-btn">💼 งานทั่วไป</button>
+          <button (click)="filterByCategory('ส่วนตัว (Personal)')" class="cat-pill-btn">🏠 ส่วนตัว</button>
+          <button (click)="filterByCategory('สุขภาพ (Health)')" class="cat-pill-btn">❤️ สุขภาพ</button>
+          <button (click)="filterByCategory('ด่วนมาก (Urgent)')" class="cat-pill-btn">🚨 ด่วนมาก</button>
+        </div>
+      </div>
+
+      <!-- Contact Provider Section (การติดต่อผู้ให้บริการอย่างเรา) -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">📞 ติดต่อผู้ให้บริการอย่างเรา</div>
+        <div class="contact-provider-box">
+          <p class="text-xs text-muted mb-3">
+            มีข้อสงสัย ปัญหาการใช้งาน หรือต้องการแนะนำฟีเจอร์ใหม่ สามารถส่งข้อความถึงทีมงานผู้ให้บริการ Todaprime ได้โดยตรงครับ
+          </p>
+          <button (click)="openContactModal()" class="btn-contact-provider">
+            💬 ส่งข้อความถึงผู้พัฒนา / แจ้งปัญหา
+          </button>
+
+          <div class="provider-info-list mt-3">
+            <div class="info-row">
+              <span>👤 ผู้พัฒนา:</span>
+              <strong>ทีม Todaprime (LOOKSx)</strong>
+            </div>
+            <div class="info-row">
+              <span>📧 อีเมล:</span>
+              <a href="mailto:support@todaprime.app" class="text-primary">support&#64;todaprime.app</a>
+            </div>
+            <div class="info-row">
+              <span>🐙 GitHub:</span>
+              <a href="https://github.com/LOOKSx/Todaprime-in-Project" target="_blank" class="text-primary">LOOKSx/Todaprime-in-Project</a>
+            </div>
+            <div class="info-row">
+              <span>☁️ ฐานข้อมูล:</span>
+              <span class="text-success font-semibold">TiDB Cloud (AWS Singapore)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONTACT PROVIDER (ติดต่อผู้ให้บริการอย่างเรา) -->
+  <div *ngIf="isContactModalOpen" class="modal-backdrop" (click)="closeContactModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">📞 ติดต่อทีมงานผู้ให้บริการ Todaprime</h3>
+        <button (click)="closeContactModal()" class="btn-modal-close">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="contactSuccessMessage" class="alert-success-box mb-4">
+          ✅ {{ contactSuccessMessage }}
+        </div>
+
+        <p class="text-sm text-muted mb-4">
+          กรอกข้อมูลและข้อความด้านล่าง ทีมงานผู้ให้บริการจะติดต่อกลับและนำข้อเสนอแนะไปพัฒนาต่อยอดทันทีครับ
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">ชื่อของคุณ *</label>
+          <input type="text" [(ngModel)]="contactName" placeholder="เช่น ก้องภพ, สมชาย..." class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">อีเมลติดต่อกลับ</label>
+          <input type="email" [(ngModel)]="contactEmail" placeholder="your.email@gmail.com" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">เรื่องที่ต้องการติดต่อ</label>
+          <select [(ngModel)]="contactSubject" class="form-select">
+            <option value="สอบถามข้อมูลการใช้งาน">สอบถามข้อมูลการใช้งาน</option>
+            <option value="แจ้งปัญหา / บั๊กของระบบ">แจ้งปัญหา / บั๊กของระบบ</option>
+            <option value="แนะนำฟีเจอร์ใหม่ที่อยากได้">แนะนำฟีเจอร์ใหม่ที่อยากได้</option>
+            <option value="ติดต่องาน / อื่น ๆ">ติดต่องาน / อื่น ๆ</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ข้อความรายละเอียด *</label>
+          <textarea [(ngModel)]="contactMessage" rows="4" placeholder="พิมพ์ข้อความที่ต้องการแจ้งที่นี่..." class="form-textarea"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeContactModal()" class="btn-secondary">ปิด</button>
+        <button (click)="submitContact()" class="btn-primary">📨 ส่งข้อความ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GOOGLE SIGN-IN -->
+  <div *ngIf="isLoginModalOpen" class="modal-backdrop" (click)="closeLoginModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">🔑 เข้าสู่ระบบด้วย Google</h3>
+        <button (click)="closeLoginModal()" class="btn-modal-close">×</button>
+      </div>
+
+      <div class="modal-body text-center">
+        <div class="google-logo-big mb-3">
+          <svg class="google-logo-svg" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+        </div>
+        <h4 class="text-xl font-bold mb-1">ยินดีต้อนรับสู่ Todaprime</h4>
+        <p class="text-xs text-muted mb-6">เข้าสู่ระบบเพื่อจัดเก็บบันทึกงาน การบ้าน และเป้าหมายของคุณ</p>
+
+        <!-- Quick 1-Click Google Login -->
+        <button (click)="loginWithGoogle()" class="btn-google-action mb-4">
+          <svg class="google-icon" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          ดำเนินการต่อด้วย Google ทันที (1-Click)
+        </button>
+
+        <div class="divider-text"><span>หรือระบุชื่อ/อีเมลของคุณเอง</span></div>
+
+        <div class="text-left mt-3">
+          <div class="form-group">
+            <label class="form-label text-xs">ชื่อที่ต้องการแสดง</label>
+            <input type="text" [(ngModel)]="googleNameInput" placeholder="เช่น LOOKSx, ธนภัทร" class="form-input text-sm" />
+          </div>
+          <div class="form-group">
+            <label class="form-label text-xs">อีเมล Google</label>
+            <input type="email" [(ngModel)]="googleEmailInput" placeholder="your.name@gmail.com" class="form-input text-sm" />
+          </div>
+          <button (click)="loginCustomGoogle()" class="btn-primary w-full mt-2">
+            บันทึกและเข้าสู่ระบบ
+          </button>
+        </div>
       </div>
     </div>
   </div>
