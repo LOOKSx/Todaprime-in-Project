@@ -105,6 +105,9 @@ export class AppComponent implements OnInit, OnDestroy {
     public authService: AuthService
   ) {}
 
+  // Category Dropdown Accordion State
+  public isCategoryMenuExpanded: boolean = false;
+
   // Drawer Menu Handlers
   public toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
@@ -112,6 +115,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public closeMenu(): void {
     this.isMenuOpen = false;
+    this.isCategoryMenuExpanded = false;
+  }
+
+  public toggleCategoryMenu(): void {
+    this.isCategoryMenuExpanded = !this.isCategoryMenuExpanded;
   }
 
   // Navigation View Switcher
@@ -185,6 +193,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public filterByCategory(cat: string): void {
     this.selectedCategory = cat;
     this.activeTab = 'tasks';
+    this.isCategoryMenuExpanded = false;
     this.switchToApp();
     this.loadData();
   }

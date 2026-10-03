@@ -889,100 +889,88 @@
     </div>
 
     <div class="drawer-scroll-body">
-      <!-- 1. CATEGORIES SELECTOR (หมวดหมู่การทำงาน - แสดงเป็นส่วนแรกสุด) -->
+      <!-- 1. CATEGORIES SELECTOR (คลิกเพื่อเลือกหมวดหมู่ - ดีไซน์กะทัดรัดไม่รกตา) -->
       <div class="drawer-section">
-        <div class="drawer-section-header">
-          <div class="drawer-section-title">🗂️ เลือกหมวดหมู่การทำงาน</div>
-          <span class="text-xs text-muted">คลิกเพื่อกรองงาน</span>
-        </div>
-
-        <div class="drawer-categories-list">
-          <button (click)="filterByCategory('All')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'All'">
-            <div class="cat-card-left">
-              <span class="cat-icon">🌐</span>
-              <div class="cat-card-info">
-                <span class="cat-name">ทั้งหมด (All Tasks)</span>
-                <span class="cat-sub">แสดงภารกิจทุกประเภท</span>
+        <button (click)="toggleCategoryMenu()" class="drawer-cat-accordion-btn" [class.is-expanded]="isCategoryMenuExpanded" title="คลิกเพื่อเลือกดูหมวดหมู่ทั้งหมด">
+          <div class="flex items-center gap-3">
+            <span class="cat-accordion-icon">🗂️</span>
+            <div>
+              <div class="font-bold text-sm text-left">หมวดหมู่การทำงาน</div>
+              <div class="text-xs text-primary font-semibold text-left">
+                {{ selectedCategory === 'All' ? '🌐 ทั้งหมด (All Tasks)' : selectedCategory }}
               </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs text-muted">{{ isCategoryMenuExpanded ? 'ซ่อน' : 'เลือกหมวดหมู่' }}</span>
+            <span class="chevron-arrow" [class.rotated]="isCategoryMenuExpanded">▼</span>
+          </div>
+        </button>
+
+        <!-- หมวดหมู่ทั้งหมด จะแสดงขึ้นมาเมื่อคลิก (Expandable Categories) -->
+        <div *ngIf="isCategoryMenuExpanded" class="drawer-categories-dropdown animate-fadeIn">
+          <button (click)="filterByCategory('All')" class="compact-cat-item" [class.cat-active]="selectedCategory === 'All'">
+            <div class="flex items-center gap-2">
+              <span>🌐</span>
+              <span class="cat-text">ทั้งหมด (All Tasks)</span>
             </div>
             <span *ngIf="selectedCategory === 'All'" class="cat-check">✓</span>
           </button>
 
-          <button (click)="filterByCategory('การบ้าน (Homework)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'การบ้าน (Homework)'">
-            <div class="cat-card-left">
-              <span class="cat-icon">📚</span>
-              <div class="cat-card-info">
-                <span class="cat-name">การบ้าน & การเรียน</span>
-                <span class="cat-sub">การบ้าน แบบฝึกหัด รายวิชา</span>
-              </div>
+          <button (click)="filterByCategory('การบ้าน (Homework)')" class="compact-cat-item" [class.cat-active]="selectedCategory === 'การบ้าน (Homework)'">
+            <div class="flex items-center gap-2">
+              <span>📚</span>
+              <span class="cat-text">การบ้าน & การเรียน</span>
             </div>
             <span *ngIf="selectedCategory === 'การบ้าน (Homework)'" class="cat-check">✓</span>
           </button>
 
-          <button (click)="filterByCategory('โครงงาน (Project)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'โครงงาน (Project)'">
-            <div class="cat-card-left">
-              <span class="cat-icon">📝</span>
-              <div class="cat-card-info">
-                <span class="cat-name">โครงงาน / รายงาน</span>
-                <span class="cat-sub">รายงานกลุ่ม นำเสนอ โปรเจกต์</span>
-              </div>
+          <button (click)="filterByCategory('โครงงาน (Project)')" class="compact-cat-item" [class.cat-active]="selectedCategory === 'โครงงาน (Project)'">
+            <div class="flex items-center gap-2">
+              <span>📝</span>
+              <span class="cat-text">โครงงาน / รายงาน</span>
             </div>
             <span *ngIf="selectedCategory === 'โครงงาน (Project)'" class="cat-check">✓</span>
           </button>
 
-          <button (click)="filterByCategory('เตรียมสอบ (Exam)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'เตรียมสอบ (Exam)'">
-            <div class="cat-card-left">
-              <span class="cat-icon">🎯</span>
-              <div class="cat-card-info">
-                <span class="cat-name">เตรียมสอบ (Exam)</span>
-                <span class="cat-sub">อ่านหนังสือ ติว สรุปบทเรียน</span>
-              </div>
+          <button (click)="filterByCategory('เตรียมสอบ (Exam)')" class="compact-cat-item" [class.cat-active]="selectedCategory === 'เตรียมสอบ (Exam)'">
+            <div class="flex items-center gap-2">
+              <span>🎯</span>
+              <span class="cat-text">เตรียมสอบ (Exam)</span>
             </div>
             <span *ngIf="selectedCategory === 'เตรียมสอบ (Exam)'" class="cat-check">✓</span>
           </button>
 
-          <button (click)="filterByCategory('งานทั่วไป (Work)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'งานทั่วไป (Work)'">
-            <div class="cat-card-left">
-              <span class="cat-icon">💼</span>
-              <div class="cat-card-info">
-                <span class="cat-name">งานทั่วไป & ออฟฟิศ</span>
-                <span class="cat-sub">งานบริษัท ประชุม งานพาร์ทไทม์</span>
-              </div>
+          <button (click)="filterByCategory('งานทั่วไป (Work)')" class="compact-cat-item" [class.cat-active]="selectedCategory === 'งานทั่วไป (Work)'">
+            <div class="flex items-center gap-2">
+              <span>💼</span>
+              <span class="cat-text">งานทั่วไป & ออฟฟิศ</span>
             </div>
             <span *ngIf="selectedCategory === 'งานทั่วไป (Work)'" class="cat-check">✓</span>
           </button>
 
-          <button (click)="filterByCategory('ส่วนตัว (Personal)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'ส่วนตัว (Personal)'">
-            <div class="cat-card-left">
-              <span class="cat-icon">🏠</span>
-              <div class="cat-card-info">
-                <span class="cat-name">เรื่องส่วนตัว & ครอบครัว</span>
-                <span class="cat-sub">งานบ้าน ธุระ ซื้อของใช้</span>
-              </div>
+          <button (click)="filterByCategory('ส่วนตัว (Personal)')" class="compact-cat-item" [class.cat-active]="selectedCategory === 'ส่วนตัว (Personal)'">
+            <div class="flex items-center gap-2">
+              <span>🏠</span>
+              <span class="cat-text">เรื่องส่วนตัว & ครอบครัว</span>
             </div>
             <span *ngIf="selectedCategory === 'ส่วนตัว (Personal)'" class="cat-check">✓</span>
           </button>
 
-          <button (click)="filterByCategory('สุขภาพ (Health)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'สุขภาพ (Health)'">
-            <div class="cat-card-left">
-              <span class="cat-icon">❤️</span>
-              <div class="cat-card-info">
-                <span class="cat-name">สุขภาพ & ออกกำลังกาย</span>
-                <span class="cat-sub">วิ่ง ฟิตเนส ทานยา พักผ่อน</span>
-              </div>
+          <button (click)="filterByCategory('สุขภาพ (Health)')" class="compact-cat-item" [class.cat-active]="selectedCategory === 'สุขภาพ (Health)'">
+            <div class="flex items-center gap-2">
+              <span>❤️</span>
+              <span class="cat-text">สุขภาพ & ออกกำลังกาย</span>
             </div>
             <span *ngIf="selectedCategory === 'สุขภาพ (Health)'" class="cat-check">✓</span>
           </button>
 
-          <button (click)="filterByCategory('ด่วนมาก (Urgent)')" class="drawer-cat-card" [class.cat-active]="selectedCategory === 'ด่วนมาก (Urgent)'">
-            <div class="cat-card-left">
-              <span class="cat-icon">🚨</span>
-              <div class="cat-card-info">
-                <span class="cat-name text-danger">ด่วนมาก (Urgent)</span>
-                <span class="cat-sub">งานด่วนสำคัญที่สุด ต้องเสร็จทันที</span>
-              </div>
+          <button (click)="filterByCategory('ด่วนมาก (Urgent)')" class="compact-cat-item compact-cat-urgent" [class.cat-active]="selectedCategory === 'ด่วนมาก (Urgent)'">
+            <div class="flex items-center gap-2">
+              <span>🚨</span>
+              <span class="cat-text text-danger font-semibold">ด่วนมาก (Urgent)</span>
             </div>
-            <span *ngIf="selectedCategory === 'ด่วนมาก (Urgent)'" class="cat-check">✓</span>
+            <span *ngIf="selectedCategory === 'ด่วนมาก (Urgent)'" class="cat-check text-danger">✓</span>
           </button>
         </div>
       </div>
