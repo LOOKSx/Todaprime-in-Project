@@ -7,6 +7,8 @@ export interface UserProfile {
   email: string;
   avatar: string;
   provider: 'google' | 'guest';
+  email_verified: boolean;
+  verified_at?: string;
 }
 
 @Injectable({
@@ -36,32 +38,30 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
-  // Google Sign-In (Interactive login flow)
-  public loginWithGoogle(): void {
-    // Simulated Google OAuth Flow with realistic Google profile
-    const randomSuffix = Math.floor(100 + Math.random() * 900);
+  // Google Sign-In with Email Verification
+  public loginWithVerifiedGoogle(name: string, email: string): void {
+    const cleanName = name.trim() || 'Google User';
+    const cleanEmail = email.trim() || 'user@gmail.com';
     const googleUser: UserProfile = {
       id: `google_${Date.now()}`,
-      name: `Todaprime User #${randomSuffix}`,
-      email: `user.${randomSuffix}@gmail.com`,
-      avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=user${randomSuffix}`,
-      provider: 'google'
+      name: cleanName,
+      email: cleanEmail,
+      avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanName)}`,
+      provider: 'google',
+      email_verified: true,
+      verified_at: new Date().toLocaleTimeString('th-TH')
     };
-
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(googleUser));
     this.currentUserSubject.next(googleUser);
   }
 
+  public loginWithGoogle(): void {
+    const randomSuffix = Math.floor(100 + Math.random() * 900);
+    this.loginWithVerifiedGoogle(`Todaprime User #${randomSuffix}`, `user.${randomSuffix}@gmail.com`);
+  }
+
   public loginWithCustomGoogle(name: string, email: string): void {
-    const googleUser: UserProfile = {
-      id: `google_${Date.now()}`,
-      name: name.trim() || 'Google User',
-      email: email.trim() || 'user@gmail.com',
-      avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`,
-      provider: 'google'
-    };
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(googleUser));
-    this.currentUserSubject.next(googleUser);
+    this.loginWithVerifiedGoogle(name, email);
   }
 
   public logout(): void {

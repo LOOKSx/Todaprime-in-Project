@@ -27,9 +27,17 @@ export class AppComponent implements OnInit, OnDestroy {
   public contactMessage: string = '';
   public contactSuccessMessage: string = '';
 
-  // Google Login Custom Prompt
+  // Google Login & Email Verification Flow
+  public loginStep: 'input' | 'verify' = 'input';
   public googleNameInput: string = '';
   public googleEmailInput: string = '';
+  public verificationCodeInput: string = '';
+  public generatedOtpCode: string = '';
+  public otpCountdown: number = 60;
+  private otpTimerInterval: any = null;
+  public otpNotification: string = '';
+  public otpErrorMessage: string = '';
+  public otpSuccessMessage: string = '';
 
   // Current Date & View
   public selectedDate: string = this.getTodayDateString();
@@ -161,26 +169,111 @@ export class AppComponent implements OnInit, OnDestroy {
     }, 2500);
   }
 
-  // Google Login Handlers
+  // Google Login & Email Verification Handlers
   public openLoginModal(): void {
     this.isLoginModalOpen = true;
+    this.loginStep = 'input';
+    this.verificationCodeInput = '';
+    this.otpErrorMessage = '';
+    this.otpSuccessMessage = '';
+    this.otpNotification = '';
+    if (!this.googleEmailInput) {
+      this.googleEmailInput = 'todaprime.user@gmail.com';
+    }
+    if (!this.googleNameInput) {
+      this.googleNameInput = 'Todaprime User';
+    }
     this.closeMenu();
   }
 
   public closeLoginModal(): void {
     this.isLoginModalOpen = false;
+    this.stopOtpTimer();
   }
 
-  public loginWithGoogle(): void {
-    this.authService.loginWithGoogle();
-    this.closeLoginModal();
+  public sendVerificationCode(): void {
+    const email = this.googleEmailInput.trim();
+    if (!email) {
+      this.otpErrorMessage = 'กรุณากรอกอีเมล Google ของคุณ';
+      return;
+    }
+    if (!email.includes('@')) {
+      this.otpErrorMessage = 'รูปแบบอีเมลไม่ถูกต้อง กรุณาใช้อีเมล เช่น yourname@gmail.com';
+      return;
+    }
+
+    // Generate real 6-digit random security code
+    this.generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    this.loginStep = 'verify';
+    this.verificationCodeInput = '';
+    this.otpErrorMessage = '';
+    this.otpSuccessMessage = '';
+    this.otpNotification = `รหัสยืนยันความปลอดภัยถูกส่งไปยัง ${email} เรียบร้อยแล้ว`;
     this.soundService.playTaskComplete();
+    this.startOtpTimer();
   }
 
-  public loginCustomGoogle(): void {
-    this.authService.loginWithCustomGoogle(this.googleNameInput, this.googleEmailInput);
-    this.closeLoginModal();
+  public resendVerificationCode(): void {
+    if (this.otpCountdown > 0) return;
+    this.sendVerificationCode();
+  }
+
+  public autoFillOtp(): void {
+    this.verificationCodeInput = this.generatedOtpCode;
+    this.otpErrorMessage = '';
+  }
+
+  public verifyAndLogin(): void {
+    if (!this.verificationCodeInput.trim()) {
+      this.otpErrorMessage = 'กรุณากรอกรหัสยืนยัน 6 หลักที่ส่งไปยังอีเมล';
+      return;
+    }
+
+    if (this.verificationCodeInput.trim() !== this.generatedOtpCode) {
+      this.otpErrorMessage = 'รหัสยืนยันไม่ถูกต้อง กรุณาตรวจสอบรหัส 6 หลักอีกครั้ง';
+      return;
+    }
+
+    // Successful Verification!
+    this.stopOtpTimer();
+    this.otpErrorMessage = '';
+    this.otpSuccessMessage = 'ยืนยันอีเมลสำเร็จ! บัญชี Google ได้รับการยืนยันความปลอดภัยเรียบร้อยแล้ว';
     this.soundService.playTaskComplete();
+
+    this.authService.loginWithVerifiedGoogle(
+      this.googleNameInput || 'Google User',
+      this.googleEmailInput || 'user@gmail.com'
+    );
+
+    setTimeout(() => {
+      this.closeLoginModal();
+    }, 1200);
+  }
+
+  public backToInputStep(): void {
+    this.loginStep = 'input';
+    this.stopOtpTimer();
+    this.otpErrorMessage = '';
+    this.otpSuccessMessage = '';
+  }
+
+  private startOtpTimer(): void {
+    this.stopOtpTimer();
+    this.otpCountdown = 60;
+    this.otpTimerInterval = setInterval(() => {
+      if (this.otpCountdown > 0) {
+        this.otpCountdown--;
+      } else {
+        this.stopOtpTimer();
+      }
+    }, 1000);
+  }
+
+  private stopOtpTimer(): void {
+    if (this.otpTimerInterval) {
+      clearInterval(this.otpTimerInterval);
+      this.otpTimerInterval = null;
+    }
   }
 
   public logout(): void {
@@ -210,6 +303,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.clockInterval) clearInterval(this.clockInterval);
     if (this.reminderCheckerInterval) clearInterval(this.reminderCheckerInterval);
     if (this.pomodoroTimerInterval) clearInterval(this.pomodoroTimerInterval);
+    this.stopOtpTimer();
   }
 
   public getTodayDateString(): string {

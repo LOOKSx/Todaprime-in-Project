@@ -2030,6 +2030,115 @@
   padding: 0 0.5rem;
 }
 
+/* EMAIL VERIFICATION (OTP) STYLES */
+.alert-error-box {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.alert-info-box {
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid var(--primary);
+  color: var(--text-main);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.security-badge-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.btn-xs-autofill {
+  background: var(--primary);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-xs-autofill:hover {
+  filter: brightness(1.15);
+  transform: scale(1.03);
+}
+
+.otp-input-container {
+  display: flex;
+  justify-content: center;
+  margin: 1.25rem 0;
+}
+
+.otp-code-input {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 12px;
+  text-align: center;
+  padding: 0.6rem 1rem;
+  width: 220px;
+  background: var(--bg-surface-elevated);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
+  outline: none;
+}
+
+.otp-code-input:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+}
+
+.resend-box {
+  min-height: 24px;
+}
+
+.btn-resend-otp {
+  background: transparent;
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.btn-resend-otp:hover {
+  color: #818cf8;
+}
+
+.btn-verify-submit {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-verify-submit:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn-back-step {
+  background: transparent;
+  cursor: pointer;
+}
+
+.btn-back-step:hover {
+  color: var(--text-main);
+}
+
 .w-full { width: 100%; }
 .mt-12 { margin-top: 3rem; }
 
