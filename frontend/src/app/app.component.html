@@ -10,22 +10,14 @@
         </div>
       </div>
 
-      <!-- Right Side: 3-Bar Hamburger Menu Button & Category Selector -->
+      <!-- Right Side: 3-Bar Hamburger Menu Button ONLY (ปุ่ม 3 ขีดอย่างเดียว) -->
       <div class="header-right">
-        <!-- Active Category Badge (if any filter active) -->
-        <button *ngIf="selectedCategory !== 'All'" (click)="toggleMenu()" class="header-active-cat-btn" title="คลิกเพื่อเปลี่ยนหมวดหมู่">
-          <span class="cat-dot"></span>
-          <span>หมวดหมู่: {{ selectedCategory }}</span>
-        </button>
-
-        <!-- 3-line hamburger button -->
-        <button (click)="toggleMenu()" class="btn-hamburger" title="เปิดเมนูและเลือกหมวดหมู่ต่างๆ" aria-label="เมนู">
+        <button (click)="toggleMenu()" class="btn-hamburger" title="เมนูตัวเลือก" aria-label="เมนู">
           <div class="hamburger-lines">
             <span class="line"></span>
             <span class="line"></span>
             <span class="line"></span>
           </div>
-          <span class="hamburger-text">หมวดหมู่ & เมนู</span>
         </button>
       </div>
     </div>

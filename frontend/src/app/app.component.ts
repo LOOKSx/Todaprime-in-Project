@@ -14,8 +14,8 @@ import { Task, Subtask, Habit, TodayStats, Priority, RecurringType } from './mod
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
-  // Navigation View (App Dashboard vs Landing Page)
-  public currentView: 'app' | 'landing' = 'app';
+  // Navigation View (App Dashboard vs Landing Page) - Default to Landing page
+  public currentView: 'app' | 'landing' = 'landing';
   public isMenuOpen: boolean = false;
   public isContactModalOpen: boolean = false;
   public isLoginModalOpen: boolean = false;
