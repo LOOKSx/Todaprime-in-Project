@@ -1,0 +1,647 @@
+<div [class.dark]="isDarkMode" class="min-h-screen bg-app transition-colors duration-300">
+  <!-- TOP NAVBAR -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo-group">
+        <div class="logo-icon">🔥</div>
+        <div>
+          <h1 class="logo-title">Todaprime</h1>
+          <p class="logo-subtitle">What do I need to do today? · วันนี้ต้องทำอะไร</p>
+        </div>
+      </div>
+
+      <!-- Live Clock & Date Controls -->
+      <div class="date-controls">
+        <button (click)="setDateOffset(-1)" class="btn-icon" title="วันก่อนหน้า">◀</button>
+        <button (click)="resetToToday()" class="btn-date" [class.active-today]="selectedDate === getTodayDateString()">
+          📅 {{ displayDateText }}
+        </button>
+        <button (click)="setDateOffset(1)" class="btn-icon" title="วันถัดไป">▶</button>
+        <input type="date" [(ngModel)]="selectedDate" (change)="loadData()" class="input-date" />
+        <span class="live-clock">🕒 {{ currentTimeStr }}</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <button (click)="testReminderSound()" class="btn-secondary" title="ทดสอบเสียงกระดิ่งเตือน">
+          🔔 ทดสอบเสียง
+        </button>
+        <button (click)="soundService.toggleSound()" class="btn-icon" [title]="soundService.isSoundEnabled() ? 'ปิดเสียง' : 'เปิดเสียง'">
+          {{ soundService.isSoundEnabled() ? '🔊' : '🔇' }}
+        </button>
+        <button (click)="toggleTheme()" class="btn-icon" [title]="isDarkMode ? 'เปลี่ยนเป็นธีมสว่าง' : 'เปลี่ยนเป็นธีมมืด'">
+          {{ isDarkMode ? '☀️' : '🌙' }}
+        </button>
+        <button (click)="openCreateModal()" class="btn-primary">
+          ➕ เพิ่มงานใหม่
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ACTIVE ALARM BANNER (When due time arrives) -->
+  <div *ngIf="activeAlarmTask" class="alarm-banner animate-bounce-slow">
+    <div class="alarm-content">
+      <div class="alarm-icon">⏰</div>
+      <div>
+        <div class="alarm-title">ได้เวลาทำภารกิจแล้ว! ({{ activeAlarmTask.due_time }})</div>
+        <div class="alarm-task-name">{{ activeAlarmTask.title }}</div>
+      </div>
+    </div>
+    <div class="alarm-actions">
+      <button (click)="startPomodoroForTask(activeAlarmTask); dismissAlarm()" class="btn-alarm-focus">
+        🎯 เริ่มจับเวลา 25 นาที
+      </button>
+      <button (click)="toggleTask(activeAlarmTask); dismissAlarm()" class="btn-alarm-done">
+        ✅ ทำเสร็จแล้ว
+      </button>
+      <button (click)="dismissAlarm()" class="btn-alarm-dismiss">
+        ✖ ปิดการเตือน
+      </button>
+    </div>
+  </div>
+
+  <main class="main-container">
+    <!-- HERO DASHBOARD: PRIME TASK + STATS + POMODORO + HABITS -->
+    <div class="dashboard-grid">
+      <!-- 1. PRIME FOCUS (Eat The Frog) -->
+      <div class="card prime-card">
+        <div class="card-header">
+          <div class="card-badge prime-badge">🔥 PRIME FOCUS (ภารกิจอันดับ 1)</div>
+          <span class="text-xs text-muted">กฎ 1 ข้อสำคัญที่สุดของวัน</span>
+        </div>
+
+        <ng-container *ngIf="taskService.tasks$ | async as allTasks">
+          <div *ngIf="getPrimeTasks(allTasks).length > 0; else noPrime">
+            <div *ngFor="let prime of getPrimeTasks(allTasks).slice(0, 1)" class="prime-body">
+              <div class="prime-title-row">
+                <input type="checkbox" [checked]="prime.is_completed" (change)="toggleTask(prime)" class="checkbox-large" />
+                <h3 class="prime-title">{{ prime.title }}</h3>
+              </div>
+              <p *ngIf="prime.description" class="prime-desc">{{ prime.description }}</p>
+              
+              <div class="prime-meta">
+                <span class="tag-time">⏰ {{ prime.due_time || 'ไม่ระบุเวลา' }}</span>
+                <span class="tag-category">{{ prime.category }}</span>
+                <span class="tag-est">⏱️ ประเมิน {{ prime.estimated_minutes }} นาที</span>
+              </div>
+
+              <!-- Subtasks Progress -->
+              <div *ngIf="prime.subtasks && prime.subtasks.length > 0" class="subtask-progress-box">
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" [style.width.%]="getSubtasksProgress(prime)"></div>
+                </div>
+                <div class="text-xs text-muted mt-1">
+                  ขั้นตอนย่อย: {{ getCompletedSubtasksCount(prime) }} / {{ prime.subtasks.length }} สำเร็จ
+                </div>
+              </div>
+
+              <div class="prime-actions">
+                <button (click)="startPomodoroForTask(prime)" class="btn-focus">
+                  🎯 โฟกัสงานนี้ด้วย Pomodoro
+                </button>
+                <button (click)="openEditModal(prime)" class="btn-edit-sm">✏️ แก้ไข</button>
+              </div>
+            </div>
+          </div>
+          <ng-template #noPrime>
+            <div class="empty-prime">
+              <p class="text-muted">ยังไม่ได้กำหนดภารกิจสำคัญอันดับ 1 (Prime Task) สำหรับวันนี้</p>
+              <button (click)="openCreateModal()" class="btn-outline-sm mt-2">
+                ⭐ เลือกหรือสร้าง Prime Task ตอนนี้
+              </button>
+            </div>
+          </ng-template>
+        </ng-container>
+      </div>
+
+      <!-- 2. DAILY PROGRESS & STATS -->
+      <div class="card stats-card" *ngIf="taskService.stats$ | async as stats">
+        <div class="card-header">
+          <span class="card-title">📊 ความก้าวหน้าวันนี้</span>
+          <button (click)="showReviewModal = true" class="btn-review-sm">🏆 สรุปผล</button>
+        </div>
+
+        <div class="stats-overview">
+          <div class="circle-progress-container">
+            <div class="circle-stat">
+              <span class="circle-pct">{{ stats.completion_rate | number:'1.0-0' }}%</span>
+              <span class="circle-label">สำเร็จแล้ว</span>
+            </div>
+          </div>
+
+          <div class="stats-details">
+            <div class="stat-row">
+              <span>📋 งานทั้งหมด:</span>
+              <strong>{{ stats.total_tasks }} งาน</strong>
+            </div>
+            <div class="stat-row text-success">
+              <span>✅ ทำเสร็จแล้ว:</span>
+              <strong>{{ stats.completed_tasks }} งาน</strong>
+            </div>
+            <div class="stat-row text-warning">
+              <span>⏳ ค้างอยู่:</span>
+              <strong>{{ stats.pending_tasks }} งาน</strong>
+            </div>
+            <div *ngIf="stats.overdue_count > 0" class="stat-row text-danger">
+              <span>⚠️ เลยกำหนด:</span>
+              <strong>{{ stats.overdue_count }} งาน</strong>
+            </div>
+            <div class="stat-row text-info">
+              <span>⏱️ เวลาที่โฟกัส:</span>
+              <strong>{{ stats.total_focus_minutes }} นาที</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-bg mt-3">
+          <div class="progress-bar-fill bg-gradient-primary" [style.width.%]="stats.completion_rate"></div>
+        </div>
+      </div>
+
+      <!-- 3. POMODORO FOCUS TIMER -->
+      <div class="card pomodoro-card">
+        <div class="card-header">
+          <span class="card-title">⏱️ Pomodoro Focus</span>
+          <div class="pomo-mode-tabs">
+            <button (click)="setPomodoroMode('focus')" [class.active]="pomodoroMode === 'focus'">โฟกัส 25m</button>
+            <button (click)="setPomodoroMode('short_break')" [class.active]="pomodoroMode === 'short_break'">พัก 5m</button>
+            <button (click)="setPomodoroMode('long_break')" [class.active]="pomodoroMode === 'long_break'">พักยาว 15m</button>
+          </div>
+        </div>
+
+        <div class="pomodoro-timer-display">
+          <div class="timer-digits">
+            {{ pomodoroMinutes | number:'2.0-0' }}:{{ pomodoroSeconds | number:'2.0-0' }}
+          </div>
+          <div class="timer-subtext">
+            {{ pomodoroLinkedTask ? '📌 กำลังโฟกัส: ' + pomodoroLinkedTask.title : 'ช่วงเวลาโฟกัสต่อเนื่อง' }}
+          </div>
+        </div>
+
+        <div class="pomodoro-controls">
+          <button *ngIf="!pomodoroRunning" (click)="startPomodoro()" class="btn-pomo-start">▶ เริ่มต้น</button>
+          <button *ngIf="pomodoroRunning" (click)="pausePomodoro()" class="btn-pomo-pause">⏸ หยุดชั่วคราว</button>
+          <button (click)="resetPomodoro()" class="btn-pomo-reset">🔄 รีเซ็ต</button>
+        </div>
+      </div>
+
+      <!-- 4. DAILY HABITS TRACKER -->
+      <div class="card habits-card">
+        <div class="card-header">
+          <span class="card-title">🌱 นิสัยประจำวัน (Habits)</span>
+          <button (click)="showHabitModal = true" class="btn-add-habit-sm">➕ เพิ่มนิสัย</button>
+        </div>
+
+        <div class="habits-list" *ngIf="taskService.habits$ | async as habits">
+          <div *ngFor="let h of habits" class="habit-item" [class.habit-done]="h.completed_today">
+            <button (click)="toggleHabit(h)" class="habit-check-btn" [class.checked]="h.completed_today">
+              {{ h.completed_today ? '✔' : h.icon }}
+            </button>
+            <div class="habit-info">
+              <div class="habit-title">{{ h.title }}</div>
+              <div class="habit-streak">🔥 ต่อเนื่อง {{ h.streak }} วัน</div>
+            </div>
+            <button (click)="deleteHabit(h.id)" class="btn-del-sm" title="ลบ">🗑️</button>
+          </div>
+          <div *ngIf="habits.length === 0" class="text-xs text-muted text-center py-2">
+            ยังไม่มีรายการนิสัย กดปุ่มเพิ่มนิสัยได้เลย
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN SECTION: TABS & QUICK ADD -->
+    <div class="content-header mt-6">
+      <div class="tab-pills">
+        <button (click)="activeTab = 'tasks'" [class.active]="activeTab === 'tasks'" class="tab-pill">
+          📋 รายการงานประจำวัน
+        </button>
+        <button (click)="activeTab = 'timeline'" [class.active]="activeTab === 'timeline'" class="tab-pill">
+          🕒 ไทม์ไลน์รายชั่วโมง (Timeline)
+        </button>
+        <button (click)="activeTab = 'habits'" [class.active]="activeTab === 'habits'" class="tab-pill">
+          🎯 ติดตามนิสัย & สถิติ
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 1: TASKS VIEW -->
+    <section *ngIf="activeTab === 'tasks'" class="task-section mt-4">
+      <!-- QUICK ADD BAR -->
+      <div class="quick-add-bar">
+        <div class="quick-add-input-group">
+          <span class="quick-icon">⚡</span>
+          <input 
+            type="text" 
+            [(ngModel)]="quickTitle" 
+            (keyup.enter)="submitQuickAdd()"
+            placeholder="สิ่งที่ต้องทำวันนี้... (พิมพ์แล้วกด Enter เพื่อเพิ่มทันที)" 
+            class="input-quick" 
+          />
+        </div>
+
+        <div class="quick-add-options">
+          <input type="time" [(ngModel)]="quickDueTime" class="input-time-sm" title="เวลาแจ้งเตือน" />
+          
+          <select [(ngModel)]="quickPriority" class="select-sm">
+            <option value="PRIME">⭐ PRIME (สำคัญสุด)</option>
+            <option value="HIGH">🔴 High (ด่วนมาก)</option>
+            <option value="MEDIUM">🟡 Medium (ปกติ)</option>
+            <option value="LOW">🔵 Low (ทั่วไป)</option>
+          </select>
+
+          <select [(ngModel)]="quickCategory" class="select-sm">
+            <option *ngFor="let cat of taskService.categories$ | async" [value]="cat.name">
+              {{ cat.icon }} {{ cat.name }}
+            </option>
+          </select>
+
+          <button (click)="submitQuickAdd()" class="btn-quick-add">
+            ➕ เพิ่มลงวันนี้
+          </button>
+        </div>
+      </div>
+
+      <!-- FILTER & SEARCH BAR -->
+      <div class="filters-bar mt-4">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input 
+            type="text" 
+            [(ngModel)]="searchQuery" 
+            (input)="onFilterChange()" 
+            placeholder="ค้นหางาน หรือ รายละเอียด..." 
+            class="input-search" 
+          />
+        </div>
+
+        <div class="filter-group">
+          <!-- Status Filter -->
+          <div class="segmented-control">
+            <button (click)="selectedStatus = 'all'; onFilterChange()" [class.active]="selectedStatus === 'all'">ทั้งหมด</button>
+            <button (click)="selectedStatus = 'active'; onFilterChange()" [class.active]="selectedStatus === 'active'">ยังไม่เสร็จ</button>
+            <button (click)="selectedStatus = 'completed'; onFilterChange()" [class.active]="selectedStatus === 'completed'">เสร็จแล้ว</button>
+          </div>
+
+          <!-- Category Filter -->
+          <select [(ngModel)]="selectedCategory" (change)="onFilterChange()" class="select-filter">
+            <option value="All">ทุกหมวดหมู่ (All)</option>
+            <option *ngFor="let cat of taskService.categories$ | async" [value]="cat.name">
+              {{ cat.icon }} {{ cat.name }}
+            </option>
+          </select>
+
+          <!-- Priority Filter -->
+          <select [(ngModel)]="selectedPriority" (change)="onFilterChange()" class="select-filter">
+            <option value="All">ทุกระดับความสำคัญ</option>
+            <option value="PRIME">⭐ Prime Only</option>
+            <option value="HIGH">🔴 High</option>
+            <option value="MEDIUM">🟡 Medium</option>
+            <option value="LOW">🔵 Low</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- TASK LIST -->
+      <div class="tasks-container mt-4" *ngIf="taskService.tasks$ | async as tasks">
+        <div *ngIf="tasks.length === 0" class="empty-state">
+          <div class="empty-icon">🎉</div>
+          <h3>ไม่มีงานค้างสำหรับวันนี้!</h3>
+          <p class="text-muted">คุณทำภารกิจครบหมดแล้ว หรือยังไม่ได้เพิ่มงานใหม่</p>
+          <button (click)="openCreateModal()" class="btn-primary mt-3">➕ เพิ่มงานใหม่ตอนนี้</button>
+        </div>
+
+        <div *ngFor="let task of tasks" class="task-card" [class.task-done]="task.is_completed" [class.task-prime-border]="task.is_prime">
+          <div class="task-main">
+            <!-- Left: Checkbox & Star -->
+            <div class="task-left">
+              <input 
+                type="checkbox" 
+                [checked]="task.is_completed" 
+                (change)="toggleTask(task)" 
+                class="task-checkbox" 
+              />
+              <button 
+                (click)="togglePrime(task, $event)" 
+                class="star-btn" 
+                [class.starred]="task.is_prime"
+                title="ตั้งเป็นภารกิจหลัก (Prime Task)">
+                {{ task.is_prime ? '⭐' : '☆' }}
+              </button>
+            </div>
+
+            <!-- Center: Title, Desc, Meta -->
+            <div class="task-body">
+              <div class="task-title-row">
+                <span class="task-title" [class.strikethrough]="task.is_completed">{{ task.title }}</span>
+                
+                <!-- Priority Badge -->
+                <span class="badge priority-badge" [ngClass]="'p-' + task.priority.toLowerCase()">
+                  {{ task.priority }}
+                </span>
+
+                <!-- Category Badge -->
+                <span class="badge category-badge">
+                  {{ task.category }}
+                </span>
+
+                <!-- Recurring Badge -->
+                <span *ngIf="task.recurring && task.recurring !== 'none'" class="badge recurring-badge">
+                  🔁 {{ task.recurring }}
+                </span>
+              </div>
+
+              <p *ngIf="task.description" class="task-desc">{{ task.description }}</p>
+
+              <!-- Meta info -->
+              <div class="task-meta-row">
+                <span *ngIf="task.due_time" class="meta-item">
+                  ⏰ {{ task.due_time }}
+                  <span *ngIf="task.reminder_enabled" title="เปิดการแจ้งเตือน">🔔</span>
+                </span>
+                <span class="meta-item">⏱️ ประเมิน {{ task.estimated_minutes }} นาที</span>
+                <span *ngIf="task.actual_minutes > 0" class="meta-item text-info">
+                  🎯 ใช้เวลาจริง {{ task.actual_minutes }} นาที
+                </span>
+              </div>
+
+              <!-- Subtasks Section -->
+              <div class="subtasks-section mt-2">
+                <div *ngFor="let st of task.subtasks" class="subtask-row">
+                  <input type="checkbox" [checked]="st.is_completed" (change)="toggleSubtask(st)" class="subtask-checkbox" />
+                  <span [class.strikethrough]="st.is_completed" class="subtask-title">{{ st.title }}</span>
+                  <button (click)="deleteSubtask(st)" class="btn-subtask-del">×</button>
+                </div>
+
+                <!-- Add Subtask Input -->
+                <div class="add-subtask-row">
+                  <input 
+                    #subtaskInput 
+                    type="text" 
+                    placeholder="+ เพิ่มขั้นตอนย่อย (กด Enter)" 
+                    (keyup.enter)="addSubtaskToTask(task, subtaskInput)" 
+                    class="input-subtask" 
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Action Buttons -->
+            <div class="task-actions">
+              <button (click)="startPomodoroForTask(task)" class="btn-action-icon" title="จับเวลา Pomodoro">
+                ⏱️
+              </button>
+              <button (click)="openEditModal(task)" class="btn-action-icon" title="แก้ไข">
+                ✏️
+              </button>
+              <button (click)="deleteTask(task.id)" class="btn-action-icon text-danger" title="ลบ">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: TIMELINE VIEW -->
+    <section *ngIf="activeTab === 'timeline'" class="timeline-section mt-4">
+      <div class="card timeline-card">
+        <div class="card-header">
+          <span class="card-title">🕒 ตารางเวลาประจำวัน (08:00 - 22:00)</span>
+          <span class="text-xs text-muted">{{ displayDateText }}</span>
+        </div>
+
+        <div class="timeline-grid" *ngIf="taskService.tasks$ | async as tasks">
+          <div *ngFor="let hour of timelineHours" class="timeline-row">
+            <div class="timeline-time">{{ hour }}</div>
+            <div class="timeline-slot">
+              <div *ngFor="let t of getTasksForHour(tasks, hour)" class="timeline-task-pill" [class.pill-done]="t.is_completed">
+                <span class="font-bold">{{ t.due_time }}</span> - {{ t.title }}
+                <span class="badge priority-badge ml-2" [ngClass]="'p-' + t.priority.toLowerCase()">{{ t.priority }}</span>
+              </div>
+              <div *ngIf="getTasksForHour(tasks, hour).length === 0" class="timeline-empty-slot">
+                (ว่าง)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: HABITS & STREAKS -->
+    <section *ngIf="activeTab === 'habits'" class="habits-section mt-4">
+      <div class="card p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="card-title text-xl">🎯 สร้างวินัยและนิสัยแห่งความสำเร็จ (Habits & Streaks)</h2>
+          <button (click)="showHabitModal = true" class="btn-primary">➕ เพิ่มนิสัยใหม่</button>
+        </div>
+        <p class="text-muted mb-6">ความสำเร็จเกิดจากสิ่งเล็ก ๆ ที่ทำต่อเนื่องในทุกวัน เช็กชื่อให้ครบเพื่อรักษาระดับ Streak 🔥</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" *ngIf="taskService.habits$ | async as habits">
+          <div *ngFor="let h of habits" class="habit-full-card" [class.card-done]="h.completed_today">
+            <div class="flex items-center gap-4">
+              <button (click)="toggleHabit(h)" class="habit-check-large" [class.checked]="h.completed_today">
+                {{ h.completed_today ? '✔' : h.icon }}
+              </button>
+              <div>
+                <h4 class="font-bold text-lg">{{ h.title }}</h4>
+                <div class="text-sm text-muted">เป้าหมาย: ประจำทุกวัน</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="streak-badge">
+                🔥 <strong>{{ h.streak }}</strong> วันต่อเนื่อง
+              </div>
+              <button (click)="deleteHabit(h.id)" class="btn-icon text-danger" title="ลบนิสัย">🗑️</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: CREATE / EDIT TASK -->
+  <div *ngIf="showModal" class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ modalTask.id ? '✏️ แก้ไขงาน' : '➕ เพิ่มภารกิจใหม่' }}</h3>
+        <button (click)="closeModal()" class="btn-modal-close">×</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Title -->
+        <div class="form-group">
+          <label class="form-label">ชื่องาน / ภารกิจ *</label>
+          <input type="text" [(ngModel)]="modalTask.title" placeholder="เช่น สรุปรายงานประจำสัปดาห์..." class="form-input" />
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label class="form-label">รายละเอียด / โน้ตเพิ่มเติม</label>
+          <textarea [(ngModel)]="modalTask.description" rows="3" placeholder="จดโน้ต ข้อมูล หรือลิงก์ที่เกี่ยวข้อง..." class="form-textarea"></textarea>
+        </div>
+
+        <!-- Date & Time & Estimated Time -->
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label class="form-label">วันที่กำหนดส่ง</label>
+            <input type="date" [(ngModel)]="modalTask.due_date" class="form-input" />
+          </div>
+          <div class="form-group flex-1">
+            <label class="form-label">เวลาแจ้งเตือน</label>
+            <input type="time" [(ngModel)]="modalTask.due_time" class="form-input" />
+          </div>
+          <div class="form-group flex-1">
+            <label class="form-label">เวลาประเมิน (นาที)</label>
+            <input type="number" [(ngModel)]="modalTask.estimated_minutes" class="form-input" />
+          </div>
+        </div>
+
+        <!-- Priority & Category & Recurring -->
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label class="form-label">ระดับความสำคัญ</label>
+            <select [(ngModel)]="modalTask.priority" class="form-select">
+              <option value="PRIME">⭐ PRIME (สำคัญสุดของวัน)</option>
+              <option value="HIGH">🔴 High (สำคัญมาก)</option>
+              <option value="MEDIUM">🟡 Medium (ปานกลาง)</option>
+              <option value="LOW">🔵 Low (ต่ำ)</option>
+            </select>
+          </div>
+
+          <div class="form-group flex-1">
+            <label class="form-label">หมวดหมู่</label>
+            <select [(ngModel)]="modalTask.category" class="form-select">
+              <option *ngFor="let cat of taskService.categories$ | async" [value]="cat.name">
+                {{ cat.icon }} {{ cat.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group flex-1">
+            <label class="form-label">การทำซ้ำ (Recurring)</label>
+            <select [(ngModel)]="modalTask.recurring" class="form-select">
+              <option value="none">ไม่ทำซ้ำ</option>
+              <option value="daily">ทุกวัน (Daily)</option>
+              <option value="weekdays">จันทร์ - ศุกร์ (Weekdays)</option>
+              <option value="weekly">ทุกสัปดาห์ (Weekly)</option>
+              <option value="monthly">ทุกเดือน (Monthly)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Prime Focus & Reminder Checkbox -->
+        <div class="checkbox-row mt-2">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" [(ngModel)]="modalTask.is_prime" />
+            <span class="font-semibold text-warning">⭐ ตั้งเป็นภารกิจหลักของวัน (Prime Focus)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" [(ngModel)]="modalTask.reminder_enabled" />
+            <span>🔔 เปิดเสียงเตือนเมื่อถึงเวลา</span>
+          </label>
+        </div>
+
+        <!-- Subtasks (Only when creating) -->
+        <div *ngIf="!modalTask.id" class="subtask-builder mt-4">
+          <label class="form-label">ขั้นตอนย่อย (Subtasks)</label>
+          <div class="flex gap-2">
+            <input 
+              type="text" 
+              [(ngModel)]="newSubtaskInput" 
+              (keyup.enter)="addModalSubtask()" 
+              placeholder="เพิ่มขั้นตอนย่อย..." 
+              class="form-input flex-1" 
+            />
+            <button (click)="addModalSubtask()" class="btn-secondary">เพิ่ม</button>
+          </div>
+          <div class="subtask-chips mt-2">
+            <span *ngFor="let st of modalSubtasks; let i = index" class="subtask-chip">
+              {{ st }}
+              <button (click)="removeModalSubtask(i)" class="chip-remove">×</button>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeModal()" class="btn-secondary">ยกเลิก</button>
+        <button (click)="saveModalTask()" class="btn-primary">บันทึกภารกิจ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD HABIT -->
+  <div *ngIf="showHabitModal" class="modal-backdrop" (click)="showHabitModal = false">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">🌱 เพิ่มนิสัยประจำวันใหม่</h3>
+        <button (click)="showHabitModal = false" class="btn-modal-close">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">ชื่องาน/นิสัยที่ต้องการสร้าง</label>
+          <input type="text" [(ngModel)]="newHabitTitle" placeholder="เช่น ดื่มน้ำ 2 ลิตร, อ่านหนังสือ 15 นาที..." class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">เลือกไอคอน</label>
+          <div class="flex gap-2 text-2xl">
+            <button *ngFor="let ic of ['💧', '📖', '🏃‍♂️', '🧘', '💻', '🍎', '💤', '⭐']" 
+                    (click)="newHabitIcon = ic" 
+                    [class.ring-2]="newHabitIcon === ic" 
+                    class="p-2 rounded hover:bg-slate-700">
+              {{ ic }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showHabitModal = false" class="btn-secondary">ยกเลิก</button>
+        <button (click)="createHabit()" class="btn-primary">บันทึกนิสัย</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: END OF DAY REVIEW -->
+  <div *ngIf="showReviewModal" class="modal-backdrop" (click)="closeReviewModal()">
+    <div class="modal-card review-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">🏆 สรุปผลงานวันนี้ (End of Day Review)</h3>
+        <button (click)="closeReviewModal()" class="btn-modal-close">×</button>
+      </div>
+
+      <div class="modal-body text-center" *ngIf="taskService.stats$ | async as stats">
+        <div class="text-6xl mb-2">🎉</div>
+        <h2 class="text-2xl font-bold mb-1">ยอดเยี่ยมมาก!</h2>
+        <p class="text-muted mb-4">คุณได้ใช้เวลาและความพยายามสร้างคุณค่าให้กับวันนี้</p>
+
+        <div class="grid grid-cols-3 gap-3 my-4">
+          <div class="p-3 rounded-lg bg-surface border border-slate-700">
+            <div class="text-2xl font-bold text-success">{{ stats.completed_tasks }}</div>
+            <div class="text-xs text-muted">งานที่สำเร็จ</div>
+          </div>
+          <div class="p-3 rounded-lg bg-surface border border-slate-700">
+            <div class="text-2xl font-bold text-info">{{ stats.total_focus_minutes }}</div>
+            <div class="text-xs text-muted">นาทีที่โฟกัส</div>
+          </div>
+          <div class="p-3 rounded-lg bg-surface border border-slate-700">
+            <div class="text-2xl font-bold text-warning">{{ stats.habits_completed }}</div>
+            <div class="text-xs text-muted">นิสัยที่ทำสำเร็จ</div>
+          </div>
+        </div>
+
+        <p class="text-sm text-slate-300 mt-2">
+          "ความสม่ำเสมอคือสะพานเชื่อมระหว่างเป้าหมายและความสำเร็จ พรุ่งนี้ลุยกันต่อ!"
+        </p>
+      </div>
+
+      <div class="modal-footer justify-center">
+        <button (click)="closeReviewModal()" class="btn-primary">พร้อมลุยวันต่อไป!</button>
+      </div>
+    </div>
+  </div>
+</div>

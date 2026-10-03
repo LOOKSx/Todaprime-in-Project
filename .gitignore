@@ -1,0 +1,18 @@
+# Node & Angular
+**/node_modules/
+**/.angular/
+frontend/dist/
+
+# Golang
+backend/todaprime.db
+backend/todaprime.db-journal
+
+# Logs & Environment
+*.log
+.env
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
