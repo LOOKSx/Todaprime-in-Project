@@ -82,14 +82,17 @@ export class AppComponent implements OnInit, OnDestroy {
     completion_rate: 0
   };
 
-  // Quick Task Creation
+  // Quick Task Creation (รวมการกำหนดช่วงเวลา วันนี้ถึงวันไหน)
   public quickTitle: string = '';
   public quickDueTime: string = '10:00';
   public quickPriority: Priority = 'MEDIUM';
   public quickCategory: string = 'การศึกษา & วิชาการ';
+  public quickIsRange: boolean = false;
+  public quickEndDate: string = '';
 
-  // Task Edit / Add Form
+  // Task Edit / Add Form (รองรับกำหนดการช่วงเวลา วันนี้ถึงวันไหน)
   public modalTask: Partial<Task> = {};
+  public modalIsRange: boolean = false;
 
   // Monthly Performance & Heatmap
   public selectedYear: number = new Date().getFullYear();
@@ -231,6 +234,45 @@ export class AppComponent implements OnInit, OnDestroy {
 
     const d = new Date(dateStr + 'T00:00:00');
     return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  // Check if task is a multi-day span (วันนี้ถึงวันไหน)
+  public isRangeTask(task: Task): boolean {
+    return !!(task && task.end_date && task.end_date > task.due_date);
+  }
+
+  // Format date range text in Thai
+  public formatTaskRangeText(task: Task): string {
+    if (!task) return '';
+    if (!this.isRangeTask(task)) {
+      return this.formatThaiDateFormal(task.due_date);
+    }
+    return this.formatRangeSpan(task.due_date, task.end_date);
+  }
+
+  // Format arbitrary start and end date range string
+  public formatRangeSpan(startDateStr: string, endDateStr?: string): string {
+    if (!startDateStr) return '';
+    if (!endDateStr || endDateStr === startDateStr) {
+      return this.formatThaiDateFormal(startDateStr);
+    }
+    const d1 = new Date(startDateStr + 'T00:00:00');
+    const d2 = new Date(endDateStr + 'T00:00:00');
+    const t1 = d1.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+    const t2 = d2.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+    const diff = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    return `${t1} – ${t2} (${diff} วัน)`;
+  }
+
+  // Calculate remaining days relative to current selected date
+  public getRemainingDaysText(task: Task): string {
+    if (!task.end_date || task.end_date <= task.due_date) return '';
+    const target = new Date(task.end_date + 'T00:00:00').getTime();
+    const current = new Date(this.selectedDate + 'T00:00:00').getTime();
+    const diffDays = Math.round((target - current) / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'วันสุดท้ายของกำหนดการ';
+    if (diffDays > 0) return `เหลืออีก ${diffDays} วัน`;
+    return `ครบกำหนดแล้ว`;
   }
 
   // Category Color & Pastel Styling Helper
@@ -449,7 +491,19 @@ export class AppComponent implements OnInit, OnDestroy {
     this.refreshData();
   }
 
-  // Quick Task Creation
+  // Quick Task Creation (รองรับการกำหนดช่วงเวลา วันนี้ถึงวันไหน)
+  public toggleQuickRange(): void {
+    this.quickIsRange = !this.quickIsRange;
+    if (this.quickIsRange && !this.quickEndDate) {
+      this.quickEndDate = this.taskService.getDateOffsetFrom(this.selectedDate, 2);
+    }
+  }
+
+  public setQuickRangeOffset(offsetDays: number): void {
+    this.quickIsRange = true;
+    this.quickEndDate = this.taskService.getDateOffsetFrom(this.selectedDate, offsetDays);
+  }
+
   public submitQuickAdd(): void {
     const title = this.quickTitle.trim();
     if (!title) return;
@@ -458,6 +512,7 @@ export class AppComponent implements OnInit, OnDestroy {
       title,
       description: '',
       due_date: this.selectedDate,
+      end_date: this.quickIsRange && this.quickEndDate ? this.quickEndDate : undefined,
       due_time: this.quickDueTime || '10:00',
       priority: this.quickPriority,
       category: this.quickCategory
@@ -465,6 +520,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.soundService.playTaskComplete();
     this.quickTitle = '';
+    this.quickIsRange = false;
+    this.quickEndDate = '';
     this.refreshData();
   }
 
@@ -489,10 +546,13 @@ export class AppComponent implements OnInit, OnDestroy {
   // Full Task Modal
   public openCreateModal(forDate?: string): void {
     this.isEditingTask = false;
+    const targetDate = forDate || this.selectedDate;
+    this.modalIsRange = false;
     this.modalTask = {
       title: '',
       description: '',
-      due_date: forDate || this.selectedDate,
+      due_date: targetDate,
+      end_date: '',
       due_time: '10:00',
       priority: 'MEDIUM',
       category: this.categories[0]?.name || 'การศึกษา & วิชาการ'
@@ -504,18 +564,48 @@ export class AppComponent implements OnInit, OnDestroy {
     if (event) event.stopPropagation();
     this.isEditingTask = true;
     this.modalTask = { ...task };
+    this.modalIsRange = !!(task.end_date && task.end_date > task.due_date);
     this.showTaskModal = true;
   }
 
   public closeTaskModal(): void {
     this.showTaskModal = false;
     this.modalTask = {};
+    this.modalIsRange = false;
+  }
+
+  public toggleModalRange(): void {
+    this.modalIsRange = !this.modalIsRange;
+    if (this.modalIsRange && (!this.modalTask.end_date || this.modalTask.end_date <= (this.modalTask.due_date || this.selectedDate))) {
+      this.modalTask.end_date = this.taskService.getDateOffsetFrom(this.modalTask.due_date || this.selectedDate, 2);
+    }
+  }
+
+  public setModalRangeOffset(offsetDays: number): void {
+    this.modalIsRange = true;
+    const base = this.modalTask.due_date || this.selectedDate;
+    this.modalTask.end_date = this.taskService.getDateOffsetFrom(base, offsetDays);
+  }
+
+  public getModalDaysSpan(): number {
+    const startStr = this.modalTask.due_date || this.selectedDate;
+    const endStr = (this.modalIsRange && this.modalTask.end_date) ? this.modalTask.end_date : startStr;
+    const d1 = new Date(startStr + 'T00:00:00').getTime();
+    const d2 = new Date(endStr + 'T00:00:00').getTime();
+    const diff = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+    return diff > 0 ? diff : 1;
   }
 
   public saveModalTask(): void {
     if (!this.modalTask.title || !this.modalTask.title.trim()) {
       alert('กรุณาระบุชื่อภารกิจหรือหัวข้องานที่ต้องดำเนินการ');
       return;
+    }
+
+    if (!this.modalIsRange) {
+      this.modalTask.end_date = undefined;
+    } else if (this.modalTask.end_date && this.modalTask.end_date < (this.modalTask.due_date || this.selectedDate)) {
+      this.modalTask.end_date = this.modalTask.due_date || this.selectedDate;
     }
 
     if (this.isEditingTask && this.modalTask.id) {

@@ -7,7 +7,7 @@ import { Task, Category, DayStats, MonthlyStats, Priority } from '../models/task
   providedIn: 'root'
 })
 export class TaskService {
-  private readonly STORAGE_KEY = 'todaprime_tasks_v3';
+  private readonly STORAGE_KEY = 'todaprime_tasks_v4';
   private apiUrl = 'http://localhost:8080/api';
 
   private tasksSubject = new BehaviorSubject<Task[]>([]);
@@ -31,7 +31,18 @@ export class TaskService {
   private initTasks(): void {
     let localTasks = this.getLocalTasks();
     if (!localTasks || localTasks.length === 0) {
-      localTasks = this.generateSampleTasks();
+      // Migrate from v3 if exists and not empty, or generate sample tasks with date range support
+      const v3 = localStorage.getItem('todaprime_tasks_v3');
+      if (v3) {
+        try {
+          localTasks = JSON.parse(v3);
+        } catch {
+          localTasks = [];
+        }
+      }
+      if (!localTasks || localTasks.length === 0) {
+        localTasks = this.generateSampleTasks();
+      }
       this.saveLocalTasks(localTasks);
     }
     this.tasksSubject.next(localTasks);
@@ -72,6 +83,29 @@ export class TaskService {
     return `${y}-${m}-${day}`;
   }
 
+  public getDateOffsetFrom(baseDateStr: string, offsetDays: number): string {
+    if (!baseDateStr) return this.getDateOffsetStr(offsetDays);
+    const parts = baseDateStr.split('-');
+    if (parts.length !== 3) return this.getDateOffsetStr(offsetDays);
+    const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    d.setDate(d.getDate() + offsetDays);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  // Check if a task is active on a specific date (single date or range from due_date to end_date)
+  public isTaskActiveOnDate(task: Task, dateStr: string): boolean {
+    if (!task) return false;
+    if (!task.end_date || task.end_date === task.due_date) {
+      return task.due_date === dateStr;
+    }
+    const start = task.due_date <= task.end_date ? task.due_date : task.end_date;
+    const end = task.due_date <= task.end_date ? task.end_date : task.due_date;
+    return start <= dateStr && dateStr <= end;
+  }
+
   private generateSampleTasks(): Task[] {
     const today = this.getTodayDateStr();
     const tomorrow = this.getDateOffsetStr(1);
@@ -86,6 +120,7 @@ export class TaskService {
         title: 'จัดทำเอกสารสรุปผลการวิจัยและทบทวนวรรณกรรม',
         description: 'รวบรวมข้อมูลเชิงทฤษฎีบทที่ 1-3 และจัดทำสรุปสาระสำคัญเชิงวิชาการ',
         due_date: today,
+        end_date: dayAfter, // กำหนดช่วงเวลางาน: วันนี้ถึงวันมะรืนนี้ (3 วัน)
         due_time: '10:00',
         priority: 'HIGH',
         category: 'การศึกษา & วิชาการ',
@@ -135,6 +170,7 @@ export class TaskService {
         title: 'การประชุมวางแผนเชิงกลยุทธ์และการจัดสรรภารกิจ',
         description: 'ประสานงานออนไลน์เพื่อกำหนดเป้าหมายและกำหนดส่งมอบแต่ละระยะ',
         due_date: tomorrow,
+        end_date: dayPlus4, // ช่วงเวลากำหนดการ: พรุ่งนี้ถึงอีก 4 วันข้างหน้า
         due_time: '13:30',
         priority: 'MEDIUM',
         category: 'การบริหาร & งานอาชีพ',
@@ -195,9 +231,9 @@ export class TaskService {
     ];
   }
 
-  // Get tasks for a specific date
+  // Get tasks for a specific date (includes single-day tasks and tasks active during this date range)
   public getTasksForDate(dateStr: string, category: string = 'All', search: string = ''): Task[] {
-    let list = this.getLocalTasks().filter(t => t.due_date === dateStr);
+    let list = this.getLocalTasks().filter(t => this.isTaskActiveOnDate(t, dateStr));
     if (category && category !== 'All') {
       list = list.filter(t => t.category === category);
     }
@@ -212,23 +248,33 @@ export class TaskService {
     });
   }
 
-  // Get all upcoming future tasks (days after the given date)
+  // Get all upcoming future tasks (days after the given date or ending in the future)
   public getUpcomingTasks(afterDateStr: string, limit: number = 20): Task[] {
-    const list = this.getLocalTasks().filter(t => t.due_date > afterDateStr);
+    const list = this.getLocalTasks().filter(t => {
+      const effectiveEndDate = t.end_date && t.end_date > t.due_date ? t.end_date : t.due_date;
+      return effectiveEndDate > afterDateStr;
+    });
     return list.sort((a, b) => a.due_date.localeCompare(b.due_date)).slice(0, limit);
   }
 
-  // Create a new task (for today, tomorrow, or any future date)
+  // Create a new task (for today, tomorrow, or any future date / date range: วันนี้ถึงวันไหน)
   public createTask(data: Partial<Task>): Task {
     const tasks = this.getLocalTasks();
+    const startDate = data.due_date || this.getTodayDateStr();
+    let endDate = data.end_date ? data.end_date.trim() : undefined;
+    if (endDate && endDate < startDate) {
+      endDate = startDate;
+    }
+
     const newTask: Task = {
       id: Date.now(),
       title: (data.title || '').trim(),
       description: (data.description || '').trim(),
-      due_date: data.due_date || this.getTodayDateStr(),
+      due_date: startDate,
+      end_date: endDate && endDate !== startDate ? endDate : undefined,
       due_time: data.due_time || '',
       priority: data.priority || 'MEDIUM',
-      category: data.category || 'การบ้าน & การเรียน',
+      category: data.category || 'การศึกษา & วิชาการ',
       is_completed: false,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -251,9 +297,17 @@ export class TaskService {
     const idx = tasks.findIndex(t => t.id === id);
     if (idx === -1) return null;
 
+    const startDate = data.due_date || tasks[idx].due_date;
+    let endDate = data.end_date !== undefined ? data.end_date : tasks[idx].end_date;
+    if (endDate && endDate < startDate) {
+      endDate = startDate;
+    }
+
     tasks[idx] = {
       ...tasks[idx],
       ...data,
+      due_date: startDate,
+      end_date: endDate && endDate !== startDate ? endDate : undefined,
       updated_at: new Date().toISOString()
     };
 
@@ -301,9 +355,9 @@ export class TaskService {
     return true;
   }
 
-  // Calculate stats for a single day
+  // Calculate stats for a single day (takes date ranges into account)
   public getDayStats(dateStr: string): DayStats {
-    const dayTasks = this.getLocalTasks().filter(t => t.due_date === dateStr);
+    const dayTasks = this.getLocalTasks().filter(t => this.isTaskActiveOnDate(t, dateStr));
     const total = dayTasks.length;
     const completed = dayTasks.filter(t => t.is_completed).length;
     const pending = total - completed;
@@ -322,34 +376,37 @@ export class TaskService {
   public getMonthlyStats(year: number, month: number): MonthlyStats {
     const tasks = this.getLocalTasks();
     const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
-    const monthlyTasks = tasks.filter(t => t.due_date.startsWith(monthPrefix));
+    const startOfMonth = `${monthPrefix}-01`;
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    const endOfMonth = `${monthPrefix}-${String(lastDayOfMonth).padStart(2, '0')}`;
+
+    // Tasks that overlap with this month
+    const monthlyTasks = tasks.filter(t => {
+      const tStart = t.due_date;
+      const tEnd = t.end_date && t.end_date > t.due_date ? t.end_date : t.due_date;
+      return tStart <= endOfMonth && tEnd >= startOfMonth;
+    });
 
     const totalTasks = monthlyTasks.length;
     const completedTasks = monthlyTasks.filter(t => t.is_completed).length;
     const pendingTasks = totalTasks - completedTasks;
     const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-    // Daily breakdown map
+    // Daily breakdown map for each day of this month
     const dailyMap: { [dateStr: string]: { total: number; completed: number; rate: number } } = {};
-    monthlyTasks.forEach(t => {
-      if (!dailyMap[t.due_date]) {
-        dailyMap[t.due_date] = { total: 0, completed: 0, rate: 0 };
-      }
-      dailyMap[t.due_date].total++;
-      if (t.is_completed) {
-        dailyMap[t.due_date].completed++;
-      }
-    });
+    for (let day = 1; day <= lastDayOfMonth; day++) {
+      const dStr = `${monthPrefix}-${String(day).padStart(2, '0')}`;
+      const activeForDay = tasks.filter(t => this.isTaskActiveOnDate(t, dStr));
+      const dTotal = activeForDay.length;
+      const dCompleted = activeForDay.filter(t => t.is_completed).length;
+      const dRate = dTotal > 0 ? Math.round((dCompleted / dTotal) * 100) : 0;
+      dailyMap[dStr] = { total: dTotal, completed: dCompleted, rate: dRate };
+    }
 
-    Object.keys(dailyMap).forEach(d => {
-      const day = dailyMap[d];
-      day.rate = day.total > 0 ? Math.round((day.completed / day.total) * 100) : 0;
-    });
-
-    const activeDaysCount = Object.keys(dailyMap).length;
+    const activeDaysCount = Object.keys(dailyMap).filter(d => dailyMap[d].total > 0).length;
     const perfectDaysCount = Object.keys(dailyMap).filter(d => dailyMap[d].rate === 100 && dailyMap[d].total > 0).length;
 
-    // Categories breakdown
+    // Categories breakdown (based on monthly tasks)
     const catMap: { [cat: string]: { total: number; completed: number } } = {};
     monthlyTasks.forEach(t => {
       if (!catMap[t.category]) {

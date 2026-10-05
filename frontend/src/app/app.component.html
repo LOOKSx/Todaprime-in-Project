@@ -347,11 +347,25 @@
       </div>
 
       <!-- Quick Add Task Card -->
+      <!-- Quick Add Task Card (รองรับการกำหนดช่วงเวลา วันนี้ถึงวันไหน) -->
       <div class="quick-add-card">
         <div class="quick-add-header">
-          <span class="quick-add-icon">⚡</span>
-          <span>บันทึกภารกิจใหม่สำหรับกำหนดการ: {{ formatThaiDateFormal(selectedDate) }}</span>
+          <div class="quick-add-header-left">
+            <span class="quick-add-icon">⚡</span>
+            <span>บันทึกภารกิจสำหรับกำหนดการ: <strong>{{ formatThaiDateFormal(selectedDate) }}</strong></span>
+          </div>
+
+          <!-- Quick Range Toggle Button (กำหนดช่วงเวลา วันนี้ถึงวันไหน) -->
+          <button 
+            type="button" 
+            (click)="toggleQuickRange()" 
+            class="btn-toggle-range"
+            [class.active-range-toggle]="quickIsRange"
+            title="กำหนดช่วงเวลาปฏิบัติการ (วันนี้ถึงวันไหน)">
+            <span>{{ quickIsRange ? '✓ กำหนดช่วงเวลา (วันนี้ถึงวันไหน)' : '🗓️ + กำหนดช่วงเวลา (วันนี้ถึงวันไหน)' }}</span>
+          </button>
         </div>
+
         <form (ngSubmit)="submitQuickAdd()" class="quick-add-form">
           <input 
             type="text" 
@@ -361,6 +375,34 @@
             class="quick-input-title"
             required
           />
+
+          <!-- Quick Range Sub-bar (ถ้าเปิดใช้งานโหมด วันนี้ถึงวันไหน) -->
+          <div *ngIf="quickIsRange" class="quick-range-bar">
+            <div class="quick-range-label">
+              <span class="range-flag-icon">🚩</span>
+              <span>จาก <strong>{{ formatThaiDateFormal(selectedDate) }}</strong> ถึงวันไหน:</span>
+            </div>
+
+            <div class="quick-range-input-wrap">
+              <input 
+                type="date" 
+                [(ngModel)]="quickEndDate" 
+                name="quickEndDate"
+                [min]="selectedDate" 
+                class="quick-range-date-input" 
+              />
+            </div>
+
+            <div class="quick-range-presets">
+              <button type="button" (click)="setQuickRangeOffset(1)" class="btn-range-preset">+1 วัน (ถึงพรุ่งนี้)</button>
+              <button type="button" (click)="setQuickRangeOffset(3)" class="btn-range-preset">+3 วัน</button>
+              <button type="button" (click)="setQuickRangeOffset(7)" class="btn-range-preset">+7 วัน (1 สัปดาห์)</button>
+            </div>
+
+            <span *ngIf="quickEndDate" class="quick-range-summary-tag">
+              🗓️ {{ formatRangeSpan(selectedDate, quickEndDate) }}
+            </span>
+          </div>
 
           <div class="quick-add-meta">
             <!-- Time Picker -->
@@ -442,6 +484,15 @@
 
               <!-- Task Meta Badges -->
               <div class="task-badges-row">
+                <!-- Multi-day Range Badge -->
+                <span *ngIf="isRangeTask(task)" class="badge-range-pill" title="กำหนดช่วงเวลาปฏิบัติการ">
+                  🗓️ กำหนด: {{ formatTaskRangeText(task) }}
+                </span>
+
+                <span *ngIf="isRangeTask(task)" class="badge-remaining-pill" [class.badge-remaining-urgent]="getRemainingDaysText(task).includes('สุดท้าย')">
+                  ⏳ {{ getRemainingDaysText(task) }}
+                </span>
+
                 <span class="badge-category" [ngClass]="getCategoryStyleClass(task.category)">
                   {{ task.category }}
                 </span>
@@ -502,10 +553,13 @@
         <div *ngIf="upcomingTasks.length > 0; else noUpcoming" class="upcoming-grid">
           <div *ngFor="let ut of upcomingTasks" class="upcoming-card" [ngClass]="getCategoryStyleClass(ut.category)" (click)="selectDate(ut.due_date)">
             <div class="upcoming-date-badge">
-              <span>🗓️ {{ formatThaiDateFormal(ut.due_date) }}</span>
-              <span class="upcoming-date-raw">({{ ut.due_date }})</span>
+              <span>🗓️ {{ isRangeTask(ut) ? formatTaskRangeText(ut) : formatThaiDateFormal(ut.due_date) }}</span>
+              <span class="upcoming-date-raw">({{ ut.due_date }}{{ ut.end_date ? ' ➔ ' + ut.end_date : '' }})</span>
             </div>
             <div class="upcoming-card-title">{{ ut.title }}</div>
+            <div *ngIf="isRangeTask(ut)" class="upcoming-range-indicator">
+              <span>⏳ {{ getRemainingDaysText(ut) }}</span>
+            </div>
             <div class="upcoming-card-footer">
               <span class="badge-category" [ngClass]="getCategoryStyleClass(ut.category)">{{ ut.category }}</span>
               <span *ngIf="ut.due_time" class="badge-time">⏰ {{ ut.due_time }} น.</span>
@@ -698,15 +752,71 @@
           ></textarea>
         </div>
 
+        <!-- Schedule Type Selector: Single Day vs Date Range (วันนี้ถึงวันไหน) -->
+        <div class="modal-schedule-type-group">
+          <label class="form-label">🗓️ รูปแบบกำหนดการดำเนินงาน</label>
+          <div class="schedule-type-buttons">
+            <button 
+              type="button" 
+              (click)="modalIsRange = false" 
+              class="btn-schedule-type"
+              [class.active-schedule-type]="!modalIsRange">
+              <span>📌 กำหนดส่งวันเดียว (Single Day)</span>
+            </button>
+            <button 
+              type="button" 
+              (click)="toggleModalRange()" 
+              class="btn-schedule-type"
+              [class.active-schedule-type]="modalIsRange">
+              <span>📅 กำหนดช่วงเวลา (วันนี้ถึงวันไหน / Date Range)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Date Range or Single Date Inputs -->
         <div class="form-grid-2">
           <div class="form-group">
-            <label class="form-label">🗓️ กำหนดการดำเนินงาน / กำหนดส่งมอบ *</label>
+            <label class="form-label">{{ modalIsRange ? '🚩 วันที่เริ่มต้น (Start Date) *' : '🗓️ วันที่กำหนดส่งมอบ *' }}</label>
             <input type="date" [(ngModel)]="modalTask.due_date" class="form-control" />
           </div>
 
-          <div class="form-group">
+          <div class="form-group" *ngIf="!modalIsRange">
             <label class="form-label">⏰ เวลาเป้าหมาย (HH:mm)</label>
             <input type="time" [(ngModel)]="modalTask.due_time" class="form-control" />
+          </div>
+
+          <div class="form-group" *ngIf="modalIsRange">
+            <label class="form-label">🏁 วันที่สิ้นสุด (ถึงวันไหน) *</label>
+            <input 
+              type="date" 
+              [(ngModel)]="modalTask.end_date" 
+              [min]="modalTask.due_date || selectedDate" 
+              class="form-control" 
+            />
+          </div>
+        </div>
+
+        <!-- Multi-day Range Quick Presets & Summary Box -->
+        <div *ngIf="modalIsRange" class="modal-range-presets-card">
+          <div class="modal-range-presets-label">
+            <span>⚡ เลือกช่วงเวลาด่วน:</span>
+            <div class="modal-range-presets-buttons">
+              <button type="button" (click)="setModalRangeOffset(1)" class="btn-range-preset-modal">+1 วัน (ถึงพรุ่งนี้)</button>
+              <button type="button" (click)="setModalRangeOffset(2)" class="btn-range-preset-modal">+2 วัน</button>
+              <button type="button" (click)="setModalRangeOffset(3)" class="btn-range-preset-modal">+3 วัน</button>
+              <button type="button" (click)="setModalRangeOffset(7)" class="btn-range-preset-modal">+7 วัน (1 สัปดาห์)</button>
+              <button type="button" (click)="setModalRangeOffset(14)" class="btn-range-preset-modal">+14 วัน</button>
+              <button type="button" (click)="setModalRangeOffset(30)" class="btn-range-preset-modal">+1 เดือน</button>
+            </div>
+          </div>
+          <div class="modal-range-summary-box">
+            <span class="range-summary-icon">✨</span>
+            <div class="range-summary-text">
+              <strong>ระยะเวลาปฏิบัติการ: {{ getModalDaysSpan() }} วัน</strong>
+              <span class="text-xs text-muted">
+                (ตั้งแต่วันที่ {{ formatThaiDateFormal(modalTask.due_date || selectedDate) }} ถึง {{ formatThaiDateFormal(modalTask.end_date || modalTask.due_date || selectedDate) }})
+              </span>
+            </div>
           </div>
         </div>
 

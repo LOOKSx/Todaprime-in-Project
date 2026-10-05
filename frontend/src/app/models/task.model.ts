@@ -4,7 +4,8 @@ export interface Task {
   id: number;
   title: string;
   description: string;
-  due_date: string; // YYYY-MM-DD
+  due_date: string; // YYYY-MM-DD (Start Date or Due Date)
+  end_date?: string; // YYYY-MM-DD (Optional End Date: วันนี้ถึงวันไหน / กำหนดช่วงเวลา)
   due_time?: string; // HH:mm
   priority: Priority;
   category: string;
