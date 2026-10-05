@@ -208,34 +208,42 @@
         </button>
       </div>
 
-      <!-- Core Features Grid -->
+      <!-- Core Features Grid with Soft Color Accents -->
       <div class="landing-features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">🗓️</div>
+        <div class="feature-card feat-indigo">
+          <div class="feature-icon-wrapper feat-icon-indigo">
+            <span class="feature-icon">🗓️</span>
+          </div>
           <h3 class="feature-title">การวางแผนล่วงหน้าเชิงรุก</h3>
           <p class="feature-desc">
             กำหนดการส่งมอบงาน การบ้าน และเป้าหมายสำคัญสำหรับวันพรุ่งนี้หรือวันข้างหน้าอย่างมีแบบแผน พร้อมระบุระดับความสำคัญเชิงยุทธศาสตร์
           </p>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">✓</div>
+        <div class="feature-card feat-emerald">
+          <div class="feature-icon-wrapper feat-icon-emerald">
+            <span class="feature-icon">✓</span>
+          </div>
           <h3 class="feature-title">การตรวจรับและบันทึกผลงาน</h3>
           <p class="feature-desc">
             ยืนยันสถานะการดำเนินงานที่แล้วเสร็จในคลิกเดียว พร้อมประเมินอัตราความสำเร็จ (Execution Rate) และบันทึกเวลาที่แล้วเสร็จอย่างแม่นยำ
           </p>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">📈</div>
+        <div class="feature-card feat-sky">
+          <div class="feature-icon-wrapper feat-icon-sky">
+            <span class="feature-icon">📈</span>
+          </div>
           <h3 class="feature-title">การวิเคราะห์ดัชนีชี้วัดรายเดือน</h3>
           <p class="feature-desc">
             แดชบอร์ดสรุปประสิทธิภาพรายเดือน แผนภาพฮีทแมพปฏิทิน และรายงานการกระจายตัวตามกลุ่มงาน เพื่อประเมินความต่อเนื่องในการดำเนินงาน
           </p>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">🔒</div>
+        <div class="feature-card feat-amber">
+          <div class="feature-icon-wrapper feat-icon-amber">
+            <span class="feature-icon">🔒</span>
+          </div>
           <h3 class="feature-title">ความต่อเนื่องของสถานะระบบ</h3>
           <p class="feature-desc">
             บันทึกสถานะหน้าจอ ปฏิทิน และแท็บการทำงานอัตโนมัติบนเบราว์เซอร์ โหลดหน้าเว็บซ้ำโดยไม่สูญเสียตำแหน่งงานที่กำลังเปิดอยู่
@@ -410,6 +418,7 @@
             class="task-card" 
             [class.task-done]="task.is_completed"
             [class.priority-high-border]="task.priority === 'HIGH'"
+            [ngClass]="getCategoryStyleClass(task.category)"
           >
             <!-- Checkbox (Click to toggle complete) -->
             <div class="checkbox-container" (click)="toggleTask(task)" title="บันทึกสถานะการดำเนินงาน">
@@ -433,7 +442,7 @@
 
               <!-- Task Meta Badges -->
               <div class="task-badges-row">
-                <span class="badge-category">
+                <span class="badge-category" [ngClass]="getCategoryStyleClass(task.category)">
                   {{ task.category }}
                 </span>
 
@@ -491,14 +500,14 @@
         </div>
 
         <div *ngIf="upcomingTasks.length > 0; else noUpcoming" class="upcoming-grid">
-          <div *ngFor="let ut of upcomingTasks" class="upcoming-card" (click)="selectDate(ut.due_date)">
+          <div *ngFor="let ut of upcomingTasks" class="upcoming-card" [ngClass]="getCategoryStyleClass(ut.category)" (click)="selectDate(ut.due_date)">
             <div class="upcoming-date-badge">
               <span>🗓️ {{ formatThaiDateFormal(ut.due_date) }}</span>
               <span class="upcoming-date-raw">({{ ut.due_date }})</span>
             </div>
             <div class="upcoming-card-title">{{ ut.title }}</div>
             <div class="upcoming-card-footer">
-              <span class="badge-category">{{ ut.category }}</span>
+              <span class="badge-category" [ngClass]="getCategoryStyleClass(ut.category)">{{ ut.category }}</span>
               <span *ngIf="ut.due_time" class="badge-time">⏰ {{ ut.due_time }} น.</span>
               <button class="btn-goto-day" title="เปิดดูตารางงานของวันนี้">
                 ตรวจสอบกำหนดการนี้ ➔
@@ -539,10 +548,10 @@
         </button>
       </div>
 
-      <!-- 4 Monthly Metric Summary Cards -->
+      <!-- 4 Monthly Metric Summary Cards with Soft Pastel Tints -->
       <div class="monthly-metrics-grid" *ngIf="monthlyStats">
-        <div class="metric-card">
-          <div class="metric-icon">📋</div>
+        <div class="metric-card metric-card-total">
+          <div class="metric-icon metric-icon-total">📋</div>
           <div class="metric-content">
             <div class="metric-label">ภารกิจทั้งหมดในรอบเดือน (Total Assigned)</div>
             <div class="metric-number">{{ monthlyStats.totalTasks }} <span class="metric-unit">รายการ</span></div>
@@ -550,7 +559,7 @@
         </div>
 
         <div class="metric-card metric-card-success">
-          <div class="metric-icon">✓</div>
+          <div class="metric-icon metric-icon-success">✓</div>
           <div class="metric-content">
             <div class="metric-label">ดำเนินการแล้วเสร็จ (Successfully Completed)</div>
             <div class="metric-number">
@@ -561,7 +570,7 @@
         </div>
 
         <div class="metric-card metric-card-warning">
-          <div class="metric-icon">⏳</div>
+          <div class="metric-icon metric-icon-warning">⏳</div>
           <div class="metric-content">
             <div class="metric-label">อยู่ระหว่างดำเนินการ (Pending & Active)</div>
             <div class="metric-number">{{ monthlyStats.pendingTasks }} <span class="metric-unit">รายการ</span></div>
@@ -569,7 +578,7 @@
         </div>
 
         <div class="metric-card metric-card-purple">
-          <div class="metric-icon">🏆</div>
+          <div class="metric-icon metric-icon-purple">🏆</div>
           <div class="metric-content">
             <div class="metric-label">วันที่บรรลุเป้าหมายครบ 100% (Perfect Days)</div>
             <div class="metric-number">

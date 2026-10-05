@@ -233,6 +233,19 @@ export class AppComponent implements OnInit, OnDestroy {
     return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
+  // Category Color & Pastel Styling Helper
+  public getCategoryStyleClass(catName: string): string {
+    if (!catName) return 'cat-default';
+    if (catName.includes('ศึกษา') || catName.includes('วิชาการ')) return 'cat-academic';
+    if (catName.includes('โครงงาน') || catName.includes('วิจัย')) return 'cat-project';
+    if (catName.includes('ประเมิน') || catName.includes('สอบ')) return 'cat-exam';
+    if (catName.includes('บริหาร') || catName.includes('งานอาชีพ') || catName.includes('ออฟฟิศ')) return 'cat-work';
+    if (catName.includes('ส่วนบุคคล') || catName.includes('ส่วนตัว')) return 'cat-personal';
+    if (catName.includes('สุขภาวะ') || catName.includes('สมรรถภาพ') || catName.includes('สุขภาพ')) return 'cat-health';
+    if (catName.includes('เร่งด่วน') || catName.includes('ด่วน')) return 'cat-urgent';
+    return 'cat-default';
+  }
+
   // Navigation & View Persistence Handlers
   public toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;

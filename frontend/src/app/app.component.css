@@ -1,10 +1,10 @@
 /* ========================================================
    TODAPRIME EXECUTIVE DESIGN SYSTEM (UI/UX PRO MAX)
-   Swiss Minimalist, Executive Typography, High-Contrast Light & Dark Themes
+   Subtle Pastel Tints, Atmospheric Gradients, Light & Dark Harmony
 ======================================================== */
 
 :host {
-  /* DARK OBSIDIAN PALETTE (Default) */
+  /* DARK OBSIDIAN WITH SOFT AMBIENT TINTS */
   --bg-app: #090d16;
   --bg-surface: #111827;
   --bg-surface-elevated: #1a2333;
@@ -14,6 +14,10 @@
   --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
   --shadow-hover: 0 8px 30px -4px rgba(0, 0, 0, 0.6);
 
+  --ambient-1: rgba(99, 102, 241, 0.09);
+  --ambient-2: rgba(14, 165, 233, 0.07);
+  --ambient-3: rgba(16, 185, 129, 0.06);
+
   --text-main: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
@@ -21,7 +25,7 @@
   --primary: #6366f1;
   --primary-hover: #4f46e5;
   --primary-subtle: rgba(99, 102, 241, 0.15);
-  --primary-glow: rgba(99, 102, 241, 0.3);
+  --primary-glow: rgba(99, 102, 241, 0.35);
 
   --accent: #10b981;
   --accent-hover: #059669;
@@ -37,26 +41,30 @@
   --purple-subtle: rgba(139, 92, 246, 0.15);
 
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
   --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-body: 'Sarabun', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-family: var(--font-body);
 }
 
 /* ========================================================
-   EXECUTIVE ARCHITECTURAL LIGHT MODE
+   LIGHT MODE: ARCHITECTURAL PORCELAIN WITH SOFT PASTEL TINTS
 ======================================================== */
 :host-context(.min-h-screen:not(.dark)),
 .min-h-screen:not(.dark) {
-  --bg-app: #f4f6f9;
+  --bg-app: #f6f8fb;
   --bg-surface: #ffffff;
   --bg-surface-elevated: #f1f5f9;
   --bg-surface-hover: #e2e8f0;
   --border-color: rgba(15, 23, 42, 0.09);
   --border-color-hover: rgba(15, 23, 42, 0.22);
-  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px -4px rgba(15, 23, 42, 0.07);
-  --shadow-hover: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 12px 32px -4px rgba(15, 23, 42, 0.12);
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 10px 28px -4px rgba(15, 23, 42, 0.06);
+  --shadow-hover: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 14px 34px -4px rgba(15, 23, 42, 0.11);
+
+  --ambient-1: rgba(99, 102, 241, 0.05);
+  --ambient-2: rgba(14, 165, 233, 0.05);
+  --ambient-3: rgba(16, 185, 129, 0.04);
 
   --text-main: #0f172a;
   --text-secondary: #334155;
@@ -65,7 +73,7 @@
   --primary: #4338ca;
   --primary-hover: #3730a3;
   --primary-subtle: rgba(67, 56, 202, 0.1);
-  --primary-glow: rgba(67, 56, 202, 0.25);
+  --primary-glow: rgba(67, 56, 202, 0.22);
 
   --accent: #047857;
   --accent-hover: #065f46;
@@ -87,11 +95,18 @@
   padding: 0;
 }
 
+/* Atmospheric Ambient Canvas */
 .min-h-screen {
   min-height: 100vh;
   background-color: var(--bg-app);
+  background-image:
+    radial-gradient(at 0% 0%, var(--ambient-1) 0px, transparent 55%),
+    radial-gradient(at 100% 0%, var(--ambient-2) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, var(--ambient-3) 0px, transparent 60%);
+  background-attachment: fixed;
   color: var(--text-main);
   line-height: 1.6;
+  transition: background-color 0.3s ease;
 }
 
 /* ========================================================
@@ -124,7 +139,7 @@
 }
 
 .logo-icon {
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 800;
   width: 42px;
   height: 42px;
@@ -561,7 +576,7 @@
 }
 
 /* ========================================================
-   1. LANDING OVERVIEW VIEW
+   1. LANDING OVERVIEW VIEW WITH SOFT TINTS
 ======================================================== */
 .landing-container {
   max-width: 1140px;
@@ -578,7 +593,7 @@
 
 .landing-badge {
   display: inline-block;
-  background-color: var(--primary-subtle);
+  background: linear-gradient(135deg, var(--primary-subtle), rgba(14, 165, 233, 0.12));
   color: var(--primary);
   font-size: 0.85rem;
   font-weight: 700;
@@ -693,6 +708,7 @@
   color: var(--text-main);
 }
 
+/* Feature Cards with Soft Pastel Styling */
 .landing-features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -708,17 +724,73 @@
   text-align: left;
   box-shadow: var(--shadow-card);
   transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
 }
 
 .feature-card:hover {
   transform: translateY(-4px);
-  border-color: var(--primary);
   box-shadow: var(--shadow-hover);
 }
 
-.feature-icon {
-  font-size: 2.4rem;
-  margin-bottom: 1.15rem;
+/* Feature Soft Tints */
+.feature-card.feat-indigo {
+  border-color: rgba(99, 102, 241, 0.2);
+}
+.feature-card.feat-indigo:hover {
+  border-color: #818cf8;
+}
+
+.feature-card.feat-emerald {
+  border-color: rgba(16, 185, 129, 0.2);
+}
+.feature-card.feat-emerald:hover {
+  border-color: #34d399;
+}
+
+.feature-card.feat-sky {
+  border-color: rgba(14, 165, 233, 0.2);
+}
+.feature-card.feat-sky:hover {
+  border-color: #38bdf8;
+}
+
+.feature-card.feat-amber {
+  border-color: rgba(245, 158, 11, 0.2);
+}
+.feature-card.feat-amber:hover {
+  border-color: #fbbf24;
+}
+
+.feature-icon-wrapper {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.feat-icon-indigo {
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+.feat-icon-emerald {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.feat-icon-sky {
+  background: rgba(14, 165, 233, 0.12);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+}
+
+.feat-icon-amber {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .feature-title {
@@ -870,6 +942,7 @@
   background-color: var(--primary);
   color: #ffffff;
   border-color: var(--primary);
+  box-shadow: 0 2px 8px var(--primary-glow);
 }
 
 .custom-date-picker-group {
@@ -894,9 +967,9 @@
   cursor: pointer;
 }
 
-/* Executive Day Banner */
+/* Executive Day Banner with Soft Gradient */
 .selected-day-banner {
-  background-color: var(--bg-surface);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(14, 165, 233, 0.05) 50%, var(--bg-surface) 100%);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 1.75rem 2rem;
@@ -917,7 +990,7 @@
   left: 0;
   width: 5px;
   height: 100%;
-  background: linear-gradient(180deg, var(--primary), var(--accent));
+  background: linear-gradient(180deg, #6366f1, #0ea5e9, #10b981);
 }
 
 .day-banner-content {
@@ -950,7 +1023,7 @@
 }
 
 .day-progress-group {
-  min-width: 240px;
+  min-width: 250px;
 }
 
 .day-progress-text {
@@ -961,7 +1034,7 @@
 
 .progress-bar-track {
   width: 100%;
-  height: 9px;
+  height: 10px;
   background-color: var(--bg-surface-elevated);
   border-radius: 9999px;
   overflow: hidden;
@@ -970,8 +1043,9 @@
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), #34d399);
+  background: linear-gradient(90deg, #38bdf8 0%, #34d399 50%, #818cf8 100%);
   border-radius: 9999px;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
   transition: width 0.35s ease-out;
 }
 
@@ -1129,25 +1203,37 @@
   gap: 0.75rem;
 }
 
+/* Task Card with Dynamic Soft Tints */
 .task-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
+  border-left: 4px solid var(--primary);
   border-radius: var(--radius-md);
   padding: 1.15rem 1.45rem;
   display: flex;
   align-items: center;
   gap: 1.15rem;
   box-shadow: var(--shadow-card);
-  transition: border-color 0.2s, background-color 0.2s, transform 0.15s;
+  transition: border-color 0.2s, background-color 0.2s, transform 0.15s, box-shadow 0.2s;
 }
 
 .task-card:hover {
   border-color: var(--border-color-hover);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
 }
 
+/* Soft Category Left Borders */
+.task-card.cat-academic { border-left-color: #6366f1; }
+.task-card.cat-project { border-left-color: #0ea5e9; }
+.task-card.cat-exam { border-left-color: #f43f5e; }
+.task-card.cat-work { border-left-color: #f59e0b; }
+.task-card.cat-personal { border-left-color: #10b981; }
+.task-card.cat-health { border-left-color: #8b5cf6; }
+.task-card.cat-urgent { border-left-color: #ef4444; }
+
 .task-card.priority-high-border {
-  border-left: 5px solid var(--danger);
+  border-left-width: 5px;
 }
 
 .task-card.task-done {
@@ -1218,6 +1304,7 @@
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 9999px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .task-description {
@@ -1233,13 +1320,111 @@
   margin-top: 3px;
 }
 
+/* ========================================================
+   SOFT PASTEL CATEGORY BADGES
+======================================================== */
 .badge-category {
   font-size: 0.78rem;
-  background-color: var(--bg-surface-elevated);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  padding: 2px 9px;
+  font-weight: 600;
+  padding: 3px 10px;
   border-radius: 9999px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+
+/* Dark Mode Category Badges */
+.badge-category.cat-academic {
+  background-color: rgba(99, 102, 241, 0.14);
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.badge-category.cat-project {
+  background-color: rgba(14, 165, 233, 0.14);
+  color: #7dd3fc;
+  border-color: rgba(14, 165, 233, 0.3);
+}
+
+.badge-category.cat-exam {
+  background-color: rgba(244, 63, 94, 0.14);
+  color: #fda4af;
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.badge-category.cat-work {
+  background-color: rgba(245, 158, 11, 0.14);
+  color: #fde68a;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.badge-category.cat-personal {
+  background-color: rgba(16, 185, 129, 0.14);
+  color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.badge-category.cat-health {
+  background-color: rgba(139, 92, 246, 0.14);
+  color: #d8b4fe;
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.badge-category.cat-urgent {
+  background-color: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+/* Light Mode Category Badges (Soft Gentle Pastels) */
+:host-context(.min-h-screen:not(.dark)) .badge-category.cat-academic,
+.min-h-screen:not(.dark) .badge-category.cat-academic {
+  background-color: #eef2ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+}
+
+:host-context(.min-h-screen:not(.dark)) .badge-category.cat-project,
+.min-h-screen:not(.dark) .badge-category.cat-project {
+  background-color: #f0f9ff;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
+
+:host-context(.min-h-screen:not(.dark)) .badge-category.cat-exam,
+.min-h-screen:not(.dark) .badge-category.cat-exam {
+  background-color: #fff1f2;
+  color: #be123c;
+  border-color: #fecdd3;
+}
+
+:host-context(.min-h-screen:not(.dark)) .badge-category.cat-work,
+.min-h-screen:not(.dark) .badge-category.cat-work {
+  background-color: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+:host-context(.min-h-screen:not(.dark)) .badge-category.cat-personal,
+.min-h-screen:not(.dark) .badge-category.cat-personal {
+  background-color: #f0fdf4;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+:host-context(.min-h-screen:not(.dark)) .badge-category.cat-health,
+.min-h-screen:not(.dark) .badge-category.cat-health {
+  background-color: #faf5ff;
+  color: #6d28d9;
+  border-color: #e9d5ff;
+}
+
+:host-context(.min-h-screen:not(.dark)) .badge-category.cat-urgent,
+.min-h-screen:not(.dark) .badge-category.cat-urgent {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
 }
 
 .badge-time {
@@ -1250,23 +1435,26 @@
 .badge-priority {
   font-size: 0.78rem;
   font-weight: 700;
-  padding: 2px 9px;
+  padding: 3px 9px;
   border-radius: 9999px;
 }
 
 .badge-p-high {
   background-color: var(--danger-subtle);
   color: var(--danger);
+  border: 1px solid rgba(244, 63, 94, 0.25);
 }
 
 .badge-p-med {
   background-color: var(--warning-subtle);
   color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .badge-p-low {
-  background-color: var(--primary-subtle);
-  color: var(--primary);
+  background-color: var(--accent-subtle);
+  color: var(--accent);
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .badge-completed-time {
@@ -1449,7 +1637,7 @@
 }
 
 /* ========================================================
-   VIEW B: MONTHLY PERFORMANCE & ANALYTICS
+   VIEW B: MONTHLY PERFORMANCE & ANALYTICS WITH PASTEL METRICS
 ======================================================== */
 .monthly-section {
   display: flex;
@@ -1514,7 +1702,7 @@
   background-color: var(--primary-subtle);
 }
 
-/* 4 Metric Cards */
+/* 4 Metric Cards with Soft Distinct Pastel Tints */
 .monthly-metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -1530,31 +1718,93 @@
   display: flex;
   align-items: center;
   gap: 1.35rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Metric Soft Pastel Auras */
+.metric-card-total {
+  background: linear-gradient(145deg, rgba(99, 102, 241, 0.08), var(--bg-surface));
+  border-color: rgba(99, 102, 241, 0.22);
+}
+
+.metric-card-success {
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.08), var(--bg-surface));
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+.metric-card-warning {
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.08), var(--bg-surface));
+  border-color: rgba(245, 158, 11, 0.22);
+}
+
+.metric-card-purple {
+  background: linear-gradient(145deg, rgba(139, 92, 246, 0.08), var(--bg-surface));
+  border-color: rgba(139, 92, 246, 0.22);
+}
+
+/* Light Mode Metric Soft Cards */
+:host-context(.min-h-screen:not(.dark)) .metric-card-total,
+.min-h-screen:not(.dark) .metric-card-total {
+  background: linear-gradient(145deg, #f5f7ff, #ffffff);
+  border-color: #c7d2fe;
+}
+
+:host-context(.min-h-screen:not(.dark)) .metric-card-success,
+.min-h-screen:not(.dark) .metric-card-success {
+  background: linear-gradient(145deg, #f0fdf4, #ffffff);
+  border-color: #a7f3d0;
+}
+
+:host-context(.min-h-screen:not(.dark)) .metric-card-warning,
+.min-h-screen:not(.dark) .metric-card-warning {
+  background: linear-gradient(145deg, #fffbeb, #ffffff);
+  border-color: #fde68a;
+}
+
+:host-context(.min-h-screen:not(.dark)) .metric-card-purple,
+.min-h-screen:not(.dark) .metric-card-purple {
+  background: linear-gradient(145deg, #faf5ff, #ffffff);
+  border-color: #e9d5ff;
 }
 
 .metric-icon {
-  font-size: 2.25rem;
+  font-size: 2.2rem;
   width: 56px;
   height: 56px;
   border-radius: var(--radius-md);
-  background-color: var(--bg-surface-elevated);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.metric-card-success .metric-icon {
-  background-color: var(--accent-subtle);
+.metric-icon-total {
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: var(--primary);
+}
+
+.metric-icon-success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
   color: var(--accent);
 }
 
-.metric-card-warning .metric-icon {
-  background-color: var(--warning-subtle);
+.metric-icon-warning {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
   color: var(--warning);
 }
 
-.metric-card-purple .metric-icon {
-  background-color: var(--purple-subtle);
+.metric-icon-purple {
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.25);
   color: var(--purple);
 }
 
@@ -1676,17 +1926,18 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform 0.15s, border-color 0.15s, background-color 0.15s;
+  transition: transform 0.15s, border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
 }
 
 .calendar-day-cell:hover {
   transform: translateY(-2px);
   border-color: var(--primary);
   background-color: var(--bg-surface-hover);
+  box-shadow: 0 4px 12px var(--primary-glow);
 }
 
 .calendar-day-cell.other-month {
-  opacity: 0.3;
+  opacity: 0.28;
 }
 
 .calendar-day-cell.is-today {
@@ -1694,7 +1945,7 @@
 }
 
 .calendar-day-cell.day-perfect {
-  background-color: var(--accent-subtle);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), var(--bg-surface-elevated));
   border-color: var(--accent);
 }
 
@@ -1792,7 +2043,7 @@
 
 .cat-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--purple));
+  background: linear-gradient(90deg, #6366f1, #0ea5e9, #10b981);
   border-radius: 9999px;
   transition: width 0.35s ease-out;
 }
