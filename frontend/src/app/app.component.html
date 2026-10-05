@@ -1,14 +1,16 @@
 <div [class.dark]="isDarkMode" class="min-h-screen bg-app transition-colors duration-300">
 
-  <!-- TOP NAVBAR: Clean & Swiss Minimalist -->
+  <!-- ========================================== -->
+  <!-- TOP EXECUTIVE NAVBAR -->
+  <!-- ========================================== -->
   <header class="header">
     <div class="header-container">
-      <!-- Logo Group (Click to return to landing or toggle view) -->
-      <div class="logo-group" (click)="switchToLanding()" style="cursor: pointer;" title="หน้าแนะนำ Todaprime">
-        <div class="logo-icon">🔥</div>
+      <!-- Logo Group (Click to toggle Overview vs Dashboard) -->
+      <div class="logo-group" (click)="switchToLanding()" style="cursor: pointer;" title="ภาพรวมระบบ Todaprime">
+        <div class="logo-icon">✦</div>
         <div>
           <h1 class="logo-title">Todaprime</h1>
-          <p class="logo-subtitle">Daily Planner & Monthly Statistics · วางแผนรายวัน & สถิติ</p>
+          <p class="logo-subtitle">Executive Task Management & Strategic Planning</p>
         </div>
       </div>
 
@@ -16,27 +18,27 @@
       <div class="header-right">
         <!-- Quick Mode Switcher in Header (when in App view) -->
         <div *ngIf="currentView === 'app'" class="header-nav-tabs">
-          <button (click)="activeTab = 'planner'" [class.active]="activeTab === 'planner'" class="header-tab-btn">
-            📝 วางแผนรายวัน
+          <button (click)="setDashboardTab('planner')" [class.active]="activeTab === 'planner'" class="header-tab-btn">
+            📋 ตารางภารกิจประจำวัน
           </button>
-          <button (click)="activeTab = 'monthly'" [class.active]="activeTab === 'monthly'" class="header-tab-btn">
-            📊 สถิติประจำเดือน
+          <button (click)="setDashboardTab('monthly')" [class.active]="activeTab === 'monthly'" class="header-tab-btn">
+            📊 รายงานสถิติประจำเดือน
           </button>
         </div>
 
         <!-- Theme Toggle -->
-        <button (click)="toggleTheme()" class="btn-theme-toggle" title="สลับโหมดกลางคืน/สว่าง">
+        <button (click)="toggleTheme()" class="btn-theme-toggle" [title]="isDarkMode ? 'สลับเป็นโหมดสว่าง (Light Mode)' : 'สลับเป็นโหมดมืด (Dark Mode)'">
           {{ isDarkMode ? '☀️' : '🌙' }}
         </button>
 
         <!-- User Profile Pill (if logged in) -->
-        <div *ngIf="(authService.currentUser$ | async) as user" class="user-pill" (click)="toggleMenu()">
+        <div *ngIf="(authService.currentUser$ | async) as user" class="user-pill" (click)="toggleMenu()" title="บัญชีผู้ใช้งาน">
           <img [src]="user.avatar" [alt]="user.name" class="user-pill-avatar" />
           <span class="user-pill-name">{{ user.name }}</span>
         </div>
 
         <!-- 3-Bar Hamburger Menu Button -->
-        <button (click)="toggleMenu()" class="btn-hamburger" title="เปิดเมนูหลัก" aria-label="เมนู">
+        <button (click)="toggleMenu()" class="btn-hamburger" title="เปิดศูนย์ควบคุม (Control Panel)" aria-label="เมนู">
           <div class="hamburger-lines">
             <span class="line"></span>
             <span class="line"></span>
@@ -50,17 +52,17 @@
   <!-- DRAWER OVERLAY BACKDROP -->
   <div *ngIf="isMenuOpen" class="drawer-backdrop" (click)="closeMenu()"></div>
 
-  <!-- RIGHT SLIDE-IN DRAWER MENU -->
+  <!-- RIGHT SLIDE-IN CONTROL DRAWER -->
   <aside class="drawer-sidebar" [class.drawer-open]="isMenuOpen">
     <div class="drawer-header">
       <div class="drawer-title-group">
-        <div class="drawer-icon">📌</div>
+        <div class="drawer-icon">🏛️</div>
         <div>
-          <h2 class="drawer-title">เมนูตัวเลือก</h2>
-          <p class="drawer-subtitle">Todaprime Control Panel</p>
+          <h2 class="drawer-title">ศูนย์ควบคุมและบริหารจัดการ</h2>
+          <p class="drawer-subtitle">Management Console · Todaprime</p>
         </div>
       </div>
-      <button (click)="closeMenu()" class="btn-drawer-close" title="ปิดเมนู">✕</button>
+      <button (click)="closeMenu()" class="btn-drawer-close" title="ปิดหน้าต่าง">✕</button>
     </div>
 
     <!-- User Profile Card in Drawer -->
@@ -72,8 +74,8 @@
             <div class="user-drawer-name">{{ user.name }}</div>
             <div class="user-drawer-email">{{ user.email }}</div>
             <div class="user-drawer-badge">
-              <span *ngIf="user.provider === 'google'">🟢 ยืนยันผ่าน Google แล้ว</span>
-              <span *ngIf="user.provider === 'standard'">🟢 บัญชีสมาชิกทั่วไป</span>
+              <span *ngIf="user.provider === 'google'">🟢 ยืนยันสิทธิ์ผ่าน Google Workspace</span>
+              <span *ngIf="user.provider === 'standard'">🟢 บัญชีผู้ใช้มาตรฐาน (Verified Member)</span>
             </div>
           </div>
           <button (click)="logout()" class="btn-drawer-logout" title="ออกจากระบบ">
@@ -83,7 +85,7 @@
       </ng-container>
       <ng-template #notLoggedIn>
         <div class="guest-card-drawer">
-          <div class="guest-text">ยังไม่ได้เข้าสู่ระบบ</div>
+          <div class="guest-text">ยังไม่ได้เข้าสู่ระบบผู้ใช้งาน</div>
           <button (click)="openLoginModal()" class="btn-drawer-login">
             <svg class="google-icon-sm" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -91,7 +93,7 @@
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
             </svg>
-            เข้าสู่ระบบด้วย Google / สมาชิก
+            ยืนยันตัวตนด้วย Google / ลงทะเบียน
           </button>
         </div>
       </ng-template>
@@ -99,43 +101,43 @@
 
     <!-- Navigation List in Drawer -->
     <div class="drawer-nav">
-      <div class="drawer-nav-group-title">หน้าหลักและการทำงาน</div>
+      <div class="drawer-nav-group-title">ระบบการทำงานหลัก</div>
 
       <button (click)="switchToApp('planner')" class="drawer-nav-item" [class.active-item]="currentView === 'app' && activeTab === 'planner'">
-        <span class="drawer-nav-icon">📝</span>
+        <span class="drawer-nav-icon">📋</span>
         <div class="drawer-nav-label">
-          <div class="drawer-nav-text">วางแผนรายวัน & เช็กลิสต์</div>
-          <div class="drawer-nav-desc">ลงสิ่งที่ต้องทำในแต่ละวัน & ติกว่าทำแล้ว</div>
+          <div class="drawer-nav-text">ตารางภารกิจและบันทึกผลงาน</div>
+          <div class="drawer-nav-desc">กำหนดการดำเนินงานรายวัน และการบันทึกสถานะแล้วเสร็จ</div>
         </div>
       </button>
 
       <button (click)="switchToApp('monthly')" class="drawer-nav-item" [class.active-item]="currentView === 'app' && activeTab === 'monthly'">
         <span class="drawer-nav-icon">📊</span>
         <div class="drawer-nav-label">
-          <div class="drawer-nav-text">สถิติของแต่ละเดือน</div>
-          <div class="drawer-nav-desc">อัตราความสำเร็จ, ฮีทแมพ และสรุปผล</div>
+          <div class="drawer-nav-text">รายงานสถิติและดัชนีชี้วัด</div>
+          <div class="drawer-nav-desc">แดชบอร์ดสรุปประสิทธิภาพ ฮีทแมพ และความคืบหน้ารายเดือน</div>
         </div>
       </button>
 
       <button (click)="switchToLanding()" class="drawer-nav-item" [class.active-item]="currentView === 'landing'">
-        <span class="drawer-nav-icon">🏠</span>
+        <span class="drawer-nav-icon">🏛️</span>
         <div class="drawer-nav-label">
-          <div class="drawer-nav-text">หน้าแนะนำเว็บไซต์</div>
-          <div class="drawer-nav-desc">ข้อมูลฟีเจอร์และแนะนำการใช้งาน</div>
+          <div class="drawer-nav-text">ภาพรวมและเอกสารแนะนำระบบ</div>
+          <div class="drawer-nav-desc">ข้อมูลสถาปัตยกรรมและแนวทางการใช้งานแพลตฟอร์ม</div>
         </div>
       </button>
 
       <!-- Categories Filter Accordion -->
-      <div class="drawer-nav-group-title mt-4">หมวดหมู่งาน</div>
+      <div class="drawer-nav-group-title mt-4">การจัดกลุ่มและหมวดหมู่ภารกิจ</div>
       <div class="drawer-accordion-btn" (click)="toggleCategoryMenu()">
-        <span>🏷️ เลือกดูตามหมวดหมู่</span>
+        <span>🏷️ จำแนกตามกลุ่มภารกิจ</span>
         <span class="accordion-arrow">{{ isCategoryMenuExpanded ? '▲' : '▼' }}</span>
       </div>
 
       <div *ngIf="isCategoryMenuExpanded" class="drawer-category-list">
         <button (click)="filterByCategory('All')" class="category-item-btn" [class.active-cat]="selectedCategory === 'All'">
           <span>🌐</span>
-          <span>แสดงทุกหมวดหมู่ (All)</span>
+          <span>แสดงทุกหมวดหมู่ (All Classifications)</span>
         </button>
         <button *ngFor="let cat of categories" (click)="filterByCategory(cat.name)" class="category-item-btn" [class.active-cat]="selectedCategory === cat.name">
           <span>{{ cat.icon }}</span>
@@ -144,53 +146,53 @@
       </div>
 
       <!-- Support & Provider Contact -->
-      <div class="drawer-nav-group-title mt-4">ผู้ให้บริการ & การตั้งค่า</div>
+      <div class="drawer-nav-group-title mt-4">การสนับสนุนและปรับแต่งระบบ</div>
 
       <button (click)="openContactModal()" class="drawer-nav-item">
         <span class="drawer-nav-icon">📞</span>
         <div class="drawer-nav-label">
-          <div class="drawer-nav-text">ติดต่อผู้ให้บริการ</div>
-          <div class="drawer-nav-desc">ส่งข้อความถึงผู้พัฒนาและทีมงาน</div>
+          <div class="drawer-nav-text">ติดต่อฝ่ายประสานงานและทีมพัฒนาระบบ</div>
+          <div class="drawer-nav-desc">บริการสนับสนุนทางเทคนิคและข้อเสนอแนะเชิงยุทธศาสตร์</div>
         </div>
       </button>
 
       <button (click)="toggleTheme()" class="drawer-nav-item">
         <span class="drawer-nav-icon">{{ isDarkMode ? '☀️' : '🌙' }}</span>
         <div class="drawer-nav-label">
-          <div class="drawer-nav-text">{{ isDarkMode ? 'เปลี่ยนเป็นโหมดสว่าง (Light)' : 'เปลี่ยนเป็นโหมดมืด (Dark)' }}</div>
-          <div class="drawer-nav-desc">ปรับธีมสายตาตามความสะดวก</div>
+          <div class="drawer-nav-text">{{ isDarkMode ? 'เปลี่ยนเป็นชุดสีโหมดสว่าง (Light Mode)' : 'เปลี่ยนเป็นชุดสีโหมดมืด (Dark Mode)' }}</div>
+          <div class="drawer-nav-desc">ปรับแต่งการแสดงผลเพื่อความสบายตาและประสิทธิภาพสูงสุด</div>
         </div>
       </button>
     </div>
 
     <!-- Drawer Footer -->
     <div class="drawer-footer">
-      <div class="text-xs text-muted">Todaprime v2.5 · Clean Minimalist Suite</div>
+      <div class="text-xs text-muted">Todaprime Enterprise Edition v3.0 · State-Preserved</div>
     </div>
   </aside>
 
   <!-- ========================================== -->
-  <!-- 1. LANDING PAGE VIEW (หน้าแนะนำเว็บไซตอนกดเข้ามาแต่แรก) -->
+  <!-- 1. LANDING PAGE VIEW (EXECUTIVE OVERVIEW) -->
   <!-- ========================================== -->
   <main *ngIf="currentView === 'landing'" class="landing-container">
     <div class="landing-hero">
-      <div class="landing-badge">✨ Daily Productivity & Planner Dashboard</div>
+      <div class="landing-badge">✦ สถาปัตยกรรมเพื่อการบริหารจัดการภารกิจระดับมืออาชีพ</div>
       <h1 class="landing-hero-title">
-        วางแผนงานในแต่ละวันข้างหน้า <br/>
-        <span class="gradient-text">เช็กลิสต์ความสำเร็จ & เก็บสถิติประจำเดือน</span>
+        ระบบวางแผนภารกิจเชิงยุทธศาสตร์ <br/>
+        <span class="gradient-text">และวิเคราะห์ประสิทธิภาพการดำเนินงาน</span>
       </h1>
       <p class="landing-hero-sub">
-        <strong>Todaprime</strong> ออกแบบมาเพื่อความเรียบง่ายและใช้งานได้ทันที 
-        ช่วยให้คุณวางแผนการบ้าน รายงาน และสิ่งที่ต้องทำในวันพรุ่งนี้หรือวันข้างหน้าได้อย่างอิสระ 
-        พร้อมระบบเช็กลิสต์ว่าทำเสร็จแล้วในวันนี้ และบันทึกสถิติความก้าวหน้าในแต่ละเดือนแบบครบวงจร
+        <strong>Todaprime</strong> ได้รับการออกแบบขึ้นตามหลักสรีรศาสตร์และ Swiss Minimalism 
+        เพื่อยกระดับการบริหารเวลาและภารกิจสำคัญอย่างเป็นระบบ รองรับการจัดตารางส่งมอบงาน การบ้าน 
+        และเป้าหมายล่วงหน้า พร้อมระบบตรวจรับผลงานรายวัน และแดชบอร์ดสรุปสถิติดัชนีชี้วัดผลงาน (Monthly Analytics)
       </p>
 
       <div class="landing-cta-buttons">
         <button (click)="switchToApp('planner')" class="btn-landing-primary">
-          🚀 เข้าสู่กระดานวางแผนงานทันที
+          🚀 เข้าสู่ระบบบริหารจัดการภารกิจ
         </button>
         <button (click)="switchToApp('monthly')" class="btn-landing-secondary">
-          📊 ดูสถิติประจำเดือน
+          📊 ตรวจสอบรายงานสถิติรายเดือน
         </button>
         <button (click)="openLoginModal()" class="btn-landing-google" *ngIf="!(authService.currentUser$ | async)">
           <svg class="google-icon-sm" viewBox="0 0 24 24">
@@ -199,44 +201,44 @@
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
           </svg>
-          เข้าสู่ระบบด้วย Google
+          ยืนยันตัวตนด้วย Google Workspace
         </button>
         <button (click)="openContactModal()" class="btn-landing-contact">
-          📞 ติดต่อทีมงานผู้ให้บริการ
+          📞 ติดต่อทีมพัฒนาระบบ
         </button>
       </div>
 
       <!-- Core Features Grid -->
       <div class="landing-features-grid">
         <div class="feature-card">
-          <div class="feature-icon">📅</div>
-          <h3 class="feature-title">วางแผนแต่ละวันข้างหน้า</h3>
+          <div class="feature-icon">🗓️</div>
+          <h3 class="feature-title">การวางแผนล่วงหน้าเชิงรุก</h3>
           <p class="feature-desc">
-            กำหนดตารางการบ้าน งาน และสิ่งที่ต้องทำให้วันพรุ่งนี้ มะรืนนี้ หรือวันข้างหน้าล่วงหน้าได้อย่างอิสระ ไม่ต้องกังวลว่าจะลืมส่งงาน
+            กำหนดการส่งมอบงาน การบ้าน และเป้าหมายสำคัญสำหรับวันพรุ่งนี้หรือวันข้างหน้าอย่างมีแบบแผน พร้อมระบุระดับความสำคัญเชิงยุทธศาสตร์
           </p>
         </div>
 
         <div class="feature-card">
-          <div class="feature-icon">✅</div>
-          <h3 class="feature-title">เช็กลิสต์ทำแล้วในวันนี้</h3>
+          <div class="feature-icon">✓</div>
+          <h3 class="feature-title">การตรวจรับและบันทึกผลงาน</h3>
           <p class="feature-desc">
-            ติกว่าทำเสร็จแล้วได้ง่ายๆ ในคลิกเดียว พร้อมเสียงยินดีความสำเร็จ และแถบความคืบหน้าที่คำนวณเปอร์เซ็นต์แบบเรียลไทม์
+            ยืนยันสถานะการดำเนินงานที่แล้วเสร็จในคลิกเดียว พร้อมประเมินอัตราความสำเร็จ (Execution Rate) และบันทึกเวลาที่แล้วเสร็จอย่างแม่นยำ
           </p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">📈</div>
-          <h3 class="feature-title">เก็บสถิติของแต่ละเดือน</h3>
+          <h3 class="feature-title">การวิเคราะห์ดัชนีชี้วัดรายเดือน</h3>
           <p class="feature-desc">
-            บันทึกประวัติและแสดงฮีทแมพปฏิทินตลอดทั้งเดือน ดูว่าวันไหนทำสำเร็จ 100% พร้อมกราฟจำแนกตามหมวดหมู่งาน
+            แดชบอร์ดสรุปประสิทธิภาพรายเดือน แผนภาพฮีทแมพปฏิทิน และรายงานการกระจายตัวตามกลุ่มงาน เพื่อประเมินความต่อเนื่องในการดำเนินงาน
           </p>
         </div>
 
         <div class="feature-card">
-          <div class="feature-icon">⚡</div>
-          <h3 class="feature-title">เข้าใช้งานได้ทันที ไม่สะดุด</h3>
+          <div class="feature-icon">🔒</div>
+          <h3 class="feature-title">ความต่อเนื่องของสถานะระบบ</h3>
           <p class="feature-desc">
-            บันทึกข้อมูลลงในเบราว์เซอร์อัตโนมัติ ใช้งานได้จริงบน Vercel และมือถือ โดยไม่ต้องรอเซิร์ฟเวอร์
+            บันทึกสถานะหน้าจอ ปฏิทิน และแท็บการทำงานอัตโนมัติบนเบราว์เซอร์ โหลดหน้าเว็บซ้ำโดยไม่สูญเสียตำแหน่งงานที่กำลังเปิดอยู่
           </p>
         </div>
       </div>
@@ -248,27 +250,27 @@
   <!-- ========================================== -->
   <main *ngIf="currentView === 'app'" class="app-main-container">
     
-    <!-- DASHBOARD VIEW SWITCHER (วางแผนรายวัน vs สถิติประจำเดือน) -->
+    <!-- DASHBOARD VIEW SWITCHER (ตารางภารกิจประจำวัน vs รายงานสถิติประจำเดือน) -->
     <div class="dashboard-tabs-bar">
       <button 
-        (click)="activeTab = 'planner'" 
+        (click)="setDashboardTab('planner')" 
         [class.active]="activeTab === 'planner'" 
         class="dash-tab-btn">
-        <span>📝 วางแผนรายวัน & เช็กลิสต์</span>
+        <span>📋 ตารางภารกิจประจำวัน & บันทึกผลงาน</span>
         <span class="tab-badge" *ngIf="dayTasks.length > 0">{{ dayTasks.length }}</span>
       </button>
 
       <button 
-        (click)="activeTab = 'monthly'" 
+        (click)="setDashboardTab('monthly')" 
         [class.active]="activeTab === 'monthly'" 
         class="dash-tab-btn">
-        <span>📊 สถิติของแต่ละเดือน</span>
+        <span>📊 รายงานสถิติและดัชนีชี้วัดรายเดือน</span>
         <span class="tab-badge-accent" *ngIf="monthlyStats">{{ monthlyStats.completionRate }}%</span>
       </button>
     </div>
 
     <!-- ---------------------------------------------------- -->
-    <!-- VIEW A: DAY PLANNER & TODAY CHECKLIST (วางแผนรายวัน & เช็กลิสต์) -->
+    <!-- VIEW A: DAY PLANNER & EXECUTION REGISTER (ตารางภารกิจประจำวัน) -->
     <!-- ---------------------------------------------------- -->
     <section *ngIf="activeTab === 'planner'" class="planner-section">
 
@@ -281,13 +283,13 @@
           
           <div class="quick-date-buttons">
             <button (click)="setToday()" [class.active-date-btn]="selectedDate === taskService.getTodayDateStr()" class="btn-quick-date">
-              วันนี้
+              กำหนดการวันนี้
             </button>
             <button (click)="setTomorrow()" [class.active-date-btn]="selectedDate === taskService.getDateOffsetStr(1)" class="btn-quick-date">
-              พรุ่งนี้
+              กำหนดการวันพรุ่งนี้
             </button>
             <button (click)="setDayAfter()" [class.active-date-btn]="selectedDate === taskService.getDateOffsetStr(2)" class="btn-quick-date">
-              มะรืนนี้
+              กำหนดการวันมะรืนนี้
             </button>
           </div>
 
@@ -298,7 +300,7 @@
 
         <!-- Custom Date Input Picker -->
         <div class="custom-date-picker-group">
-          <label class="date-picker-label">🗓️ เลือกวันที่ในอนาคต:</label>
+          <label class="date-picker-label">🗓️ เลือกกำหนดการเป้าหมาย:</label>
           <input 
             type="date" 
             [ngModel]="selectedDate" 
@@ -308,21 +310,21 @@
         </div>
       </div>
 
-      <!-- Current Selected Day Status Banner -->
+      <!-- Current Selected Day Executive Banner -->
       <div class="selected-day-banner">
         <div class="day-banner-content">
           <div class="day-title-badge">
             <span class="day-icon">🗓️</span>
             <div>
               <h2 class="day-title-text">{{ displayDateText }}</h2>
-              <p class="day-date-raw">กำหนดการ: {{ selectedDate }}</p>
+              <p class="day-date-raw">รหัสกำหนดการ: {{ selectedDate }} | เวลาปัจจุบัน: {{ currentTimeStr }} น.</p>
             </div>
           </div>
 
           <!-- Daily Progress Bar -->
           <div class="day-progress-group">
             <div class="day-progress-text">
-              ความสำเร็จ: <strong>{{ dayStats.completed_tasks }}/{{ dayStats.total_tasks }}</strong> รายการ
+              ดัชนีความสำเร็จ: <strong>{{ dayStats.completed_tasks }} / {{ dayStats.total_tasks }}</strong> ภารกิจ
               <span class="text-accent font-bold">({{ dayStats.completion_rate }}%)</span>
             </div>
             <div class="progress-bar-track">
@@ -332,7 +334,7 @@
         </div>
 
         <button (click)="openCreateModal()" class="btn-add-full-task">
-          + เพิ่มงานแบบละเอียด
+          + บันทึกภารกิจอย่างละเอียด
         </button>
       </div>
 
@@ -340,14 +342,14 @@
       <div class="quick-add-card">
         <div class="quick-add-header">
           <span class="quick-add-icon">⚡</span>
-          <span>ลงว่าทำอะไรในวันที่ {{ formatThaiDateShort(selectedDate) }}:</span>
+          <span>บันทึกภารกิจใหม่สำหรับกำหนดการ: {{ formatThaiDateFormal(selectedDate) }}</span>
         </div>
         <form (ngSubmit)="submitQuickAdd()" class="quick-add-form">
           <input 
             type="text" 
             [(ngModel)]="quickTitle" 
             name="quickTitle"
-            placeholder="เช่น ทำการบ้านวิชาคณิตศาสตร์, ส่งรายงานประวัติศาสตร์, อ่านหนังสือเตรียมสอบ..." 
+            placeholder="ระบุชื่อภารกิจ เช่น จัดทำรายงานสรุปผลการวิจัย, ส่งมอบโครงงานระบบคอมพิวเตอร์..." 
             class="quick-input-title"
             required
           />
@@ -355,13 +357,13 @@
           <div class="quick-add-meta">
             <!-- Time Picker -->
             <div class="quick-field">
-              <label>⏰ เวลา:</label>
+              <label>⏰ กำหนดเวลา:</label>
               <input type="time" [(ngModel)]="quickDueTime" name="quickDueTime" class="quick-input-time" />
             </div>
 
             <!-- Category Picker -->
             <div class="quick-field">
-              <label>🏷️ หมวดหมู่:</label>
+              <label>🏷️ หมวดหมู่ภารกิจ:</label>
               <select [(ngModel)]="quickCategory" name="quickCategory" class="quick-select">
                 <option *ngFor="let cat of categories" [value]="cat.name">
                   {{ cat.icon }} {{ cat.name }}
@@ -371,16 +373,16 @@
 
             <!-- Priority Picker -->
             <div class="quick-field">
-              <label>🎯 สำคัญ:</label>
+              <label>🎯 ระดับความสำคัญ:</label>
               <select [(ngModel)]="quickPriority" name="quickPriority" class="quick-select">
-                <option value="HIGH">🚨 ด่วนมาก (High)</option>
-                <option value="MEDIUM">⚡ ปานกลาง (Medium)</option>
-                <option value="LOW">☕ สบายๆ (Low)</option>
+                <option value="HIGH">🔴 ระดับวิกฤต (Critical Priority)</option>
+                <option value="MEDIUM">🟡 ระดับสำคัญ (High Importance)</option>
+                <option value="LOW">🟢 ระดับมาตรฐาน (Standard Routine)</option>
               </select>
             </div>
 
             <button type="submit" class="btn-submit-quick">
-              + บันทึกงาน
+              + บันทึกข้อมูล
             </button>
           </div>
         </form>
@@ -388,7 +390,7 @@
 
       <!-- Active Filter Banner (if filtering by category) -->
       <div *ngIf="selectedCategory !== 'All'" class="filter-indicator-bar">
-        <span>🔍 กำลังกรองเฉพาะหมวดหมู่: <strong>{{ selectedCategory }}</strong></span>
+        <span>🔍 กรองเฉพาะกลุ่มภารกิจ: <strong>{{ selectedCategory }}</strong></span>
         <button (click)="clearCategoryFilter()" class="btn-clear-filter">แสดงทั้งหมด ✖</button>
       </div>
 
@@ -396,9 +398,9 @@
       <div class="tasks-checklist-container">
         <div class="section-title-row">
           <h3 class="section-heading">
-            📋 เช็กลิสต์รายการที่ต้องทำ ({{ dayTasks.length }})
+            ตารางรายการภารกิจที่ต้องดำเนินการ (Task Execution Register) — {{ dayTasks.length }} รายการ
           </h3>
-          <span class="text-xs text-muted">คลิกที่ช่องสี่เหลี่ยมเพื่อติกว่า "ทำแล้ว"</span>
+          <span class="text-xs text-muted">คลิกที่กล่องเพื่อบันทึกสถานะ "แล้วเสร็จ"</span>
         </div>
 
         <!-- Task Items -->
@@ -410,7 +412,7 @@
             [class.priority-high-border]="task.priority === 'HIGH'"
           >
             <!-- Checkbox (Click to toggle complete) -->
-            <div class="checkbox-container" (click)="toggleTask(task)" title="ติกว่าทำแล้ว/ยังไม่ทำ">
+            <div class="checkbox-container" (click)="toggleTask(task)" title="บันทึกสถานะการดำเนินงาน">
               <div class="custom-checkbox" [class.checked]="task.is_completed">
                 <span *ngIf="task.is_completed">✓</span>
               </div>
@@ -422,7 +424,7 @@
                 <span class="task-title" [class.task-title-completed]="task.is_completed">
                   {{ task.title }}
                 </span>
-                <span *ngIf="task.is_completed" class="badge-done">✅ ทำแล้ว</span>
+                <span *ngIf="task.is_completed" class="badge-done">✓ ดำเนินการแล้วเสร็จ</span>
               </div>
 
               <div *ngIf="task.description" class="task-description">
@@ -444,21 +446,21 @@
                   'badge-p-med': task.priority === 'MEDIUM',
                   'badge-p-low': task.priority === 'LOW'
                 }">
-                  {{ task.priority === 'HIGH' ? 'ด่วนมาก' : (task.priority === 'MEDIUM' ? 'ปานกลาง' : 'ทั่วไป') }}
+                  {{ task.priority === 'HIGH' ? 'ระดับวิกฤต' : (task.priority === 'MEDIUM' ? 'ระดับสำคัญ' : 'ระดับมาตรฐาน') }}
                 </span>
 
                 <span *ngIf="task.is_completed && task.completed_at" class="badge-completed-time">
-                  🕒 เสร็จเมื่อ {{ task.completed_at | date:'HH:mm' }} น.
+                  🕒 แล้วเสร็จเมื่อ {{ task.completed_at | date:'HH:mm' }} น.
                 </span>
               </div>
             </div>
 
             <!-- Action Buttons -->
             <div class="task-actions">
-              <button (click)="openEditModal(task, $event)" class="btn-action-edit" title="แก้ไขงาน">
+              <button (click)="openEditModal(task, $event)" class="btn-action-edit" title="แก้ไขรายละเอียด">
                 ✏️
               </button>
-              <button (click)="deleteTask(task, $event)" class="btn-action-delete" title="ลบงานนี้">
+              <button (click)="deleteTask(task, $event)" class="btn-action-delete" title="ลบรายการนี้">
                 🗑️
               </button>
             </div>
@@ -467,21 +469,21 @@
 
         <ng-template #noTasks>
           <div class="empty-tasks-card">
-            <div class="empty-icon">🏖️</div>
-            <div class="empty-title">ยังไม่มีรายการงานสำหรับวันที่ {{ formatThaiDateShort(selectedDate) }}</div>
+            <div class="empty-icon">📂</div>
+            <div class="empty-title">ไม่มีรายการภารกิจสำหรับกำหนดการ {{ formatThaiDateFormal(selectedDate) }}</div>
             <p class="empty-desc">
-              พิมพ์สิ่งที่ต้องทำในช่องด้านบน หรือกดปุ่ม <strong>"+ เพิ่มงานแบบละเอียด"</strong> เพื่อเริ่มวางแผนได้เลย!
+              สามารถระบุภารกิจใหม่ในช่องบันทึกด้านบน หรือคลิกปุ่ม <strong>"+ บันทึกภารกิจอย่างละเอียด"</strong> เพื่อจัดสรรตารางการทำงาน
             </p>
           </div>
         </ng-template>
       </div>
 
-      <!-- UPCOMING TASKS SECTION (สิ่งที่ต้องทำในวันข้างหน้า) -->
+      <!-- UPCOMING TASKS SECTION (กำหนดการส่งมอบและภารกิจในอนาคต) -->
       <div class="upcoming-section">
         <div class="upcoming-header">
           <div>
-            <h3 class="upcoming-title">📅 สิ่งที่ต้องทำในวันข้างหน้า (Upcoming Plans & Homework)</h3>
-            <p class="upcoming-subtitle">ดูภาพรวมการบ้านและงานที่วางแผนไว้สำหรับวันต่อๆ ไป เพื่อเตรียมตัวล่วงหน้า</p>
+            <h3 class="upcoming-title">📅 กำหนดการส่งมอบและภารกิจในอนาคต (Upcoming Schedule & Deliverables)</h3>
+            <p class="upcoming-subtitle">ภาพรวมกำหนดการส่งมอบงาน การบ้าน และภารกิจสำคัญในวันถัดไป เพื่อเตรียมความพร้อมล่วงหน้า</p>
           </div>
           <button (click)="openCreateModal()" class="btn-plan-ahead">
             + วางแผนงานล่วงหน้า
@@ -491,15 +493,15 @@
         <div *ngIf="upcomingTasks.length > 0; else noUpcoming" class="upcoming-grid">
           <div *ngFor="let ut of upcomingTasks" class="upcoming-card" (click)="selectDate(ut.due_date)">
             <div class="upcoming-date-badge">
-              <span>🗓️ {{ formatThaiDateShort(ut.due_date) }}</span>
+              <span>🗓️ {{ formatThaiDateFormal(ut.due_date) }}</span>
               <span class="upcoming-date-raw">({{ ut.due_date }})</span>
             </div>
             <div class="upcoming-card-title">{{ ut.title }}</div>
             <div class="upcoming-card-footer">
               <span class="badge-category">{{ ut.category }}</span>
-              <span *ngIf="ut.due_time" class="badge-time">⏰ {{ ut.due_time }}</span>
-              <button class="btn-goto-day" title="ไปยังวันที่นี้">
-                เปิดดูวันนี้ ➔
+              <span *ngIf="ut.due_time" class="badge-time">⏰ {{ ut.due_time }} น.</span>
+              <button class="btn-goto-day" title="เปิดดูตารางงานของวันนี้">
+                ตรวจสอบกำหนดการนี้ ➔
               </button>
             </div>
           </div>
@@ -507,7 +509,7 @@
 
         <ng-template #noUpcoming>
           <div class="empty-upcoming-box">
-            <span>🎉 ยังไม่มีแผนงานในวันข้างหน้า กด <strong>"+ วางแผนงานล่วงหน้า"</strong> เพื่อจดการบ้านที่จะส่งวันอื่นได้เลย</span>
+            <span>✦ ขณะนี้ไม่มีภารกิจคงค้างในอนาคต สามารถคลิก <strong>"+ วางแผนงานล่วงหน้า"</strong> เพื่อบันทึกกำหนดการใหม่</span>
           </div>
         </ng-template>
       </div>
@@ -515,7 +517,7 @@
     </section>
 
     <!-- ---------------------------------------------------- -->
-    <!-- VIEW B: MONTHLY STATISTICS & HEATMAP (สถิติของแต่ละเดือน) -->
+    <!-- VIEW B: MONTHLY STATISTICS & HEATMAP (รายงานสถิติประจำเดือน) -->
     <!-- ---------------------------------------------------- -->
     <section *ngIf="activeTab === 'monthly'" class="monthly-section">
 
@@ -528,7 +530,7 @@
         <div class="current-month-display">
           <h2 class="month-title-text">{{ monthlyStats?.monthName }}</h2>
           <button (click)="jumpToCurrentMonth()" class="btn-today-month">
-            เดือนปัจจุบัน
+            รอบเดือนปัจจุบัน
           </button>
         </div>
 
@@ -542,15 +544,15 @@
         <div class="metric-card">
           <div class="metric-icon">📋</div>
           <div class="metric-content">
-            <div class="metric-label">งานทั้งหมดในเดือนนี้</div>
+            <div class="metric-label">ภารกิจทั้งหมดในรอบเดือน (Total Assigned)</div>
             <div class="metric-number">{{ monthlyStats.totalTasks }} <span class="metric-unit">รายการ</span></div>
           </div>
         </div>
 
         <div class="metric-card metric-card-success">
-          <div class="metric-icon">✅</div>
+          <div class="metric-icon">✓</div>
           <div class="metric-content">
-            <div class="metric-label">ทำสำเร็จแล้ว (Completed)</div>
+            <div class="metric-label">ดำเนินการแล้วเสร็จ (Successfully Completed)</div>
             <div class="metric-number">
               {{ monthlyStats.completedTasks }} 
               <span class="metric-unit">({{ monthlyStats.completionRate }}%)</span>
@@ -561,15 +563,15 @@
         <div class="metric-card metric-card-warning">
           <div class="metric-icon">⏳</div>
           <div class="metric-content">
-            <div class="metric-label">งานที่รอทำ (Pending)</div>
+            <div class="metric-label">อยู่ระหว่างดำเนินการ (Pending & Active)</div>
             <div class="metric-number">{{ monthlyStats.pendingTasks }} <span class="metric-unit">รายการ</span></div>
           </div>
         </div>
 
         <div class="metric-card metric-card-purple">
-          <div class="metric-icon">⭐</div>
+          <div class="metric-icon">🏆</div>
           <div class="metric-content">
-            <div class="metric-label">วันที่ทำสำเร็จ 100% (Perfect)</div>
+            <div class="metric-label">วันที่บรรลุเป้าหมายครบ 100% (Perfect Days)</div>
             <div class="metric-number">
               {{ monthlyStats.perfectDaysCount }} 
               <span class="metric-unit">/ {{ monthlyStats.activeDaysCount }} วัน</span>
@@ -582,13 +584,13 @@
       <div class="monthly-calendar-card">
         <div class="calendar-card-header">
           <div>
-            <h3 class="calendar-card-title">🗓️ ปฏิทินแสดงความคืบหน้าประจำเดือน</h3>
-            <p class="calendar-card-sub">คลิกที่ช่องวันที่เพื่อเปิดดูรายการงานและเช็กลิสต์ของวันนั้น</p>
+            <h3 class="calendar-card-title">แผนภาพความหนาแน่นและประสิทธิภาพการดำเนินงาน (Monthly Performance Heatmap)</h3>
+            <p class="calendar-card-sub">คลิกที่ช่องวันที่เพื่อเข้าถึงตารางภารกิจและบันทึกผลงานของวันดังกล่าวได้ทันที</p>
           </div>
           <div class="calendar-legend">
-            <span class="legend-item"><span class="legend-dot dot-perfect"></span> สำเร็จ 100%</span>
-            <span class="legend-item"><span class="legend-dot dot-pending"></span> มีงานรอทำ</span>
-            <span class="legend-item"><span class="legend-dot dot-empty"></span> ไม่มีงาน</span>
+            <span class="legend-item"><span class="legend-dot dot-perfect"></span> แล้วเสร็จครบ 100%</span>
+            <span class="legend-item"><span class="legend-dot dot-pending"></span> มีภารกิจคงค้าง</span>
+            <span class="legend-item"><span class="legend-dot dot-empty"></span> ไม่มีกำหนดการ</span>
           </div>
         </div>
 
@@ -614,7 +616,7 @@
             [class.day-perfect]="day.isAllCompleted"
             [class.day-has-tasks]="day.taskCount > 0"
             (click)="clickCalendarDay(day)"
-            title="คลิกเพื่อดูงานวันที่ {{ day.dateStr }}"
+            title="คลิกเพื่อตรวจสอบข้อมูลกำหนดการวันที่ {{ day.dateStr }}"
           >
             <div class="day-cell-top">
               <span class="day-number">{{ day.dayNumber }}</span>
@@ -623,7 +625,7 @@
 
             <!-- Task count badge inside cell -->
             <div *ngIf="day.taskCount > 0" class="day-cell-badge" [class.badge-cell-perfect]="day.isAllCompleted">
-              {{ day.completedCount }}/{{ day.taskCount }} งาน
+              {{ day.completedCount }}/{{ day.taskCount }} ภารกิจ
             </div>
           </div>
         </div>
@@ -631,14 +633,14 @@
 
       <!-- Monthly Category Performance Breakdown -->
       <div class="monthly-categories-card" *ngIf="monthlyStats && monthlyStats.categoryBreakdown.length > 0">
-        <h3 class="category-breakdown-title">📊 สถิติตามหมวดหมู่ในเดือนนี้</h3>
+        <h3 class="category-breakdown-title">การกระจายตัวและอัตราความสำเร็จตามกลุ่มภารกิจ (Category Performance Breakdown)</h3>
         
         <div class="category-bars-list">
           <div *ngFor="let cat of monthlyStats.categoryBreakdown" class="category-bar-row">
             <div class="cat-bar-header">
               <span class="cat-bar-name">{{ cat.icon }} {{ cat.name }}</span>
               <span class="cat-bar-stat">
-                เสร็จ <strong>{{ cat.completed }}</strong> จาก {{ cat.total }} งาน ({{ cat.rate }}%)
+                แล้วเสร็จ <strong>{{ cat.completed }}</strong> จาก {{ cat.total }} รายการ ({{ cat.rate }}%)
               </span>
             </div>
             <div class="cat-progress-track">
@@ -659,48 +661,48 @@
     <div class="modal-box" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3 class="modal-title">
-          {{ isEditingTask ? '✏️ แก้ไขสิ่งที่ต้องทำ' : '➕ เพิ่มสิ่งที่ต้องทำใหม่' }}
+          {{ isEditingTask ? '✏️ แก้ไขรายละเอียดภารกิจ' : '➕ บันทึกภารกิจใหม่' }}
         </h3>
         <button (click)="closeTaskModal()" class="btn-modal-close">✕</button>
       </div>
 
       <div class="modal-body">
         <div class="form-group">
-          <label class="form-label">ชื่องาน / การบ้านที่ต้องทำ *</label>
+          <label class="form-label">ชื่อภารกิจ / โครงการที่ต้องดำเนินการ *</label>
           <input 
             type="text" 
             [(ngModel)]="modalTask.title" 
             class="form-control"
-            placeholder="เช่น การบ้านคณิตศาสตร์ บทที่ 3, ส่งรายงานกลุ่ม..."
+            placeholder="ระบุหัวข้องาน เช่น จัดทำเอกสารสรุปผลการวิจัย, ส่งมอบรายงานกลุ่ม..."
             required 
           />
         </div>
 
         <div class="form-group">
-          <label class="form-label">รายละเอียดเพิ่มเติม (ไม่บังคับ)</label>
+          <label class="form-label">รายละเอียดและข้อกำหนดเชิงปฏิบัติการ (Optional)</label>
           <textarea 
             [(ngModel)]="modalTask.description" 
             class="form-control" 
             rows="3"
-            placeholder="จดรายละเอียดงาน คำสั่ง หรือสิ่งสำคัญที่ต้องระวัง..."
+            placeholder="บันทึกรายละเอียด วัตถุประสงค์ หรือข้อกำหนดสำคัญที่ต้องติดตาม..."
           ></textarea>
         </div>
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label class="form-label">🗓️ วันที่ต้องทำ / กำหนดส่ง *</label>
+            <label class="form-label">🗓️ กำหนดการดำเนินงาน / กำหนดส่งมอบ *</label>
             <input type="date" [(ngModel)]="modalTask.due_date" class="form-control" />
           </div>
 
           <div class="form-group">
-            <label class="form-label">⏰ เวลา (HH:mm)</label>
+            <label class="form-label">⏰ เวลาเป้าหมาย (HH:mm)</label>
             <input type="time" [(ngModel)]="modalTask.due_time" class="form-control" />
           </div>
         </div>
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label class="form-label">🏷️ หมวดหมู่</label>
+            <label class="form-label">🏷️ หมวดหมู่ภารกิจ</label>
             <select [(ngModel)]="modalTask.category" class="form-control">
               <option *ngFor="let cat of categories" [value]="cat.name">
                 {{ cat.icon }} {{ cat.name }}
@@ -711,9 +713,9 @@
           <div class="form-group">
             <label class="form-label">🎯 ระดับความสำคัญ</label>
             <select [(ngModel)]="modalTask.priority" class="form-control">
-              <option value="HIGH">🚨 ด่วนมาก (High Priority)</option>
-              <option value="MEDIUM">⚡ ปานกลาง (Medium)</option>
-              <option value="LOW">☕ ทั่วไป (Low)</option>
+              <option value="HIGH">🔴 ระดับวิกฤต (Critical Priority)</option>
+              <option value="MEDIUM">🟡 ระดับสำคัญ (High Importance)</option>
+              <option value="LOW">🟢 ระดับมาตรฐาน (Standard Routine)</option>
             </select>
           </div>
         </div>
@@ -722,19 +724,19 @@
       <div class="modal-footer">
         <button (click)="closeTaskModal()" class="btn-modal-cancel">ยกเลิก</button>
         <button (click)="saveModalTask()" class="btn-modal-save">
-          💾 บันทึกรายการ
+          💾 บันทึกข้อมูล
         </button>
       </div>
     </div>
   </div>
 
   <!-- ========================================== -->
-  <!-- MODAL 2: AUTHENTICATION MODAL (GOOGLE 1-CLICK & STANDARD 8-CHAR) -->
+  <!-- MODAL 2: AUTHENTICATION MODAL (GOOGLE WORKSPACE & STANDARD) -->
   <!-- ========================================== -->
   <div *ngIf="isLoginModalOpen" class="modal-backdrop" (click)="closeLoginModal()">
     <div class="modal-box auth-modal-box" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3 class="modal-title">🔐 เข้าสู่ระบบ / ลงทะเบียน</h3>
+        <h3 class="modal-title">🔐 ระบบยืนยันตัวตนและความปลอดภัย</h3>
         <button (click)="closeLoginModal()" class="btn-modal-close">✕</button>
       </div>
 
@@ -744,13 +746,13 @@
           (click)="authTab = 'login'; showGooglePrompt = false" 
           [class.active-auth-tab]="authTab === 'login' && !showGooglePrompt"
           class="auth-tab-btn">
-          เข้าสู่ระบบ
+          เข้าสู่ระบบ (Sign In)
         </button>
         <button 
           (click)="authTab = 'register'; showGooglePrompt = false" 
           [class.active-auth-tab]="authTab === 'register' && !showGooglePrompt"
           class="auth-tab-btn">
-          ลงทะเบียนใหม่ (8+ หลัก)
+          ลงทะเบียนสมาชิกใหม่ (8+ ตัวอักษร)
         </button>
       </div>
 
@@ -773,22 +775,22 @@
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
             </svg>
             <div>
-              <div class="google-confirm-title">ยืนยันเข้าสู่ระบบด้วยบัญชี Google</div>
-              <div class="google-confirm-sub">ไม่ต้องรอ OTP · ดึงชื่อและโปรไฟล์ของคุณทันที</div>
+              <div class="google-confirm-title">ยืนยันตัวตนผ่านบัญชี Google Workspace</div>
+              <div class="google-confirm-sub">ไม่ต้องใช้รหัสผ่านชั่วคราว (No OTP) · ซิงค์ข้อมูลโปรไฟล์อัตโนมัติ</div>
             </div>
           </div>
 
           <div class="google-user-preview">
             <img [src]="googleAccountAvatar" alt="Google Avatar" class="google-avatar-img" />
             <div class="google-preview-text">
-              <input type="text" [(ngModel)]="googleAccountName" class="google-name-input" placeholder="ชื่อบัญชี Google" />
-              <input type="email" [(ngModel)]="googleAccountEmail" class="google-email-input" placeholder="อีเมล Google" />
+              <input type="text" [(ngModel)]="googleAccountName" class="google-name-input" placeholder="ชื่อ-นามสกุลในบัญชี Google" />
+              <input type="email" [(ngModel)]="googleAccountEmail" class="google-email-input" placeholder="ที่อยู่อีเมล Google" />
             </div>
           </div>
 
           <div class="google-actions-row">
             <button (click)="confirmGoogleLogin()" class="btn-confirm-google">
-              ✓ ยืนยันเข้าใช้งานด้วยบัญชีนี้
+              ✓ ยืนยันสิทธิ์และเข้าสู่ระบบ
             </button>
             <button (click)="cancelGooglePrompt()" class="btn-cancel-google">
               ยกเลิก
@@ -796,7 +798,7 @@
           </div>
         </div>
 
-        <!-- 2. QUICK GOOGLE TRIGGER BUTTON (When Google Prompt is not expanded) -->
+        <!-- 2. QUICK GOOGLE TRIGGER BUTTON -->
         <div *ngIf="!showGooglePrompt" class="google-button-row">
           <button (click)="triggerGoogleSignIn()" class="btn-google-primary">
             <svg class="google-icon-md" viewBox="0 0 24 24">
@@ -805,35 +807,35 @@
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
             </svg>
-            เข้าสู่ระบบด้วย Google (ดึงชื่อทันที ไม่ต้องใส่ OTP)
+            เข้าสู่ระบบด้วย Google (ดึงข้อมูลโปรไฟล์ทันที ไม่ต้องใส่ OTP)
           </button>
         </div>
 
         <div *ngIf="!showGooglePrompt" class="auth-divider">
-          <span>หรือเข้าสู่ระบบด้วยรหัสผ่าน</span>
+          <span>หรือเข้าสู่ระบบด้วยรหัสผ่านความปลอดภัยสูง</span>
         </div>
 
-        <!-- 3. STANDARD EMAIL & PASSWORD FORM (รหัสผ่าน 8 หลักขึ้นไป) -->
+        <!-- 3. STANDARD ENTERPRISE AUTHENTICATION FORM -->
         <form *ngIf="!showGooglePrompt" (ngSubmit)="submitStandardAuth()" class="standard-auth-form">
           <div *ngIf="authTab === 'register'" class="form-group">
-            <label class="form-label">ชื่อของคุณ *</label>
+            <label class="form-label">ชื่อ-นามสกุล หรือชื่อองค์กร *</label>
             <input 
               type="text" 
               [(ngModel)]="authNameInput" 
               name="authName"
-              placeholder="เช่น สมชาย ใจดี" 
+              placeholder="เช่น นายธนาวัฒน์ สุขสถิตย์" 
               class="form-control" 
               required 
             />
           </div>
 
           <div class="form-group">
-            <label class="form-label">อีเมล *</label>
+            <label class="form-label">ที่อยู่อีเมลทางการ (Business Email) *</label>
             <input 
               type="email" 
               [(ngModel)]="authEmailInput" 
               name="authEmail"
-              placeholder="name&#64;example.com" 
+              placeholder="official.name&#64;domain.com" 
               class="form-control" 
               required 
             />
@@ -842,13 +844,13 @@
           <div class="form-group">
             <div class="label-with-hint">
               <label class="form-label">รหัสผ่าน *</label>
-              <span class="password-hint">(ต้องมีความยาวอย่างน้อย 8 ตัวอักษร)</span>
+              <span class="password-hint">(มาตรฐานความปลอดภัย: อย่างน้อย 8 ตัวอักษรขึ้นไป)</span>
             </div>
             <input 
               type="password" 
               [(ngModel)]="authPasswordInput" 
               name="authPassword"
-              placeholder="รหัสผ่านขั้นต่ำ 8 ตัวอักษร" 
+              placeholder="กำหนดรหัสผ่านความยาวไม่ต่ำกว่า 8 หลัก" 
               class="form-control" 
               required 
               minlength="8"
@@ -861,7 +863,7 @@
               type="password" 
               [(ngModel)]="authConfirmPasswordInput" 
               name="authConfirmPassword"
-              placeholder="กรอกรหัสผ่านซ้ำอีกครั้ง" 
+              placeholder="กรอกรหัสผ่านซ้ำอีกครั้งเพื่อความถูกต้อง" 
               class="form-control" 
               required 
               minlength="8"
@@ -869,7 +871,7 @@
           </div>
 
           <button type="submit" class="btn-submit-auth">
-            {{ authTab === 'register' ? 'ลงทะเบียนสมาชิกใหม่ (8+ หลัก)' : 'เข้าสู่ระบบ Todaprime' }}
+            {{ authTab === 'register' ? 'ลงทะเบียนสมาชิกใหม่ (มาตรฐาน 8+ หลัก)' : 'เข้าสู่ระบบ Todaprime' }}
           </button>
         </form>
       </div>
@@ -877,12 +879,12 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- MODAL 3: CONTACT PROVIDER MODAL (ติดต่อผู้ให้บริการ) -->
+  <!-- MODAL 3: TECHNICAL SUPPORT & CONSULTATION -->
   <!-- ========================================== -->
   <div *ngIf="isContactModalOpen" class="modal-backdrop" (click)="closeContactModal()">
     <div class="modal-box" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3 class="modal-title">📞 ติดต่อทีมงานผู้ให้บริการ Todaprime</h3>
+        <h3 class="modal-title">📞 ติดต่อฝ่ายประสานงานและทีมพัฒนาระบบ</h3>
         <button (click)="closeContactModal()" class="btn-modal-close">✕</button>
       </div>
 
@@ -893,46 +895,46 @@
 
         <form (ngSubmit)="submitContact()" *ngIf="!contactSuccessMessage" class="contact-form">
           <div class="form-group">
-            <label class="form-label">ชื่อของคุณ *</label>
+            <label class="form-label">ชื่อผู้ติดต่อ / หน่วยงาน *</label>
             <input 
               type="text" 
               [(ngModel)]="contactName" 
               name="contactName" 
               class="form-control" 
-              placeholder="ระบุชื่อหรือชื่อเล่น"
+              placeholder="ระบุชื่อ-นามสกุล หรือหน่วยงานต้นสังกัด"
               required 
             />
           </div>
 
           <div class="form-group">
-            <label class="form-label">อีเมลติดต่อกลับ (ไม่บังคับ)</label>
+            <label class="form-label">อีเมลสำหรับการติดต่อกลับ</label>
             <input 
               type="email" 
               [(ngModel)]="contactEmail" 
               name="contactEmail" 
               class="form-control" 
-              placeholder="your.email&#64;gmail.com" 
+              placeholder="contact.address&#64;domain.com" 
             />
           </div>
 
           <div class="form-group">
-            <label class="form-label">หัวข้อติดต่อ</label>
+            <label class="form-label">หัวข้อการประสานงาน</label>
             <select [(ngModel)]="contactSubject" name="contactSubject" class="form-control">
-              <option value="สอบถามข้อมูลการใช้งาน / ปรึกษา">สอบถามข้อมูลการใช้งาน / ปรึกษา</option>
-              <option value="แจ้งปัญหาข้อผิดพลาดระบบ (Bug Report)">แจ้งปัญหาข้อผิดพลาดระบบ (Bug Report)</option>
-              <option value="เสนอแนะฟีเจอร์ใหม่">เสนอแนะฟีเจอร์ใหม่</option>
-              <option value="ติดต่อสนับสนุนหรือสอบถามทั่วไป">ติดต่อสนับสนุนหรือสอบถามทั่วไป</option>
+              <option value="สอบถามการใช้งานเชิงเทคนิค / ปรึกษาผู้พัฒนาระบบ">สอบถามการใช้งานเชิงเทคนิค / ปรึกษาผู้พัฒนาระบบ</option>
+              <option value="รายงานปัญหาข้อผิดพลาดระบบ (Technical Bug Report)">รายงานปัญหาข้อผิดพลาดระบบ (Technical Bug Report)</option>
+              <option value="ข้อเสนอแนะเชิงยุทธศาสตร์และการพัฒนาฟีเจอร์">ข้อเสนอแนะเชิงยุทธศาสตร์และการพัฒนาฟีเจอร์</option>
+              <option value="ประสานงานการสนับสนุนระบบทั่วไป">ประสานงานการสนับสนุนระบบทั่วไป</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label">ข้อความที่คุณต้องการแจ้งถึงผู้ให้บริการ *</label>
+            <label class="form-label">ข้อความและรายละเอียดที่ต้องการประสานงาน *</label>
             <textarea 
               [(ngModel)]="contactMessage" 
               name="contactMessage" 
               rows="4" 
               class="form-control" 
-              placeholder="เขียนข้อความหรือข้อเสนอแนะที่ต้องการแจ้งถึงทีมผู้ดูแลระบบ..."
+              placeholder="กรุณาระบุสาระสำคัญหรือข้อสงสัยที่ต้องการให้ทีมงานดูแล..."
               required
             ></textarea>
           </div>
@@ -940,7 +942,7 @@
           <div class="modal-footer" style="padding: 0; margin-top: 1.5rem;">
             <button type="button" (click)="closeContactModal()" class="btn-modal-cancel">ยกเลิก</button>
             <button type="submit" class="btn-modal-save">
-              📤 ส่งข้อความถึงผู้ให้บริการ
+              📤 ส่งข้อมูลถึงฝ่ายพัฒนาระบบ
             </button>
           </div>
         </form>

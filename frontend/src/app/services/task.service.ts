@@ -7,20 +7,20 @@ import { Task, Category, DayStats, MonthlyStats, Priority } from '../models/task
   providedIn: 'root'
 })
 export class TaskService {
-  private readonly STORAGE_KEY = 'todaprime_tasks_v2';
+  private readonly STORAGE_KEY = 'todaprime_tasks_v3';
   private apiUrl = 'http://localhost:8080/api';
 
   private tasksSubject = new BehaviorSubject<Task[]>([]);
   public tasks$ = this.tasksSubject.asObservable();
 
   private categoriesSubject = new BehaviorSubject<Category[]>([
-    { id: 1, name: 'การบ้าน & การเรียน', color: '#8b5cf6', icon: '📚' },
-    { id: 2, name: 'โครงงาน / รายงาน', color: '#06b6d4', icon: '📝' },
-    { id: 3, name: 'เตรียมสอบ (Exam)', color: '#ef4444', icon: '🎯' },
-    { id: 4, name: 'งานทั่วไป & ออฟฟิศ', color: '#4f46e5', icon: '💼' },
-    { id: 5, name: 'ส่วนตัว & ครอบครัว', color: '#10b981', icon: '🏠' },
-    { id: 6, name: 'สุขภาพ & กีฬา', color: '#ec4899', icon: '❤️' },
-    { id: 7, name: 'ด่วนมาก (Urgent)', color: '#dc2626', icon: '🚨' }
+    { id: 1, name: 'การศึกษา & วิชาการ', color: '#6366f1', icon: '📘' },
+    { id: 2, name: 'โครงงาน & วิจัย', color: '#0ea5e9', icon: '📑' },
+    { id: 3, name: 'การประเมิน & สอบ', color: '#e11d48', icon: '🎯' },
+    { id: 4, name: 'การบริหาร & งานอาชีพ', color: '#475569', icon: '💼' },
+    { id: 5, name: 'กิจการส่วนบุคคล', color: '#059669', icon: '🏛️' },
+    { id: 6, name: 'สุขภาวะ & สมรรถภาพ', color: '#0284c7', icon: '🌿' },
+    { id: 7, name: 'ภารกิจเร่งด่วนพิเศษ', color: '#dc2626', icon: '⚡' }
   ]);
   public categories$ = this.categoriesSubject.asObservable();
 
@@ -83,24 +83,24 @@ export class TaskService {
     return [
       {
         id: 1,
-        title: 'ทบทวนบทเรียนและทำสรุปเนื้อหาก่อนสอบ',
-        description: 'อ่านหนังสือบทที่ 1-3 และทำแบบฝึกหัดท้ายบท',
+        title: 'จัดทำเอกสารสรุปผลการวิจัยและทบทวนวรรณกรรม',
+        description: 'รวบรวมข้อมูลเชิงทฤษฎีบทที่ 1-3 และจัดทำสรุปสาระสำคัญเชิงวิชาการ',
         due_date: today,
         due_time: '10:00',
         priority: 'HIGH',
-        category: 'การบ้าน & การเรียน',
+        category: 'การศึกษา & วิชาการ',
         is_completed: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 2,
-        title: 'ออกกำลังกายยามเย็น 30 นาที',
-        description: 'วิ่งเบาๆ ในสวนสาธารณะ หรือเวทเทรนนิ่ง',
+        title: 'กิจกรรมส่งเสริมสุขภาวะและการออกกำลังกาย',
+        description: 'การฝึกซ้อมเพื่อเสริมสร้างสมรรถภาพทางกาย 30-45 นาที',
         due_date: today,
         due_time: '17:30',
         priority: 'MEDIUM',
-        category: 'สุขภาพ & กีฬา',
+        category: 'สุขภาวะ & สมรรถภาพ',
         is_completed: true,
         completed_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
@@ -108,72 +108,72 @@ export class TaskService {
       },
       {
         id: 3,
-        title: 'จัดเตรียมเอกสารและเนื้อหาโครงงานกลุ่ม',
-        description: 'รวบรวมไฟล์รายงาน สรุปสไลด์สำหรับนำเสนอ',
+        title: 'จัดเตรียมเอกสารและรายงานนำเสนอโครงงาน',
+        description: 'ตรวจสอบความถูกต้องของเนื้อหา สถิติ และสื่อสไลด์ประกอบการนำเสนอ',
         due_date: today,
         due_time: '14:00',
         priority: 'HIGH',
-        category: 'โครงงาน / รายงาน',
+        category: 'โครงงาน & วิจัย',
         is_completed: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 4,
-        title: 'ส่งการบ้านวิชาคณิตศาสตร์และภาษาอังกฤษ',
-        description: 'ตรวจสอบแบบฝึกหัดบทที่ 4 ให้เรียบร้อยก่อนส่งอาจารย์',
+        title: 'ส่งมอบรายงานการบ้านและการวิเคราะห์โจทย์ประยุกต์',
+        description: 'ตรวจสอบแบบฝึกหัดชุดที่ 4 และส่งมอบตามกำหนดการ',
         due_date: tomorrow,
         due_time: '09:00',
         priority: 'HIGH',
-        category: 'การบ้าน & การเรียน',
+        category: 'การศึกษา & วิชาการ',
         is_completed: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 5,
-        title: 'ประชุมวางแผนแบ่งงานโปรเจกต์กับทีม',
-        description: 'ออนไลน์ผ่าน Google Meet กำหนดเดดไลน์แต่ละส่วน',
+        title: 'การประชุมวางแผนเชิงกลยุทธ์และการจัดสรรภารกิจ',
+        description: 'ประสานงานออนไลน์เพื่อกำหนดเป้าหมายและกำหนดส่งมอบแต่ละระยะ',
         due_date: tomorrow,
         due_time: '13:30',
         priority: 'MEDIUM',
-        category: 'งานทั่วไป & ออฟฟิศ',
+        category: 'การบริหาร & งานอาชีพ',
         is_completed: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 6,
-        title: 'นัดพบอาจารย์ที่ปรึกษาโครงงาน',
-        description: 'นำร่างเล่มรายงานบทที่ 1-2 ให้อาจารย์ตรวจแก้',
+        title: 'ส่งมอบเอกสารรายงานความคืบหน้ารอบสัปดาห์',
+        description: 'รวบรวมดัชนีผลงานและสรุปรายการภารกิจที่ดำเนินการแล้วเสร็จ',
         due_date: dayAfter,
-        due_time: '11:00',
+        due_time: '16:00',
         priority: 'HIGH',
-        category: 'โครงงาน / รายงาน',
+        category: 'โครงงาน & วิจัย',
         is_completed: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 7,
-        title: 'ซื้อของใช้และอุปกรณ์เข้าบ้าน',
-        description: 'แวะซูเปอร์มาร์เก็ตซื้อของจำเป็นประจำสัปดาห์',
+        title: 'จัดซื้อวัสดุอุปกรณ์และทรัพยากรที่จำเป็น',
+        description: 'ดำเนินการจัดหาวัสดุและอุปกรณ์สนับสนุนการดำเนินงาน',
         due_date: dayPlus4,
-        due_time: '16:00',
+        due_time: '15:00',
         priority: 'LOW',
-        category: 'ส่วนตัว & ครอบครัว',
+        category: 'กิจการส่วนบุคคล',
         is_completed: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
       {
         id: 8,
-        title: 'อ่านหนังสือเตรียมสอบบทสรุปสำคัญ',
-        description: 'ทำข้อสอบเก่าย้อนหลัง 2 ปี',
+        title: 'เตรียมการทดสอบประเมินผลมาตรฐานความรู้',
+        description: 'ทบทวนเกณฑ์การประเมินและฝึกทำชุดข้อสอบย้อนหลัง',
         due_date: yesterday,
         due_time: '15:00',
         priority: 'HIGH',
-        category: 'เตรียมสอบ (Exam)',
+        category: 'การประเมิน & สอบ',
         is_completed: true,
         completed_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
@@ -181,12 +181,12 @@ export class TaskService {
       },
       {
         id: 9,
-        title: 'ส่งรายงานสรุปผลการทำงานประจำสัปดาห์',
-        description: 'ส่งอีเมลสรุปยอดและงานที่ค้างอยู่',
+        title: 'ส่งรายงานสรุปผลการปฏิบัติการรายสัปดาห์',
+        description: 'สรุปการส่งมอบงานและการบริหารความเสี่ยง',
         due_date: dayMinus2,
         due_time: '16:30',
         priority: 'MEDIUM',
-        category: 'งานทั่วไป & ออฟฟิศ',
+        category: 'การบริหาร & งานอาชีพ',
         is_completed: true,
         completed_at: new Date().toISOString(),
         created_at: new Date().toISOString(),

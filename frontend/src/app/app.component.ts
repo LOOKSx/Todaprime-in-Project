@@ -15,13 +15,20 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
-  // Navigation View: 'landing' (หน้าแนะนำเว็บไซ) vs 'app' (กระดานวางแผนงาน) - Default to Landing
+  // Storage Keys for Full Refresh Persistence (คงสถานะหน้าจอเดิมเมื่อผู้ใช้รีเฟรชหน้าเว็บ)
+  private readonly STORAGE_VIEW_KEY = 'todaprime_ui_view';
+  private readonly STORAGE_TAB_KEY = 'todaprime_ui_tab';
+  private readonly STORAGE_DATE_KEY = 'todaprime_ui_selected_date';
+  private readonly STORAGE_THEME_KEY = 'todaprime_ui_theme';
+  private readonly STORAGE_CAT_KEY = 'todaprime_ui_category';
+
+  // Navigation View: 'landing' (เอกสารแนะนำระบบ) vs 'app' (ศูนย์ควบคุมและจัดการภารกิจ)
   public currentView: 'landing' | 'app' = 'landing';
 
-  // Dashboard Active Tab: 'planner' (วางแผนรายวัน & เช็กลิสต์) vs 'monthly' (สถิติประจำเดือน)
+  // Dashboard Active Tab: 'planner' (ตารางภารกิจประจำวัน) vs 'monthly' (รายงานสถิติประจำเดือน)
   public activeTab: 'planner' | 'monthly' = 'planner';
 
-  // Dark / Light Theme
+  // Visual Theme (Dark & Light Mode)
   public isDarkMode: boolean = true;
 
   // Drawer Menu & Modals State
@@ -32,14 +39,14 @@ export class AppComponent implements OnInit, OnDestroy {
   public showTaskModal: boolean = false;
   public isEditingTask: boolean = false;
 
-  // Contact Provider Modal
+  // Support & Consultation Form
   public contactName: string = '';
   public contactEmail: string = '';
-  public contactSubject: string = 'สอบถามข้อมูลการใช้งาน / ปรึกษาผู้ให้บริการ';
+  public contactSubject: string = 'สอบถามการใช้งานเชิงเทคนิค / ปรึกษาผู้พัฒนาระบบ';
   public contactMessage: string = '';
   public contactSuccessMessage: string = '';
 
-  // Auth State (Google One-Click & Standard 8-char Auth)
+  // Identity & Access State (Google Workspace & Standard Auth)
   public authTab: 'login' | 'register' = 'login';
   public showGooglePrompt: boolean = false;
   public googleAccountName: string = 'LOOKSx (Google Account)';
@@ -53,7 +60,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public authErrorMessage: string = '';
   public authSuccessMessage: string = '';
 
-  // Date Selection for Day Planning & Checklist
+  // Date Selection for Task Planning & Execution
   public selectedDate: string = '';
   public displayDateText: string = '';
   public currentTimeStr: string = '';
@@ -64,7 +71,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public searchQuery: string = '';
   public selectedCategory: string = 'All';
 
-  // Task Lists & Stats
+  // Task Lists & Metrics
   public dayTasks: Task[] = [];
   public upcomingTasks: Task[] = [];
   public dayStats: DayStats = {
@@ -75,16 +82,16 @@ export class AppComponent implements OnInit, OnDestroy {
     completion_rate: 0
   };
 
-  // Quick Task Creation Form
+  // Quick Task Creation
   public quickTitle: string = '';
   public quickDueTime: string = '10:00';
   public quickPriority: Priority = 'MEDIUM';
-  public quickCategory: string = 'การบ้าน & การเรียน';
+  public quickCategory: string = 'การศึกษา & วิชาการ';
 
-  // Task Edit / Add Modal Form
+  // Task Edit / Add Form
   public modalTask: Partial<Task> = {};
 
-  // Monthly Analytics & Calendar
+  // Monthly Performance & Heatmap
   public selectedYear: number = new Date().getFullYear();
   public selectedMonth: number = new Date().getMonth(); // 0-11
   public monthlyStats: MonthlyStats | null = null;
@@ -109,16 +116,58 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.selectedDate = this.taskService.getTodayDateStr();
+    // 1. Restore Theme State from LocalStorage
+    const savedTheme = localStorage.getItem(this.STORAGE_THEME_KEY);
+    if (savedTheme) {
+      this.isDarkMode = savedTheme === 'dark';
+    } else {
+      this.isDarkMode = true; // Default to Obsidian Slate Dark
+    }
+
+    // 2. Restore Current View ('app' vs 'landing')
+    const savedView = localStorage.getItem(this.STORAGE_VIEW_KEY);
+    if (savedView === 'app' || savedView === 'landing') {
+      this.currentView = savedView;
+    } else {
+      this.currentView = 'landing';
+    }
+
+    // 3. Restore Active Tab ('planner' vs 'monthly')
+    const savedTab = localStorage.getItem(this.STORAGE_TAB_KEY);
+    if (savedTab === 'planner' || savedTab === 'monthly') {
+      this.activeTab = savedTab;
+    } else {
+      this.activeTab = 'planner';
+    }
+
+    // 4. Restore Selected Date
+    const savedDate = localStorage.getItem(this.STORAGE_DATE_KEY);
+    if (savedDate && /^\d{4}-\d{2}-\d{2}$/.test(savedDate)) {
+      this.selectedDate = savedDate;
+      const parts = savedDate.split('-');
+      this.selectedYear = parseInt(parts[0], 10);
+      this.selectedMonth = parseInt(parts[1], 10) - 1;
+    } else {
+      this.selectedDate = this.taskService.getTodayDateStr();
+    }
+
+    // 5. Restore Category Filter
+    const savedCat = localStorage.getItem(this.STORAGE_CAT_KEY);
+    if (savedCat) {
+      this.selectedCategory = savedCat;
+    }
+
+    // 6. Setup Clock & Subscriptions
     this.updateClock();
     this.clockInterval = setInterval(() => this.updateClock(), 1000);
 
-    // Subscribe to categories
     this.taskService.categories$.subscribe(cats => {
       this.categories = cats;
+      if (cats.length > 0 && !this.quickCategory) {
+        this.quickCategory = cats[0].name;
+      }
     });
 
-    // Subscribe to task updates
     this.taskSub = this.taskService.tasks$.subscribe(() => {
       this.refreshData();
     });
@@ -131,7 +180,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.taskSub) this.taskSub.unsubscribe();
   }
 
-  // Refresh all reactive states
+  // Refresh reactive data structures
   public refreshData(): void {
     this.updateDisplayDateText();
     this.dayTasks = this.taskService.getTasksForDate(this.selectedDate, this.selectedCategory, this.searchQuery);
@@ -141,42 +190,50 @@ export class AppComponent implements OnInit, OnDestroy {
     this.buildCalendarGrid();
   }
 
-  // Clock & Date Formatting
+  // Clock
   public updateClock(): void {
     const now = new Date();
     this.currentTimeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 
+  // Formal Thai Date Formatting
   public updateDisplayDateText(): void {
     const today = this.taskService.getTodayDateStr();
     const tomorrow = this.taskService.getDateOffsetStr(1);
     const dayAfter = this.taskService.getDateOffsetStr(2);
 
+    const d = new Date(this.selectedDate + 'T00:00:00');
+    const thaiDateFull = d.toLocaleDateString('th-TH', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+
     if (this.selectedDate === today) {
-      this.displayDateText = 'วันนี้ (Today)';
+      this.displayDateText = `กำหนดการประจำวัน — ${thaiDateFull}`;
     } else if (this.selectedDate === tomorrow) {
-      this.displayDateText = 'พรุ่งนี้ (Tomorrow)';
+      this.displayDateText = `กำหนดการวันพรุ่งนี้ — ${thaiDateFull}`;
     } else if (this.selectedDate === dayAfter) {
-      this.displayDateText = 'มะรืนนี้ (Day After)';
+      this.displayDateText = `กำหนดการวันมะรืนนี้ — ${thaiDateFull}`;
     } else {
-      const d = new Date(this.selectedDate + 'T00:00:00');
-      this.displayDateText = d.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      this.displayDateText = `กำหนดการ — ${thaiDateFull}`;
     }
   }
 
-  public formatThaiDateShort(dateStr: string): string {
+  public formatThaiDateFormal(dateStr: string): string {
     if (!dateStr) return '';
     const today = this.taskService.getTodayDateStr();
     const tomorrow = this.taskService.getDateOffsetStr(1);
 
-    if (dateStr === today) return 'วันนี้';
-    if (dateStr === tomorrow) return 'พรุ่งนี้';
+    if (dateStr === today) return 'วันนี้ (Today)';
+    if (dateStr === tomorrow) return 'วันพรุ่งนี้ (Tomorrow)';
 
     const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+    return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
-  // Navigation & Drawer
+  // Navigation & View Persistence Handlers
   public toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }
@@ -192,23 +249,35 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public switchToLanding(): void {
     this.currentView = 'landing';
+    localStorage.setItem(this.STORAGE_VIEW_KEY, 'landing');
     this.closeMenu();
   }
 
   public switchToApp(tab: 'planner' | 'monthly' = 'planner'): void {
     this.currentView = 'app';
     this.activeTab = tab;
+    localStorage.setItem(this.STORAGE_VIEW_KEY, 'app');
+    localStorage.setItem(this.STORAGE_TAB_KEY, tab);
     this.closeMenu();
+  }
+
+  public setDashboardTab(tab: 'planner' | 'monthly'): void {
+    this.activeTab = tab;
+    localStorage.setItem(this.STORAGE_TAB_KEY, tab);
+    this.refreshData();
   }
 
   public toggleTheme(): void {
     this.isDarkMode = !this.isDarkMode;
+    localStorage.setItem(this.STORAGE_THEME_KEY, this.isDarkMode ? 'dark' : 'light');
   }
 
-  // Date Switching in Day Planner
+  // Date Selection Persistence
   public selectDate(dateStr: string): void {
     if (!dateStr) return;
     this.selectedDate = dateStr;
+    localStorage.setItem(this.STORAGE_DATE_KEY, dateStr);
+
     const parts = dateStr.split('-');
     if (parts.length === 3) {
       this.selectedYear = parseInt(parts[0], 10);
@@ -266,7 +335,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.refreshData();
   }
 
-  // Calendar Heatmap Grid
+  // Calendar Heatmap Construction
   private buildCalendarGrid(): void {
     const firstDay = new Date(this.selectedYear, this.selectedMonth, 1);
     const lastDay = new Date(this.selectedYear, this.selectedMonth + 1, 0);
@@ -325,7 +394,7 @@ export class AppComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Next month padding to fill grid
+    // Next month padding
     const remaining = (7 - (days.length % 7)) % 7;
     for (let day = 1; day <= remaining; day++) {
       const nextM = this.selectedMonth === 11 ? 1 : this.selectedMonth + 2;
@@ -347,7 +416,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.calendarDays = days;
   }
 
-  // Click on a calendar day in monthly view jumps directly to day planner for that day
   public clickCalendarDay(day: { dateStr: string }): void {
     this.selectDate(day.dateStr);
     this.switchToApp('planner');
@@ -356,6 +424,7 @@ export class AppComponent implements OnInit, OnDestroy {
   // Category Filtering
   public filterByCategory(catName: string): void {
     this.selectedCategory = catName;
+    localStorage.setItem(this.STORAGE_CAT_KEY, catName);
     this.isCategoryMenuExpanded = false;
     this.switchToApp('planner');
     this.refreshData();
@@ -363,10 +432,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public clearCategoryFilter(): void {
     this.selectedCategory = 'All';
+    localStorage.setItem(this.STORAGE_CAT_KEY, 'All');
     this.refreshData();
   }
 
-  // Quick Task Add for selectedDate
+  // Quick Task Creation
   public submitQuickAdd(): void {
     const title = this.quickTitle.trim();
     if (!title) return;
@@ -397,13 +467,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public deleteTask(task: Task, event?: Event): void {
     if (event) event.stopPropagation();
-    if (confirm(`คุณต้องการลบงาน "${task.title}" ใช่หรือไม่?`)) {
+    if (confirm(`คุณต้องการลบภารกิจ "${task.title}" หรือไม่?`)) {
       this.taskService.deleteTask(task.id);
       this.refreshData();
     }
   }
 
-  // Task Modal (Create & Edit)
+  // Full Task Modal
   public openCreateModal(forDate?: string): void {
     this.isEditingTask = false;
     this.modalTask = {
@@ -412,7 +482,7 @@ export class AppComponent implements OnInit, OnDestroy {
       due_date: forDate || this.selectedDate,
       due_time: '10:00',
       priority: 'MEDIUM',
-      category: this.categories[0]?.name || 'การบ้าน & การเรียน'
+      category: this.categories[0]?.name || 'การศึกษา & วิชาการ'
     };
     this.showTaskModal = true;
   }
@@ -431,7 +501,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public saveModalTask(): void {
     if (!this.modalTask.title || !this.modalTask.title.trim()) {
-      alert('กรุณากรอกชื่องานหรือการบ้านที่ต้องทำ');
+      alert('กรุณาระบุชื่อภารกิจหรือหัวข้องานที่ต้องดำเนินการ');
       return;
     }
 
@@ -446,7 +516,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.refreshData();
   }
 
-  // Authentication Handlers
+  // Identity & Access Management (Authentication)
   public openLoginModal(): void {
     this.isLoginModalOpen = true;
     this.authTab = 'login';
@@ -463,7 +533,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authSuccessMessage = '';
   }
 
-  // 1. Google OAuth Flow: Direct account confirmation, pulls Google name & avatar immediately (No OTP)
+  // 1. Google Identity Verification: Direct confirmation, pulls identity immediately (No OTP)
   public triggerGoogleSignIn(): void {
     this.showGooglePrompt = true;
     this.authErrorMessage = '';
@@ -476,18 +546,18 @@ export class AppComponent implements OnInit, OnDestroy {
       this.googleAccountEmail,
       this.googleAccountAvatar
     );
-    this.authSuccessMessage = `เข้าสู่ระบบสำเร็จ! ดึงข้อมูลบัญชี Google "${user.name}" เรียบร้อยแล้ว`;
+    this.authSuccessMessage = `ยืนยันตัวตนสำเร็จ! เชื่อมต่อบัญชี Google Workspace "${user.name}" เรียบร้อยแล้ว`;
     this.soundService.playTaskComplete();
     setTimeout(() => {
       this.closeLoginModal();
-    }, 900);
+    }, 850);
   }
 
   public cancelGooglePrompt(): void {
     this.showGooglePrompt = false;
   }
 
-  // 2. Standard Email & Password Registration & Login (Minimum 8 chars password)
+  // 2. Standard Enterprise Authentication (Strictly >= 8 Characters Password)
   public submitStandardAuth(): void {
     this.authErrorMessage = '';
     this.authSuccessMessage = '';
@@ -496,24 +566,24 @@ export class AppComponent implements OnInit, OnDestroy {
     const password = this.authPasswordInput;
 
     if (!email || !email.includes('@')) {
-      this.authErrorMessage = 'กรุณากรอกอีเมลให้ถูกต้อง';
+      this.authErrorMessage = 'กรุณาระบุที่อยู่อีเมลที่ถูกต้องตามรูปแบบมาตรฐาน';
       return;
     }
 
     if (!password || password.length < 8) {
-      this.authErrorMessage = 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษรขึ้นไป';
+      this.authErrorMessage = 'มาตรฐานความปลอดภัย: รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษรขึ้นไป';
       return;
     }
 
     if (this.authTab === 'register') {
       const name = this.authNameInput.trim();
       if (!name) {
-        this.authErrorMessage = 'กรุณาระบุชื่อของคุณ';
+        this.authErrorMessage = 'กรุณาระบุชื่อ-นามสกุล หรือชื่อเรียกอย่างเป็นทางการ';
         return;
       }
 
       if (password !== this.authConfirmPasswordInput) {
-        this.authErrorMessage = 'รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน';
+        this.authErrorMessage = 'รหัสผ่านและข้อความยืนยันรหัสผ่านไม่ตรงกัน';
         return;
       }
 
@@ -530,7 +600,6 @@ export class AppComponent implements OnInit, OnDestroy {
         this.authErrorMessage = res.message;
       }
     } else {
-      // Login
       const res = this.authService.loginStandard(email, password);
       if (res.success) {
         this.authSuccessMessage = res.message;
@@ -546,13 +615,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public logout(): void {
-    if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
+    if (confirm('คุณต้องการออกจากระบบบริหารจัดการหรือไม่?')) {
       this.authService.logout();
       this.closeMenu();
     }
   }
 
-  // Contact Provider Modal Handlers
+  // Technical Support & Developer Consultation
   public openContactModal(): void {
     this.isContactModalOpen = true;
     this.contactSuccessMessage = '';
@@ -566,11 +635,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public submitContact(): void {
     if (!this.contactName.trim() || !this.contactMessage.trim()) {
-      alert('กรุณากรอกชื่อและข้อความที่ต้องการติดต่อ');
+      alert('กรุณากรอกชื่อและข้อความที่ต้องการประสานงาน');
       return;
     }
 
-    this.contactSuccessMessage = `ขอบคุณครับคุณ ${this.contactName}! ข้อความของคุณถูกส่งไปยังทีมงานผู้ให้บริการ Todaprime เรียบร้อยแล้ว`;
+    this.contactSuccessMessage = `ขอบคุณครับคุณ ${this.contactName} ข้อมูลการประสานงานถูกบันทึกและส่งมอบถึงทีมพัฒนาระบบ Todaprime เรียบร้อยแล้ว`;
     this.soundService.playTaskComplete();
     setTimeout(() => {
       this.closeContactModal();
