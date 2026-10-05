@@ -603,15 +603,15 @@
           </div>
         </div>
 
-        <!-- Days of Week Header -->
+        <!-- Days of Week Header (Responsive for Desktop & Mobile) -->
         <div class="calendar-week-header">
-          <div class="week-name">อาทิตย์</div>
-          <div class="week-name">จันทร์</div>
-          <div class="week-name">อังคาร</div>
-          <div class="week-name">พุธ</div>
-          <div class="week-name">พฤหัสบดี</div>
-          <div class="week-name">ศุกร์</div>
-          <div class="week-name">เสาร์</div>
+          <div class="week-name"><span class="full-day">อาทิตย์</span><span class="short-day">อา.</span></div>
+          <div class="week-name"><span class="full-day">จันทร์</span><span class="short-day">จ.</span></div>
+          <div class="week-name"><span class="full-day">อังคาร</span><span class="short-day">อ.</span></div>
+          <div class="week-name"><span class="full-day">พุธ</span><span class="short-day">พ.</span></div>
+          <div class="week-name"><span class="full-day">พฤหัสบดี</span><span class="short-day">พฤ.</span></div>
+          <div class="week-name"><span class="full-day">ศุกร์</span><span class="short-day">ศ.</span></div>
+          <div class="week-name"><span class="full-day">เสาร์</span><span class="short-day">ส.</span></div>
         </div>
 
         <!-- Calendar Days Grid -->
@@ -632,9 +632,10 @@
               <span *ngIf="day.isToday" class="today-marker">วันนี้</span>
             </div>
 
-            <!-- Task count badge inside cell -->
+            <!-- Task count badge inside cell (Responsive text) -->
             <div *ngIf="day.taskCount > 0" class="day-cell-badge" [class.badge-cell-perfect]="day.isAllCompleted">
-              {{ day.completedCount }}/{{ day.taskCount }} ภารกิจ
+              <span class="badge-full">{{ day.completedCount }}/{{ day.taskCount }} ภารกิจ</span>
+              <span class="badge-compact">{{ day.completedCount }}/{{ day.taskCount }}</span>
             </div>
           </div>
         </div>
