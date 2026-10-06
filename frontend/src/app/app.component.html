@@ -19,16 +19,21 @@
         <!-- Quick Mode Switcher in Header (when in App view) -->
         <div *ngIf="currentView === 'app'" class="header-nav-tabs">
           <button (click)="setDashboardTab('planner')" [class.active]="activeTab === 'planner'" class="header-tab-btn">
-            📋 ตารางภารกิจประจำวัน
+            {{ isEnglish ? '📋 Daily Planner' : '📋 ตารางภารกิจประจำวัน' }}
           </button>
           <button (click)="setDashboardTab('monthly')" [class.active]="activeTab === 'monthly'" class="header-tab-btn">
-            📊 รายงานสถิติประจำเดือน
+            {{ isEnglish ? '📊 Monthly Report' : '📊 รายงานสถิติประจำเดือน' }}
           </button>
         </div>
 
         <!-- Theme Toggle -->
-        <button (click)="toggleTheme()" class="btn-theme-toggle" [title]="isDarkMode ? 'สลับเป็นโหมดสว่าง (Light Mode)' : 'สลับเป็นโหมดมืด (Dark Mode)'">
+        <button (click)="toggleTheme()" class="btn-theme-toggle" [title]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
           {{ isDarkMode ? '☀️' : '🌙' }}
+        </button>
+
+        <!-- Language Toggle -->
+        <button (click)="toggleLanguage()" class="btn-lang-toggle" [title]="isEnglish ? 'เปลี่ยนเป็นภาษาไทย' : 'Switch to English'">
+          {{ isEnglish ? 'ไทย' : 'EN' }}
         </button>
 
         <!-- User Profile Pill (if logged in) -->
@@ -56,13 +61,13 @@
   <aside class="drawer-sidebar" [class.drawer-open]="isMenuOpen">
     <div class="drawer-header">
       <div class="drawer-title-group">
-        <div class="drawer-icon">🏛️</div>
+        <div class="drawer-icon">✦</div>
         <div>
-          <h2 class="drawer-title">ศูนย์ควบคุมและบริหารจัดการ</h2>
-          <p class="drawer-subtitle">Management Console · Todaprime</p>
+          <h2 class="drawer-title">{{ isEnglish ? 'Control Panel' : 'ศูนย์ควบคุม' }}</h2>
+          <p class="drawer-subtitle">Todaprime · Management Console</p>
         </div>
       </div>
-      <button (click)="closeMenu()" class="btn-drawer-close" title="ปิดหน้าต่าง">✕</button>
+      <button (click)="closeMenu()" class="btn-drawer-close" title="Close">✕</button>
     </div>
 
     <!-- User Profile Card in Drawer -->
@@ -74,18 +79,18 @@
             <div class="user-drawer-name">{{ user.name }}</div>
             <div class="user-drawer-email">{{ user.email }}</div>
             <div class="user-drawer-badge">
-              <span *ngIf="user.provider === 'google'">🟢 ยืนยันสิทธิ์ผ่าน Google Workspace</span>
-              <span *ngIf="user.provider === 'standard'">🟢 บัญชีผู้ใช้มาตรฐาน (Verified Member)</span>
+              <span *ngIf="user.provider === 'google'">● Google Account</span>
+              <span *ngIf="user.provider === 'standard'">● {{ isEnglish ? 'Verified Member' : 'สมาชิกที่ยืนยันแล้ว' }}</span>
             </div>
           </div>
-          <button (click)="logout()" class="btn-drawer-logout" title="ออกจากระบบ">
-            ออกจากระบบ
+          <button (click)="logout()" class="btn-drawer-logout" title="Sign out">
+            {{ isEnglish ? 'Sign Out' : 'ออกจากระบบ' }}
           </button>
         </div>
       </ng-container>
       <ng-template #notLoggedIn>
         <div class="guest-card-drawer">
-          <div class="guest-text">ยังไม่ได้เข้าสู่ระบบผู้ใช้งาน</div>
+          <div class="guest-text">{{ isEnglish ? 'Not signed in' : 'ยังไม่ได้เข้าสู่ระบบ' }}</div>
           <button (click)="openLoginModal()" class="btn-drawer-login">
             <svg class="google-icon-sm" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -93,7 +98,7 @@
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
             </svg>
-            ยืนยันตัวตนด้วย Google / ลงทะเบียน
+            {{ isEnglish ? 'Sign in / Register' : 'เข้าสู่ระบบ / ลงทะเบียน' }}
           </button>
         </div>
       </ng-template>
@@ -101,43 +106,43 @@
 
     <!-- Navigation List in Drawer -->
     <div class="drawer-nav">
-      <div class="drawer-nav-group-title">ระบบการทำงานหลัก</div>
+      <div class="drawer-nav-group-title">{{ isEnglish ? 'Navigation' : 'ระบบหลัก' }}</div>
 
       <button (click)="switchToApp('planner')" class="drawer-nav-item" [class.active-item]="currentView === 'app' && activeTab === 'planner'">
         <span class="drawer-nav-icon">📋</span>
         <div class="drawer-nav-label">
-          <div class="drawer-nav-text">ตารางภารกิจและบันทึกผลงาน</div>
-          <div class="drawer-nav-desc">กำหนดการดำเนินงานรายวัน และการบันทึกสถานะแล้วเสร็จ</div>
+          <div class="drawer-nav-text">{{ isEnglish ? 'Daily Planner' : 'ตารางภารกิจ' }}</div>
+          <div class="drawer-nav-desc">{{ isEnglish ? 'Schedule & task checklist' : 'วางแผนและติดตามงานรายวัน' }}</div>
         </div>
       </button>
 
       <button (click)="switchToApp('monthly')" class="drawer-nav-item" [class.active-item]="currentView === 'app' && activeTab === 'monthly'">
         <span class="drawer-nav-icon">📊</span>
         <div class="drawer-nav-label">
-          <div class="drawer-nav-text">รายงานสถิติและดัชนีชี้วัด</div>
-          <div class="drawer-nav-desc">แดชบอร์ดสรุปประสิทธิภาพ ฮีทแมพ และความคืบหน้ารายเดือน</div>
+          <div class="drawer-nav-text">{{ isEnglish ? 'Monthly Report' : 'รายงานสถิติ' }}</div>
+          <div class="drawer-nav-desc">{{ isEnglish ? 'Heatmap & performance stats' : 'ฮีทแมพและดัชนีชี้วัดรายเดือน' }}</div>
         </div>
       </button>
 
       <button (click)="switchToLanding()" class="drawer-nav-item" [class.active-item]="currentView === 'landing'">
         <span class="drawer-nav-icon">🏛️</span>
         <div class="drawer-nav-label">
-          <div class="drawer-nav-text">ภาพรวมและเอกสารแนะนำระบบ</div>
-          <div class="drawer-nav-desc">ข้อมูลสถาปัตยกรรมและแนวทางการใช้งานแพลตฟอร์ม</div>
+          <div class="drawer-nav-text">{{ isEnglish ? 'Overview' : 'ภาพรวมระบบ' }}</div>
+          <div class="drawer-nav-desc">{{ isEnglish ? 'Platform introduction & docs' : 'แนะนำแพลตฟอร์มและเอกสาร' }}</div>
         </div>
       </button>
 
       <!-- Categories Filter Accordion -->
-      <div class="drawer-nav-group-title mt-4">การจัดกลุ่มและหมวดหมู่ภารกิจ</div>
+      <div class="drawer-nav-group-title mt-4">{{ isEnglish ? 'Categories' : 'หมวดหมู่' }}</div>
       <div class="drawer-accordion-btn" (click)="toggleCategoryMenu()">
-        <span>🏷️ จำแนกตามกลุ่มภารกิจ</span>
+        <span>🏷️ {{ isEnglish ? 'Filter by category' : 'จำแนกตามหมวดหมู่' }}</span>
         <span class="accordion-arrow">{{ isCategoryMenuExpanded ? '▲' : '▼' }}</span>
       </div>
 
       <div *ngIf="isCategoryMenuExpanded" class="drawer-category-list">
         <button (click)="filterByCategory('All')" class="category-item-btn" [class.active-cat]="selectedCategory === 'All'">
           <span>🌐</span>
-          <span>แสดงทุกหมวดหมู่ (All Classifications)</span>
+          <span>{{ isEnglish ? 'All Categories' : 'ทุกหมวดหมู่' }}</span>
         </button>
         <button *ngFor="let cat of categories" (click)="filterByCategory(cat.name)" class="category-item-btn" [class.active-cat]="selectedCategory === cat.name">
           <span>{{ cat.icon }}</span>
@@ -145,29 +150,37 @@
         </button>
       </div>
 
-      <!-- Support & Provider Contact -->
-      <div class="drawer-nav-group-title mt-4">การสนับสนุนและปรับแต่งระบบ</div>
+      <!-- Support & Settings -->
+      <div class="drawer-nav-group-title mt-4">{{ isEnglish ? 'Settings' : 'ตั้งค่าและสนับสนุน' }}</div>
 
-      <button (click)="openContactModal()" class="drawer-nav-item">
-        <span class="drawer-nav-icon">📞</span>
+      <button (click)="toggleLanguage()" class="drawer-nav-item">
+        <span class="drawer-nav-icon">🌐</span>
         <div class="drawer-nav-label">
-          <div class="drawer-nav-text">ติดต่อฝ่ายประสานงานและทีมพัฒนาระบบ</div>
-          <div class="drawer-nav-desc">บริการสนับสนุนทางเทคนิคและข้อเสนอแนะเชิงยุทธศาสตร์</div>
+          <div class="drawer-nav-text">{{ isEnglish ? 'Switch to Thai (ภาษาไทย)' : 'Switch to English' }}</div>
+          <div class="drawer-nav-desc">{{ isEnglish ? 'เปลี่ยนเป็นภาษาไทย' : 'Change display language' }}</div>
         </div>
       </button>
 
       <button (click)="toggleTheme()" class="drawer-nav-item">
         <span class="drawer-nav-icon">{{ isDarkMode ? '☀️' : '🌙' }}</span>
         <div class="drawer-nav-label">
-          <div class="drawer-nav-text">{{ isDarkMode ? 'เปลี่ยนเป็นชุดสีโหมดสว่าง (Light Mode)' : 'เปลี่ยนเป็นชุดสีโหมดมืด (Dark Mode)' }}</div>
-          <div class="drawer-nav-desc">ปรับแต่งการแสดงผลเพื่อความสบายตาและประสิทธิภาพสูงสุด</div>
+          <div class="drawer-nav-text">{{ isDarkMode ? (isEnglish ? 'Light Mode' : 'โหมดสว่าง') : (isEnglish ? 'Dark Mode' : 'โหมดมืด') }}</div>
+          <div class="drawer-nav-desc">{{ isEnglish ? 'Toggle display theme' : 'เปลี่ยนธีมการแสดงผล' }}</div>
+        </div>
+      </button>
+
+      <button (click)="openContactModal()" class="drawer-nav-item">
+        <span class="drawer-nav-icon">📞</span>
+        <div class="drawer-nav-label">
+          <div class="drawer-nav-text">{{ isEnglish ? 'Contact Support' : 'ติดต่อทีมพัฒนา' }}</div>
+          <div class="drawer-nav-desc">{{ isEnglish ? 'Technical support & feedback' : 'แนะนำและรายงานปัญหา' }}</div>
         </div>
       </button>
     </div>
 
     <!-- Drawer Footer -->
     <div class="drawer-footer">
-      <div class="text-xs text-muted">Todaprime Enterprise Edition v3.0 · State-Preserved</div>
+      <div class="text-xs text-muted">Todaprime v3.0 · {{ isEnglish ? 'State-Preserved' : 'บันทึกสถานะอัตโนมัติ' }}</div>
     </div>
   </aside>
 
@@ -176,23 +189,21 @@
   <!-- ========================================== -->
   <main *ngIf="currentView === 'landing'" class="landing-container">
     <div class="landing-hero">
-      <div class="landing-badge">✦ สถาปัตยกรรมเพื่อการบริหารจัดการภารกิจระดับมืออาชีพ</div>
+      <div class="landing-badge">✦ {{ isEnglish ? 'Executive Task Management & Strategic Planning' : 'สถาปัตยกรรมเพื่อการบริหารจัดการภารกิจระดับมืออาชีพ' }}</div>
       <h1 class="landing-hero-title">
-        ระบบวางแผนภารกิจเชิงยุทธศาสตร์ <br/>
-        <span class="gradient-text">และวิเคราะห์ประสิทธิภาพการดำเนินงาน</span>
+        {{ isEnglish ? 'Strategic Task Planning' : 'ระบบวางแผนภารกิจเชิงยุทธศาสตร์' }} <br/>
+        <span class="gradient-text">{{ isEnglish ? '& Performance Analytics Platform' : 'และวิเคราะห์ประสิทธิภาพการดำเนินงาน' }}</span>
       </h1>
       <p class="landing-hero-sub">
-        <strong>Todaprime</strong> ได้รับการออกแบบขึ้นตามหลักสรีรศาสตร์และ Swiss Minimalism 
-        เพื่อยกระดับการบริหารเวลาและภารกิจสำคัญอย่างเป็นระบบ รองรับการจัดตารางส่งมอบงาน การบ้าน 
-        และเป้าหมายล่วงหน้า พร้อมระบบตรวจรับผลงานรายวัน และแดชบอร์ดสรุปสถิติดัชนีชี้วัดผลงาน (Monthly Analytics)
+        <strong>Todaprime</strong> {{ isEnglish ? 'is crafted with ergonomic clarity and Swiss Minimalism for executive productivity. Schedule deliverables, manage daily execution checklists, and track monthly completion rates effortlessly.' : 'ได้รับการออกแบบขึ้นตามหลักสรีรศาสตร์และ Swiss Minimalism เพื่อยกระดับการบริหารเวลาและภารกิจสำคัญอย่างเป็นระบบ รองรับการจัดตารางส่งมอบงาน การบ้าน และเป้าหมายล่วงหน้า พร้อมระบบตรวจรับผลงานรายวัน และแดชบอร์ดสรุปสถิติดัชนีชี้วัดผลงาน (Monthly Analytics)' }}
       </p>
 
       <div class="landing-cta-buttons">
         <button (click)="switchToApp('planner')" class="btn-landing-primary">
-          🚀 เข้าสู่ระบบบริหารจัดการภารกิจ
+          {{ isEnglish ? '🚀 Open Task Planner' : '🚀 เข้าสู่ระบบบริหารจัดการภารกิจ' }}
         </button>
         <button (click)="switchToApp('monthly')" class="btn-landing-secondary">
-          📊 ตรวจสอบรายงานสถิติรายเดือน
+          {{ isEnglish ? '📊 Monthly Analytics' : '📊 ตรวจสอบรายงานสถิติรายเดือน' }}
         </button>
         <button (click)="openLoginModal()" class="btn-landing-google" *ngIf="!(authService.currentUser$ | async)">
           <svg class="google-icon-sm" viewBox="0 0 24 24">
@@ -201,10 +212,10 @@
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
           </svg>
-          ยืนยันตัวตนด้วย Google Workspace
+          {{ isEnglish ? 'Sign in with Google' : 'ยืนยันตัวตนด้วย Google Workspace' }}
         </button>
         <button (click)="openContactModal()" class="btn-landing-contact">
-          📞 ติดต่อทีมพัฒนาระบบ
+          {{ isEnglish ? '📞 Contact Development Team' : '📞 ติดต่อทีมพัฒนาระบบ' }}
         </button>
       </div>
 
@@ -264,7 +275,7 @@
         (click)="setDashboardTab('planner')" 
         [class.active]="activeTab === 'planner'" 
         class="dash-tab-btn">
-        <span>📋 ตารางภารกิจประจำวัน & บันทึกผลงาน</span>
+        <span>{{ isEnglish ? '📋 Daily Planner & Tasks' : '📋 ตารางภารกิจประจำวัน & บันทึกผลงาน' }}</span>
         <span class="tab-badge" *ngIf="dayTasks.length > 0">{{ dayTasks.length }}</span>
       </button>
 
@@ -272,7 +283,7 @@
         (click)="setDashboardTab('monthly')" 
         [class.active]="activeTab === 'monthly'" 
         class="dash-tab-btn">
-        <span>📊 รายงานสถิติและดัชนีชี้วัดรายเดือน</span>
+        <span>{{ isEnglish ? '📊 Monthly Analytics' : '📊 รายงานสถิติและดัชนีชี้วัดรายเดือน' }}</span>
         <span class="tab-badge-accent" *ngIf="monthlyStats">{{ monthlyStats.completionRate }}%</span>
       </button>
     </div>
@@ -285,30 +296,30 @@
       <!-- Date Selector Toolbar -->
       <div class="date-nav-card">
         <div class="date-nav-controls">
-          <button (click)="offsetSelectedDate(-1)" class="btn-date-arrow" title="วันก่อนหน้า">
-            ◀ วันก่อนหน้า
+          <button (click)="offsetSelectedDate(-1)" class="btn-date-arrow" [title]="isEnglish ? 'Previous Day' : 'วันก่อนหน้า'">
+            {{ isEnglish ? '◀ Prev Day' : '◀ วันก่อนหน้า' }}
           </button>
           
           <div class="quick-date-buttons">
             <button (click)="setToday()" [class.active-date-btn]="selectedDate === taskService.getTodayDateStr()" class="btn-quick-date">
-              กำหนดการวันนี้
+              {{ isEnglish ? 'Today' : 'กำหนดการวันนี้' }}
             </button>
             <button (click)="setTomorrow()" [class.active-date-btn]="selectedDate === taskService.getDateOffsetStr(1)" class="btn-quick-date">
-              กำหนดการวันพรุ่งนี้
+              {{ isEnglish ? 'Tomorrow' : 'กำหนดการวันพรุ่งนี้' }}
             </button>
             <button (click)="setDayAfter()" [class.active-date-btn]="selectedDate === taskService.getDateOffsetStr(2)" class="btn-quick-date">
-              กำหนดการวันมะรืนนี้
+              {{ isEnglish ? '+2 Days' : 'กำหนดการวันมะรืนนี้' }}
             </button>
           </div>
 
-          <button (click)="offsetSelectedDate(1)" class="btn-date-arrow" title="วันถัดไป">
-            วันถัดไป ▶
+          <button (click)="offsetSelectedDate(1)" class="btn-date-arrow" [title]="isEnglish ? 'Next Day' : 'วันถัดไป'">
+            {{ isEnglish ? 'Next Day ▶' : 'วันถัดไป ▶' }}
           </button>
         </div>
 
         <!-- Custom Date Input Picker -->
         <div class="custom-date-picker-group">
-          <label class="date-picker-label">🗓️ เลือกกำหนดการเป้าหมาย:</label>
+          <label class="date-picker-label">{{ isEnglish ? '🗓️ Target Date:' : '🗓️ เลือกกำหนดการเป้าหมาย:' }}</label>
           <input 
             type="date" 
             [ngModel]="selectedDate" 
@@ -325,14 +336,14 @@
             <span class="day-icon">🗓️</span>
             <div>
               <h2 class="day-title-text">{{ displayDateText }}</h2>
-              <p class="day-date-raw">รหัสกำหนดการ: {{ selectedDate }} | เวลาปัจจุบัน: {{ currentTimeStr }} น.</p>
+              <p class="day-date-raw">{{ isEnglish ? 'Schedule Code: ' + selectedDate + ' | Current Time: ' + currentTimeStr : 'รหัสกำหนดการ: ' + selectedDate + ' | เวลาปัจจุบัน: ' + currentTimeStr + ' น.' }}</p>
             </div>
           </div>
 
           <!-- Daily Progress Bar -->
           <div class="day-progress-group">
             <div class="day-progress-text">
-              ดัชนีความสำเร็จ: <strong>{{ dayStats.completed_tasks }} / {{ dayStats.total_tasks }}</strong> ภารกิจ
+              {{ isEnglish ? 'Execution Rate: ' : 'ดัชนีความสำเร็จ: ' }}<strong>{{ dayStats.completed_tasks }} / {{ dayStats.total_tasks }}</strong> {{ isEnglish ? 'tasks' : 'ภารกิจ' }}
               <span class="text-accent font-bold">({{ dayStats.completion_rate }}%)</span>
             </div>
             <div class="progress-bar-track">
@@ -342,7 +353,7 @@
         </div>
 
         <button (click)="openCreateModal()" class="btn-add-full-task">
-          + บันทึกภารกิจอย่างละเอียด
+          {{ isEnglish ? '+ Detailed Task' : '+ บันทึกภารกิจอย่างละเอียด' }}
         </button>
       </div>
 
@@ -352,7 +363,7 @@
         <div class="quick-add-header">
           <div class="quick-add-header-left">
             <span class="quick-add-icon">⚡</span>
-            <span>บันทึกภารกิจสำหรับกำหนดการ: <strong>{{ formatThaiDateFormal(selectedDate) }}</strong></span>
+            <span>{{ isEnglish ? 'Schedule for: ' : 'บันทึกภารกิจสำหรับกำหนดการ: ' }}<strong>{{ formatThaiDateFormal(selectedDate) }}</strong></span>
           </div>
 
           <!-- Quick Range Toggle Button (กำหนดช่วงเวลา วันนี้ถึงวันไหน) -->
@@ -361,8 +372,8 @@
             (click)="toggleQuickRange()" 
             class="btn-toggle-range"
             [class.active-range-toggle]="quickIsRange"
-            title="กำหนดช่วงเวลาปฏิบัติการ (วันนี้ถึงวันไหน)">
-            <span>{{ quickIsRange ? '✓ กำหนดช่วงเวลา (วันนี้ถึงวันไหน)' : '🗓️ + กำหนดช่วงเวลา (วันนี้ถึงวันไหน)' }}</span>
+            [title]="isEnglish ? 'Set multi-day date range' : 'กำหนดช่วงเวลาปฏิบัติการ (วันนี้ถึงวันไหน)'">
+            <span>{{ quickIsRange ? (isEnglish ? '✓ Date Range Active' : '✓ กำหนดช่วงเวลา (วันนี้ถึงวันไหน)') : (isEnglish ? '🗓️ + Date Range' : '🗓️ + กำหนดช่วงเวลา (วันนี้ถึงวันไหน)') }}</span>
           </button>
         </div>
 
@@ -371,7 +382,7 @@
             type="text" 
             [(ngModel)]="quickTitle" 
             name="quickTitle"
-            placeholder="ระบุชื่อภารกิจ เช่น จัดทำรายงานสรุปผลการวิจัย, ส่งมอบโครงงานระบบคอมพิวเตอร์..." 
+            [placeholder]="isEnglish ? 'Enter task title (e.g. Submit project summary, review milestone)...' : 'ระบุชื่อภารกิจ เช่น จัดทำรายงานสรุปผลการวิจัย, ส่งมอบโครงงานระบบคอมพิวเตอร์...'" 
             class="quick-input-title"
             required
           />
@@ -380,7 +391,7 @@
           <div *ngIf="quickIsRange" class="quick-range-bar">
             <div class="quick-range-label">
               <span class="range-flag-icon">🚩</span>
-              <span>จาก <strong>{{ formatThaiDateFormal(selectedDate) }}</strong> ถึงวันไหน:</span>
+              <span>{{ isEnglish ? 'From ' : 'จาก ' }}<strong>{{ formatThaiDateFormal(selectedDate) }}</strong>{{ isEnglish ? ' until date:' : ' ถึงวันไหน:' }}</span>
             </div>
 
             <div class="quick-range-input-wrap">
@@ -394,9 +405,9 @@
             </div>
 
             <div class="quick-range-presets">
-              <button type="button" (click)="setQuickRangeOffset(1)" class="btn-range-preset">+1 วัน (ถึงพรุ่งนี้)</button>
-              <button type="button" (click)="setQuickRangeOffset(3)" class="btn-range-preset">+3 วัน</button>
-              <button type="button" (click)="setQuickRangeOffset(7)" class="btn-range-preset">+7 วัน (1 สัปดาห์)</button>
+              <button type="button" (click)="setQuickRangeOffset(1)" class="btn-range-preset">{{ isEnglish ? '+1 Day (Tomorrow)' : '+1 วัน (ถึงพรุ่งนี้)' }}</button>
+              <button type="button" (click)="setQuickRangeOffset(3)" class="btn-range-preset">{{ isEnglish ? '+3 Days' : '+3 วัน' }}</button>
+              <button type="button" (click)="setQuickRangeOffset(7)" class="btn-range-preset">{{ isEnglish ? '+7 Days (1 Week)' : '+7 วัน (1 สัปดาห์)' }}</button>
             </div>
 
             <span *ngIf="quickEndDate" class="quick-range-summary-tag">
@@ -407,13 +418,13 @@
           <div class="quick-add-meta">
             <!-- Time Picker -->
             <div class="quick-field">
-              <label>⏰ กำหนดเวลา:</label>
+              <label>{{ isEnglish ? '⏰ Due Time:' : '⏰ กำหนดเวลา:' }}</label>
               <input type="time" [(ngModel)]="quickDueTime" name="quickDueTime" class="quick-input-time" />
             </div>
 
             <!-- Category Picker -->
             <div class="quick-field">
-              <label>🏷️ หมวดหมู่ภารกิจ:</label>
+              <label>{{ isEnglish ? '🏷️ Category:' : '🏷️ หมวดหมู่ภารกิจ:' }}</label>
               <select [(ngModel)]="quickCategory" name="quickCategory" class="quick-select">
                 <option *ngFor="let cat of categories" [value]="cat.name">
                   {{ cat.icon }} {{ cat.name }}
@@ -423,16 +434,16 @@
 
             <!-- Priority Picker -->
             <div class="quick-field">
-              <label>🎯 ระดับความสำคัญ:</label>
+              <label>{{ isEnglish ? '🎯 Priority:' : '🎯 ระดับความสำคัญ:' }}</label>
               <select [(ngModel)]="quickPriority" name="quickPriority" class="quick-select">
-                <option value="HIGH">🔴 ระดับวิกฤต (Critical Priority)</option>
-                <option value="MEDIUM">🟡 ระดับสำคัญ (High Importance)</option>
-                <option value="LOW">🟢 ระดับมาตรฐาน (Standard Routine)</option>
+                <option value="HIGH">{{ isEnglish ? '🔴 Critical Priority' : '🔴 ระดับวิกฤต (Critical Priority)' }}</option>
+                <option value="MEDIUM">{{ isEnglish ? '🟡 High Importance' : '🟡 ระดับสำคัญ (High Importance)' }}</option>
+                <option value="LOW">{{ isEnglish ? '🟢 Standard Routine' : '🟢 ระดับมาตรฐาน (Standard Routine)' }}</option>
               </select>
             </div>
 
             <button type="submit" class="btn-submit-quick">
-              + บันทึกข้อมูล
+              {{ isEnglish ? '+ Add Task' : '+ บันทึกข้อมูล' }}
             </button>
           </div>
         </form>
@@ -440,17 +451,17 @@
 
       <!-- Active Filter Banner (if filtering by category) -->
       <div *ngIf="selectedCategory !== 'All'" class="filter-indicator-bar">
-        <span>🔍 กรองเฉพาะกลุ่มภารกิจ: <strong>{{ selectedCategory }}</strong></span>
-        <button (click)="clearCategoryFilter()" class="btn-clear-filter">แสดงทั้งหมด ✖</button>
+        <span>{{ isEnglish ? '🔍 Filtered by Category: ' : '🔍 กรองเฉพาะกลุ่มภารกิจ: ' }}<strong>{{ selectedCategory }}</strong></span>
+        <button (click)="clearCategoryFilter()" class="btn-clear-filter">{{ isEnglish ? 'Show All ✖' : 'แสดงทั้งหมด ✖' }}</button>
       </div>
 
       <!-- Tasks Checklist For Selected Date -->
       <div class="tasks-checklist-container">
         <div class="section-title-row">
           <h3 class="section-heading">
-            ตารางรายการภารกิจที่ต้องดำเนินการ (Task Execution Register) — {{ dayTasks.length }} รายการ
+            {{ isEnglish ? 'Task Execution Register — ' + dayTasks.length + ' item(s)' : 'ตารางรายการภารกิจที่ต้องดำเนินการ (Task Execution Register) — ' + dayTasks.length + ' รายการ' }}
           </h3>
-          <span class="text-xs text-muted">คลิกที่กล่องเพื่อบันทึกสถานะ "แล้วเสร็จ"</span>
+          <span class="text-xs text-muted">{{ isEnglish ? 'Click checkbox to mark task as completed' : 'คลิกที่กล่องเพื่อบันทึกสถานะ "แล้วเสร็จ"' }}</span>
         </div>
 
         <!-- Task Items -->
@@ -463,7 +474,7 @@
             [ngClass]="getCategoryStyleClass(task.category)"
           >
             <!-- Checkbox (Click to toggle complete) -->
-            <div class="checkbox-container" (click)="toggleTask(task)" title="บันทึกสถานะการดำเนินงาน">
+            <div class="checkbox-container" (click)="toggleTask(task)" [title]="isEnglish ? 'Toggle execution status' : 'บันทึกสถานะการดำเนินงาน'">
               <div class="custom-checkbox" [class.checked]="task.is_completed">
                 <span *ngIf="task.is_completed">✓</span>
               </div>
@@ -475,7 +486,7 @@
                 <span class="task-title" [class.task-title-completed]="task.is_completed">
                   {{ task.title }}
                 </span>
-                <span *ngIf="task.is_completed" class="badge-done">✓ ดำเนินการแล้วเสร็จ</span>
+                <span *ngIf="task.is_completed" class="badge-done">{{ isEnglish ? '✓ Completed' : '✓ ดำเนินการแล้วเสร็จ' }}</span>
               </div>
 
               <div *ngIf="task.description" class="task-description">
@@ -485,11 +496,11 @@
               <!-- Task Meta Badges -->
               <div class="task-badges-row">
                 <!-- Multi-day Range Badge -->
-                <span *ngIf="isRangeTask(task)" class="badge-range-pill" title="กำหนดช่วงเวลาปฏิบัติการ">
-                  🗓️ กำหนด: {{ formatTaskRangeText(task) }}
+                <span *ngIf="isRangeTask(task)" class="badge-range-pill" [title]="isEnglish ? 'Active date span' : 'กำหนดช่วงเวลาปฏิบัติการ'">
+                  🗓️ {{ isEnglish ? 'Span: ' : 'กำหนด: ' }}{{ formatTaskRangeText(task) }}
                 </span>
 
-                <span *ngIf="isRangeTask(task)" class="badge-remaining-pill" [class.badge-remaining-urgent]="getRemainingDaysText(task).includes('สุดท้าย')">
+                <span *ngIf="isRangeTask(task)" class="badge-remaining-pill" [class.badge-remaining-urgent]="getRemainingDaysText(task).includes('สุดท้าย') || getRemainingDaysText(task).includes('Last')">
                   ⏳ {{ getRemainingDaysText(task) }}
                 </span>
 
@@ -498,7 +509,7 @@
                 </span>
 
                 <span *ngIf="task.due_time" class="badge-time">
-                  ⏰ {{ task.due_time }} น.
+                  ⏰ {{ task.due_time }}{{ isEnglish ? '' : ' น.' }}
                 </span>
 
                 <span class="badge-priority" [ngClass]="{
@@ -506,21 +517,21 @@
                   'badge-p-med': task.priority === 'MEDIUM',
                   'badge-p-low': task.priority === 'LOW'
                 }">
-                  {{ task.priority === 'HIGH' ? 'ระดับวิกฤต' : (task.priority === 'MEDIUM' ? 'ระดับสำคัญ' : 'ระดับมาตรฐาน') }}
+                  {{ task.priority === 'HIGH' ? (isEnglish ? 'Critical' : 'ระดับวิกฤต') : (task.priority === 'MEDIUM' ? (isEnglish ? 'Important' : 'ระดับสำคัญ') : (isEnglish ? 'Routine' : 'ระดับมาตรฐาน')) }}
                 </span>
 
                 <span *ngIf="task.is_completed && task.completed_at" class="badge-completed-time">
-                  🕒 แล้วเสร็จเมื่อ {{ task.completed_at | date:'HH:mm' }} น.
+                  🕒 {{ isEnglish ? 'Done at ' + (task.completed_at | date:'HH:mm') : 'แล้วเสร็จเมื่อ ' + (task.completed_at | date:'HH:mm') + ' น.' }}
                 </span>
               </div>
             </div>
 
             <!-- Action Buttons -->
             <div class="task-actions">
-              <button (click)="openEditModal(task, $event)" class="btn-action-edit" title="แก้ไขรายละเอียด">
+              <button (click)="openEditModal(task, $event)" class="btn-action-edit" [title]="isEnglish ? 'Edit Task' : 'แก้ไขรายละเอียด'">
                 ✏️
               </button>
-              <button (click)="deleteTask(task, $event)" class="btn-action-delete" title="ลบรายการนี้">
+              <button (click)="deleteTask(task, $event)" class="btn-action-delete" [title]="isEnglish ? 'Delete Task' : 'ลบรายการนี้'">
                 🗑️
               </button>
             </div>
@@ -530,9 +541,9 @@
         <ng-template #noTasks>
           <div class="empty-tasks-card">
             <div class="empty-icon">📂</div>
-            <div class="empty-title">ไม่มีรายการภารกิจสำหรับกำหนดการ {{ formatThaiDateFormal(selectedDate) }}</div>
+            <div class="empty-title">{{ isEnglish ? 'No tasks scheduled for ' + formatThaiDateFormal(selectedDate) : 'ไม่มีรายการภารกิจสำหรับกำหนดการ ' + formatThaiDateFormal(selectedDate) }}</div>
             <p class="empty-desc">
-              สามารถระบุภารกิจใหม่ในช่องบันทึกด้านบน หรือคลิกปุ่ม <strong>"+ บันทึกภารกิจอย่างละเอียด"</strong> เพื่อจัดสรรตารางการทำงาน
+              {{ isEnglish ? 'Enter a new task in the quick add bar above or click "+ Detailed Task" to schedule your work.' : 'สามารถระบุภารกิจใหม่ในช่องบันทึกด้านบน หรือคลิกปุ่ม "+ บันทึกภารกิจอย่างละเอียด" เพื่อจัดสรรตารางการทำงาน' }}
             </p>
           </div>
         </ng-template>
@@ -542,11 +553,11 @@
       <div class="upcoming-section">
         <div class="upcoming-header">
           <div>
-            <h3 class="upcoming-title">📅 กำหนดการส่งมอบและภารกิจในอนาคต (Upcoming Schedule & Deliverables)</h3>
-            <p class="upcoming-subtitle">ภาพรวมกำหนดการส่งมอบงาน การบ้าน และภารกิจสำคัญในวันถัดไป เพื่อเตรียมความพร้อมล่วงหน้า</p>
+            <h3 class="upcoming-title">{{ isEnglish ? '📅 Upcoming Schedule & Deliverables' : '📅 กำหนดการส่งมอบและภารกิจในอนาคต' }}</h3>
+            <p class="upcoming-subtitle">{{ isEnglish ? 'Overview of upcoming assignments, deadlines, and milestones' : 'ภาพรวมกำหนดการส่งมอบงาน การบ้าน และภารกิจสำคัญในวันถัดไป เพื่อเตรียมความพร้อมล่วงหน้า' }}</p>
           </div>
           <button (click)="openCreateModal()" class="btn-plan-ahead">
-            + วางแผนงานล่วงหน้า
+            {{ isEnglish ? '+ Plan Ahead' : '+ วางแผนงานล่วงหน้า' }}
           </button>
         </div>
 
@@ -562,9 +573,9 @@
             </div>
             <div class="upcoming-card-footer">
               <span class="badge-category" [ngClass]="getCategoryStyleClass(ut.category)">{{ ut.category }}</span>
-              <span *ngIf="ut.due_time" class="badge-time">⏰ {{ ut.due_time }} น.</span>
-              <button class="btn-goto-day" title="เปิดดูตารางงานของวันนี้">
-                ตรวจสอบกำหนดการนี้ ➔
+              <span *ngIf="ut.due_time" class="badge-time">⏰ {{ ut.due_time }}{{ isEnglish ? '' : ' น.' }}</span>
+              <button class="btn-goto-day" [title]="isEnglish ? 'Inspect this schedule' : 'เปิดดูตารางงานของวันนี้'">
+                {{ isEnglish ? 'View Schedule ➔' : 'ตรวจสอบกำหนดการนี้ ➔' }}
               </button>
             </div>
           </div>
@@ -572,7 +583,7 @@
 
         <ng-template #noUpcoming>
           <div class="empty-upcoming-box">
-            <span>✦ ขณะนี้ไม่มีภารกิจคงค้างในอนาคต สามารถคลิก <strong>"+ วางแผนงานล่วงหน้า"</strong> เพื่อบันทึกกำหนดการใหม่</span>
+            <span>✦ {{ isEnglish ? 'No upcoming tasks pending. Click "+ Plan Ahead" to schedule deliverables.' : 'ขณะนี้ไม่มีภารกิจคงค้างในอนาคต สามารถคลิก "+ วางแผนงานล่วงหน้า" เพื่อบันทึกกำหนดการใหม่' }}</span>
           </div>
         </ng-template>
       </div>
@@ -586,19 +597,19 @@
 
       <!-- Month Navigation Header -->
       <div class="monthly-header-bar">
-        <button (click)="prevMonth()" class="btn-month-nav" title="เดือนก่อนหน้า">
-          ◀ เดือนก่อนหน้า
+        <button (click)="prevMonth()" class="btn-month-nav" [title]="isEnglish ? 'Previous Month' : 'เดือนก่อนหน้า'">
+          {{ isEnglish ? '◀ Prev Month' : '◀ เดือนก่อนหน้า' }}
         </button>
 
         <div class="current-month-display">
-          <h2 class="month-title-text">{{ monthlyStats?.monthName }}</h2>
+          <h2 class="month-title-text">{{ getMonthTitle() }}</h2>
           <button (click)="jumpToCurrentMonth()" class="btn-today-month">
-            รอบเดือนปัจจุบัน
+            {{ isEnglish ? 'Current Month' : 'รอบเดือนปัจจุบัน' }}
           </button>
         </div>
 
-        <button (click)="nextMonth()" class="btn-month-nav" title="เดือนถัดไป">
-          เดือนถัดไป ▶
+        <button (click)="nextMonth()" class="btn-month-nav" [title]="isEnglish ? 'Next Month' : 'เดือนถัดไป'">
+          {{ isEnglish ? 'Next Month ▶' : 'เดือนถัดไป ▶' }}
         </button>
       </div>
 
@@ -607,15 +618,15 @@
         <div class="metric-card metric-card-total">
           <div class="metric-icon metric-icon-total">📋</div>
           <div class="metric-content">
-            <div class="metric-label">ภารกิจทั้งหมดในรอบเดือน (Total Assigned)</div>
-            <div class="metric-number">{{ monthlyStats.totalTasks }} <span class="metric-unit">รายการ</span></div>
+            <div class="metric-label">{{ isEnglish ? 'Total Monthly Tasks' : 'ภารกิจทั้งหมดในรอบเดือน (Total Assigned)' }}</div>
+            <div class="metric-number">{{ monthlyStats.totalTasks }} <span class="metric-unit">{{ isEnglish ? 'tasks' : 'รายการ' }}</span></div>
           </div>
         </div>
 
         <div class="metric-card metric-card-success">
           <div class="metric-icon metric-icon-success">✓</div>
           <div class="metric-content">
-            <div class="metric-label">ดำเนินการแล้วเสร็จ (Successfully Completed)</div>
+            <div class="metric-label">{{ isEnglish ? 'Successfully Completed' : 'ดำเนินการแล้วเสร็จ (Successfully Completed)' }}</div>
             <div class="metric-number">
               {{ monthlyStats.completedTasks }} 
               <span class="metric-unit">({{ monthlyStats.completionRate }}%)</span>
@@ -626,18 +637,18 @@
         <div class="metric-card metric-card-warning">
           <div class="metric-icon metric-icon-warning">⏳</div>
           <div class="metric-content">
-            <div class="metric-label">อยู่ระหว่างดำเนินการ (Pending & Active)</div>
-            <div class="metric-number">{{ monthlyStats.pendingTasks }} <span class="metric-unit">รายการ</span></div>
+            <div class="metric-label">{{ isEnglish ? 'Pending Deliverables' : 'อยู่ระหว่างดำเนินการ (Pending & Active)' }}</div>
+            <div class="metric-number">{{ monthlyStats.pendingTasks }} <span class="metric-unit">{{ isEnglish ? 'tasks' : 'รายการ' }}</span></div>
           </div>
         </div>
 
         <div class="metric-card metric-card-purple">
           <div class="metric-icon metric-icon-purple">🏆</div>
           <div class="metric-content">
-            <div class="metric-label">วันที่บรรลุเป้าหมายครบ 100% (Perfect Days)</div>
+            <div class="metric-label">{{ isEnglish ? 'Perfect Days (100% Rate)' : 'วันที่บรรลุเป้าหมายครบ 100% (Perfect Days)' }}</div>
             <div class="metric-number">
               {{ monthlyStats.perfectDaysCount }} 
-              <span class="metric-unit">/ {{ monthlyStats.activeDaysCount }} วัน</span>
+              <span class="metric-unit">/ {{ monthlyStats.activeDaysCount }} {{ isEnglish ? 'days' : 'วัน' }}</span>
             </div>
           </div>
         </div>
@@ -647,25 +658,25 @@
       <div class="monthly-calendar-card">
         <div class="calendar-card-header">
           <div>
-            <h3 class="calendar-card-title">แผนภาพความหนาแน่นและประสิทธิภาพการดำเนินงาน (Monthly Performance Heatmap)</h3>
-            <p class="calendar-card-sub">คลิกที่ช่องวันที่เพื่อเข้าถึงตารางภารกิจและบันทึกผลงานของวันดังกล่าวได้ทันที</p>
+            <h3 class="calendar-card-title">{{ isEnglish ? 'Monthly Performance Heatmap & Calendar' : 'แผนภาพความหนาแน่นและประสิทธิภาพการดำเนินงาน (Performance Heatmap)' }}</h3>
+            <p class="calendar-card-sub">{{ isEnglish ? 'Click any date to view and manage its daily tasks' : 'คลิกที่ช่องวันที่เพื่อเข้าถึงตารางภารกิจและบันทึกผลงานของวันดังกล่าวได้ทันที' }}</p>
           </div>
           <div class="calendar-legend">
-            <span class="legend-item"><span class="legend-dot dot-perfect"></span> แล้วเสร็จครบ 100%</span>
-            <span class="legend-item"><span class="legend-dot dot-pending"></span> มีภารกิจคงค้าง</span>
-            <span class="legend-item"><span class="legend-dot dot-empty"></span> ไม่มีกำหนดการ</span>
+            <span class="legend-item"><span class="legend-dot dot-perfect"></span> {{ isEnglish ? '100% Done' : 'แล้วเสร็จครบ 100%' }}</span>
+            <span class="legend-item"><span class="legend-dot dot-pending"></span> {{ isEnglish ? 'Pending' : 'มีภารกิจคงค้าง' }}</span>
+            <span class="legend-item"><span class="legend-dot dot-empty"></span> {{ isEnglish ? 'No tasks' : 'ไม่มีกำหนดการ' }}</span>
           </div>
         </div>
 
         <!-- Days of Week Header (Responsive for Desktop & Mobile) -->
         <div class="calendar-week-header">
-          <div class="week-name"><span class="full-day">อาทิตย์</span><span class="short-day">อา.</span></div>
-          <div class="week-name"><span class="full-day">จันทร์</span><span class="short-day">จ.</span></div>
-          <div class="week-name"><span class="full-day">อังคาร</span><span class="short-day">อ.</span></div>
-          <div class="week-name"><span class="full-day">พุธ</span><span class="short-day">พ.</span></div>
-          <div class="week-name"><span class="full-day">พฤหัสบดี</span><span class="short-day">พฤ.</span></div>
-          <div class="week-name"><span class="full-day">ศุกร์</span><span class="short-day">ศ.</span></div>
-          <div class="week-name"><span class="full-day">เสาร์</span><span class="short-day">ส.</span></div>
+          <div class="week-name"><span class="full-day">{{ isEnglish ? 'Sun' : 'อาทิตย์' }}</span><span class="short-day">{{ isEnglish ? 'Su' : 'อา.' }}</span></div>
+          <div class="week-name"><span class="full-day">{{ isEnglish ? 'Mon' : 'จันทร์' }}</span><span class="short-day">{{ isEnglish ? 'Mo' : 'จ.' }}</span></div>
+          <div class="week-name"><span class="full-day">{{ isEnglish ? 'Tue' : 'อังคาร' }}</span><span class="short-day">{{ isEnglish ? 'Tu' : 'อ.' }}</span></div>
+          <div class="week-name"><span class="full-day">{{ isEnglish ? 'Wed' : 'พุธ' }}</span><span class="short-day">{{ isEnglish ? 'We' : 'พ.' }}</span></div>
+          <div class="week-name"><span class="full-day">{{ isEnglish ? 'Thu' : 'พฤหัสบดี' }}</span><span class="short-day">{{ isEnglish ? 'Th' : 'พฤ.' }}</span></div>
+          <div class="week-name"><span class="full-day">{{ isEnglish ? 'Fri' : 'ศุกร์' }}</span><span class="short-day">{{ isEnglish ? 'Fr' : 'ศ.' }}</span></div>
+          <div class="week-name"><span class="full-day">{{ isEnglish ? 'Sat' : 'เสาร์' }}</span><span class="short-day">{{ isEnglish ? 'Sa' : 'ส.' }}</span></div>
         </div>
 
         <!-- Calendar Days Grid -->
@@ -679,16 +690,16 @@
             [class.day-perfect]="day.isAllCompleted"
             [class.day-has-tasks]="day.taskCount > 0"
             (click)="clickCalendarDay(day)"
-            title="คลิกเพื่อตรวจสอบข้อมูลกำหนดการวันที่ {{ day.dateStr }}"
+            [title]="isEnglish ? 'Click to inspect ' + day.dateStr : 'คลิกเพื่อตรวจสอบข้อมูลกำหนดการวันที่ ' + day.dateStr"
           >
             <div class="day-cell-top">
               <span class="day-number">{{ day.dayNumber }}</span>
-              <span *ngIf="day.isToday" class="today-marker">วันนี้</span>
+              <span *ngIf="day.isToday" class="today-marker">{{ isEnglish ? 'Today' : 'วันนี้' }}</span>
             </div>
 
             <!-- Task count badge inside cell (Responsive text) -->
             <div *ngIf="day.taskCount > 0" class="day-cell-badge" [class.badge-cell-perfect]="day.isAllCompleted">
-              <span class="badge-full">{{ day.completedCount }}/{{ day.taskCount }} ภารกิจ</span>
+              <span class="badge-full">{{ day.completedCount }}/{{ day.taskCount }} {{ isEnglish ? 'tasks' : 'ภารกิจ' }}</span>
               <span class="badge-compact">{{ day.completedCount }}/{{ day.taskCount }}</span>
             </div>
           </div>
@@ -697,14 +708,14 @@
 
       <!-- Monthly Category Performance Breakdown -->
       <div class="monthly-categories-card" *ngIf="monthlyStats && monthlyStats.categoryBreakdown.length > 0">
-        <h3 class="category-breakdown-title">การกระจายตัวและอัตราความสำเร็จตามกลุ่มภารกิจ (Category Performance Breakdown)</h3>
+        <h3 class="category-breakdown-title">{{ isEnglish ? 'Category Performance Breakdown' : 'การกระจายตัวและอัตราความสำเร็จตามกลุ่มภารกิจ (Category Breakdown)' }}</h3>
         
         <div class="category-bars-list">
           <div *ngFor="let cat of monthlyStats.categoryBreakdown" class="category-bar-row">
             <div class="cat-bar-header">
               <span class="cat-bar-name">{{ cat.icon }} {{ cat.name }}</span>
               <span class="cat-bar-stat">
-                แล้วเสร็จ <strong>{{ cat.completed }}</strong> จาก {{ cat.total }} รายการ ({{ cat.rate }}%)
+                {{ isEnglish ? 'Done ' : 'แล้วเสร็จ ' }}<strong>{{ cat.completed }}</strong> {{ isEnglish ? 'of ' : 'จาก ' }}{{ cat.total }} {{ isEnglish ? 'tasks' : 'รายการ' }} ({{ cat.rate }}%)
               </span>
             </div>
             <div class="cat-progress-track">
@@ -725,50 +736,50 @@
     <div class="modal-box" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3 class="modal-title">
-          {{ isEditingTask ? '✏️ แก้ไขรายละเอียดภารกิจ' : '➕ บันทึกภารกิจใหม่' }}
+          {{ isEditingTask ? (isEnglish ? '✏️ Edit Task Details' : '✏️ แก้ไขรายละเอียดภารกิจ') : (isEnglish ? '➕ Create New Task' : '➕ บันทึกภารกิจใหม่') }}
         </h3>
         <button (click)="closeTaskModal()" class="btn-modal-close">✕</button>
       </div>
 
       <div class="modal-body">
         <div class="form-group">
-          <label class="form-label">ชื่อภารกิจ / โครงการที่ต้องดำเนินการ *</label>
+          <label class="form-label">{{ isEnglish ? 'Task / Assignment Title *' : 'ชื่อภารกิจ / โครงการที่ต้องดำเนินการ *' }}</label>
           <input 
             type="text" 
             [(ngModel)]="modalTask.title" 
             class="form-control"
-            placeholder="ระบุหัวข้องาน เช่น จัดทำเอกสารสรุปผลการวิจัย, ส่งมอบรายงานกลุ่ม..."
+            [placeholder]="isEnglish ? 'Enter task title (e.g. Research paper, project deliverable)...' : 'ระบุหัวข้องาน เช่น จัดทำเอกสารสรุปผลการวิจัย, ส่งมอบรายงานกลุ่ม...'"
             required 
           />
         </div>
 
         <div class="form-group">
-          <label class="form-label">รายละเอียดและข้อกำหนดเชิงปฏิบัติการ (Optional)</label>
+          <label class="form-label">{{ isEnglish ? 'Description & Requirements (Optional)' : 'รายละเอียดและข้อกำหนดเชิงปฏิบัติการ (Optional)' }}</label>
           <textarea 
             [(ngModel)]="modalTask.description" 
             class="form-control" 
             rows="3"
-            placeholder="บันทึกรายละเอียด วัตถุประสงค์ หรือข้อกำหนดสำคัญที่ต้องติดตาม..."
+            [placeholder]="isEnglish ? 'Enter notes, objectives, or specifications...' : 'บันทึกรายละเอียด วัตถุประสงค์ หรือข้อกำหนดสำคัญที่ต้องติดตาม...'"
           ></textarea>
         </div>
 
         <!-- Schedule Type Selector: Single Day vs Date Range (วันนี้ถึงวันไหน) -->
         <div class="modal-schedule-type-group">
-          <label class="form-label">🗓️ รูปแบบกำหนดการดำเนินงาน</label>
+          <label class="form-label">{{ isEnglish ? '🗓️ Schedule Format' : '🗓️ รูปแบบกำหนดการดำเนินงาน' }}</label>
           <div class="schedule-type-buttons">
             <button 
               type="button" 
               (click)="modalIsRange = false" 
               class="btn-schedule-type"
               [class.active-schedule-type]="!modalIsRange">
-              <span>📌 กำหนดส่งวันเดียว (Single Day)</span>
+              <span>{{ isEnglish ? '📌 Single Day' : '📌 กำหนดส่งวันเดียว (Single Day)' }}</span>
             </button>
             <button 
               type="button" 
               (click)="toggleModalRange()" 
               class="btn-schedule-type"
               [class.active-schedule-type]="modalIsRange">
-              <span>📅 กำหนดช่วงเวลา (วันนี้ถึงวันไหน / Date Range)</span>
+              <span>{{ isEnglish ? '📅 Date Range' : '📅 กำหนดช่วงเวลา (วันนี้ถึงวันไหน / Date Range)' }}</span>
             </button>
           </div>
         </div>
@@ -776,17 +787,17 @@
         <!-- Date Range or Single Date Inputs -->
         <div class="form-grid-2">
           <div class="form-group">
-            <label class="form-label">{{ modalIsRange ? '🚩 วันที่เริ่มต้น (Start Date) *' : '🗓️ วันที่กำหนดส่งมอบ *' }}</label>
+            <label class="form-label">{{ modalIsRange ? (isEnglish ? '🚩 Start Date *' : '🚩 วันที่เริ่มต้น (Start Date) *') : (isEnglish ? '🗓️ Due Date *' : '🗓️ วันที่กำหนดส่งมอบ *') }}</label>
             <input type="date" [(ngModel)]="modalTask.due_date" class="form-control" />
           </div>
 
           <div class="form-group" *ngIf="!modalIsRange">
-            <label class="form-label">⏰ เวลาเป้าหมาย (HH:mm)</label>
+            <label class="form-label">{{ isEnglish ? '⏰ Due Time (HH:mm)' : '⏰ เวลาเป้าหมาย (HH:mm)' }}</label>
             <input type="time" [(ngModel)]="modalTask.due_time" class="form-control" />
           </div>
 
           <div class="form-group" *ngIf="modalIsRange">
-            <label class="form-label">🏁 วันที่สิ้นสุด (ถึงวันไหน) *</label>
+            <label class="form-label">{{ isEnglish ? '🏁 End Date *' : '🏁 วันที่สิ้นสุด (ถึงวันไหน) *' }}</label>
             <input 
               type="date" 
               [(ngModel)]="modalTask.end_date" 
@@ -799,22 +810,22 @@
         <!-- Multi-day Range Quick Presets & Summary Box -->
         <div *ngIf="modalIsRange" class="modal-range-presets-card">
           <div class="modal-range-presets-label">
-            <span>⚡ เลือกช่วงเวลาด่วน:</span>
+            <span>{{ isEnglish ? '⚡ Quick Range:' : '⚡ เลือกช่วงเวลาด่วน:' }}</span>
             <div class="modal-range-presets-buttons">
-              <button type="button" (click)="setModalRangeOffset(1)" class="btn-range-preset-modal">+1 วัน (ถึงพรุ่งนี้)</button>
-              <button type="button" (click)="setModalRangeOffset(2)" class="btn-range-preset-modal">+2 วัน</button>
-              <button type="button" (click)="setModalRangeOffset(3)" class="btn-range-preset-modal">+3 วัน</button>
-              <button type="button" (click)="setModalRangeOffset(7)" class="btn-range-preset-modal">+7 วัน (1 สัปดาห์)</button>
-              <button type="button" (click)="setModalRangeOffset(14)" class="btn-range-preset-modal">+14 วัน</button>
-              <button type="button" (click)="setModalRangeOffset(30)" class="btn-range-preset-modal">+1 เดือน</button>
+              <button type="button" (click)="setModalRangeOffset(1)" class="btn-range-preset-modal">{{ isEnglish ? '+1 Day' : '+1 วัน (ถึงพรุ่งนี้)' }}</button>
+              <button type="button" (click)="setModalRangeOffset(2)" class="btn-range-preset-modal">{{ isEnglish ? '+2 Days' : '+2 วัน' }}</button>
+              <button type="button" (click)="setModalRangeOffset(3)" class="btn-range-preset-modal">{{ isEnglish ? '+3 Days' : '+3 วัน' }}</button>
+              <button type="button" (click)="setModalRangeOffset(7)" class="btn-range-preset-modal">{{ isEnglish ? '+7 Days (1 Wk)' : '+7 วัน (1 สัปดาห์)' }}</button>
+              <button type="button" (click)="setModalRangeOffset(14)" class="btn-range-preset-modal">{{ isEnglish ? '+14 Days' : '+14 วัน' }}</button>
+              <button type="button" (click)="setModalRangeOffset(30)" class="btn-range-preset-modal">{{ isEnglish ? '+1 Month' : '+1 เดือน' }}</button>
             </div>
           </div>
           <div class="modal-range-summary-box">
             <span class="range-summary-icon">✨</span>
             <div class="range-summary-text">
-              <strong>ระยะเวลาปฏิบัติการ: {{ getModalDaysSpan() }} วัน</strong>
+              <strong>{{ isEnglish ? 'Duration: ' + getModalDaysSpan() + ' days' : 'ระยะเวลาปฏิบัติการ: ' + getModalDaysSpan() + ' วัน' }}</strong>
               <span class="text-xs text-muted">
-                (ตั้งแต่วันที่ {{ formatThaiDateFormal(modalTask.due_date || selectedDate) }} ถึง {{ formatThaiDateFormal(modalTask.end_date || modalTask.due_date || selectedDate) }})
+                ({{ isEnglish ? 'From ' : 'ตั้งแต่วันที่ ' }}{{ formatThaiDateFormal(modalTask.due_date || selectedDate) }}{{ isEnglish ? ' to ' : ' ถึง ' }}{{ formatThaiDateFormal(modalTask.end_date || modalTask.due_date || selectedDate) }})
               </span>
             </div>
           </div>
@@ -822,7 +833,7 @@
 
         <div class="form-grid-2">
           <div class="form-group">
-            <label class="form-label">🏷️ หมวดหมู่ภารกิจ</label>
+            <label class="form-label">{{ isEnglish ? '🏷️ Category' : '🏷️ หมวดหมู่ภารกิจ' }}</label>
             <select [(ngModel)]="modalTask.category" class="form-control">
               <option *ngFor="let cat of categories" [value]="cat.name">
                 {{ cat.icon }} {{ cat.name }}
@@ -831,20 +842,20 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">🎯 ระดับความสำคัญ</label>
+            <label class="form-label">{{ isEnglish ? '🎯 Priority' : '🎯 ระดับความสำคัญ' }}</label>
             <select [(ngModel)]="modalTask.priority" class="form-control">
-              <option value="HIGH">🔴 ระดับวิกฤต (Critical Priority)</option>
-              <option value="MEDIUM">🟡 ระดับสำคัญ (High Importance)</option>
-              <option value="LOW">🟢 ระดับมาตรฐาน (Standard Routine)</option>
+              <option value="HIGH">{{ isEnglish ? '🔴 Critical Priority' : '🔴 ระดับวิกฤต (Critical Priority)' }}</option>
+              <option value="MEDIUM">{{ isEnglish ? '🟡 High Importance' : '🟡 ระดับสำคัญ (High Importance)' }}</option>
+              <option value="LOW">{{ isEnglish ? '🟢 Standard Routine' : '🟢 ระดับมาตรฐาน (Standard Routine)' }}</option>
             </select>
           </div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button (click)="closeTaskModal()" class="btn-modal-cancel">ยกเลิก</button>
+        <button (click)="closeTaskModal()" class="btn-modal-cancel">{{ isEnglish ? 'Cancel' : 'ยกเลิก' }}</button>
         <button (click)="saveModalTask()" class="btn-modal-save">
-          💾 บันทึกข้อมูล
+          {{ isEnglish ? '💾 Save Task' : '💾 บันทึกข้อมูล' }}
         </button>
       </div>
     </div>
@@ -856,7 +867,7 @@
   <div *ngIf="isLoginModalOpen" class="modal-backdrop" (click)="closeLoginModal()">
     <div class="modal-box auth-modal-box" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3 class="modal-title">🔐 ระบบยืนยันตัวตนและความปลอดภัย</h3>
+        <h3 class="modal-title">{{ isEnglish ? '🔐 Authentication & Security' : '🔐 ระบบยืนยันตัวตนและความปลอดภัย' }}</h3>
         <button (click)="closeLoginModal()" class="btn-modal-close">✕</button>
       </div>
 
@@ -866,13 +877,13 @@
           (click)="authTab = 'login'; showGooglePrompt = false" 
           [class.active-auth-tab]="authTab === 'login' && !showGooglePrompt"
           class="auth-tab-btn">
-          เข้าสู่ระบบ (Sign In)
+          {{ isEnglish ? 'Sign In' : 'เข้าสู่ระบบ (Sign In)' }}
         </button>
         <button 
           (click)="authTab = 'register'; showGooglePrompt = false" 
           [class.active-auth-tab]="authTab === 'register' && !showGooglePrompt"
           class="auth-tab-btn">
-          ลงทะเบียนสมาชิกใหม่ (8+ ตัวอักษร)
+          {{ isEnglish ? 'Register (8+ chars)' : 'ลงทะเบียนสมาชิกใหม่ (8+ ตัวอักษร)' }}
         </button>
       </div>
 
@@ -895,25 +906,25 @@
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
             </svg>
             <div>
-              <div class="google-confirm-title">ยืนยันตัวตนผ่านบัญชี Google Workspace</div>
-              <div class="google-confirm-sub">ไม่ต้องใช้รหัสผ่านชั่วคราว (No OTP) · ซิงค์ข้อมูลโปรไฟล์อัตโนมัติ</div>
+              <div class="google-confirm-title">{{ isEnglish ? 'Confirm with Google Workspace' : 'ยืนยันตัวตนผ่านบัญชี Google Workspace' }}</div>
+              <div class="google-confirm-sub">{{ isEnglish ? 'No OTP required · Auto profile sync' : 'ไม่ต้องใช้รหัสผ่านชั่วคราว (No OTP) · ซิงค์ข้อมูลโปรไฟล์อัตโนมัติ' }}</div>
             </div>
           </div>
 
           <div class="google-user-preview">
             <img [src]="googleAccountAvatar" alt="Google Avatar" class="google-avatar-img" />
             <div class="google-preview-text">
-              <input type="text" [(ngModel)]="googleAccountName" class="google-name-input" placeholder="ชื่อ-นามสกุลในบัญชี Google" />
-              <input type="email" [(ngModel)]="googleAccountEmail" class="google-email-input" placeholder="ที่อยู่อีเมล Google" />
+              <input type="text" [(ngModel)]="googleAccountName" class="google-name-input" [placeholder]="isEnglish ? 'Google Account Name' : 'ชื่อ-นามสกุลในบัญชี Google'" />
+              <input type="email" [(ngModel)]="googleAccountEmail" class="google-email-input" [placeholder]="isEnglish ? 'Google Email' : 'ที่อยู่อีเมล Google'" />
             </div>
           </div>
 
           <div class="google-actions-row">
             <button (click)="confirmGoogleLogin()" class="btn-confirm-google">
-              ✓ ยืนยันสิทธิ์และเข้าสู่ระบบ
+              {{ isEnglish ? '✓ Confirm & Sign In' : '✓ ยืนยันสิทธิ์และเข้าสู่ระบบ' }}
             </button>
             <button (click)="cancelGooglePrompt()" class="btn-cancel-google">
-              ยกเลิก
+              {{ isEnglish ? 'Cancel' : 'ยกเลิก' }}
             </button>
           </div>
         </div>
@@ -927,30 +938,30 @@
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
             </svg>
-            เข้าสู่ระบบด้วย Google (ดึงข้อมูลโปรไฟล์ทันที ไม่ต้องใส่ OTP)
+            {{ isEnglish ? 'Sign in with Google (Instant Sync, No OTP)' : 'เข้าสู่ระบบด้วย Google (ดึงข้อมูลโปรไฟล์ทันที ไม่ต้องใส่ OTP)' }}
           </button>
         </div>
 
         <div *ngIf="!showGooglePrompt" class="auth-divider">
-          <span>หรือเข้าสู่ระบบด้วยรหัสผ่านความปลอดภัยสูง</span>
+          <span>{{ isEnglish ? 'or sign in with verified credentials' : 'หรือเข้าสู่ระบบด้วยรหัสผ่านความปลอดภัยสูง' }}</span>
         </div>
 
         <!-- 3. STANDARD ENTERPRISE AUTHENTICATION FORM -->
         <form *ngIf="!showGooglePrompt" (ngSubmit)="submitStandardAuth()" class="standard-auth-form">
           <div *ngIf="authTab === 'register'" class="form-group">
-            <label class="form-label">ชื่อ-นามสกุล หรือชื่อองค์กร *</label>
+            <label class="form-label">{{ isEnglish ? 'Full Name or Organization *' : 'ชื่อ-นามสกุล หรือชื่อองค์กร *' }}</label>
             <input 
               type="text" 
               [(ngModel)]="authNameInput" 
               name="authName"
-              placeholder="เช่น นายธนาวัฒน์ สุขสถิตย์" 
+              [placeholder]="isEnglish ? 'e.g. Alex Harrison' : 'เช่น นายธนาวัฒน์ สุขสถิตย์'" 
               class="form-control" 
               required 
             />
           </div>
 
           <div class="form-group">
-            <label class="form-label">ที่อยู่อีเมลทางการ (Business Email) *</label>
+            <label class="form-label">{{ isEnglish ? 'Business / Official Email *' : 'ที่อยู่อีเมลทางการ (Business Email) *' }}</label>
             <input 
               type="email" 
               [(ngModel)]="authEmailInput" 
@@ -963,14 +974,14 @@
 
           <div class="form-group">
             <div class="label-with-hint">
-              <label class="form-label">รหัสผ่าน *</label>
-              <span class="password-hint">(มาตรฐานความปลอดภัย: อย่างน้อย 8 ตัวอักษรขึ้นไป)</span>
+              <label class="form-label">{{ isEnglish ? 'Password *' : 'รหัสผ่าน *' }}</label>
+              <span class="password-hint">{{ isEnglish ? '(Standard: 8+ characters)' : '(มาตรฐานความปลอดภัย: อย่างน้อย 8 ตัวอักษรขึ้นไป)' }}</span>
             </div>
             <input 
               type="password" 
               [(ngModel)]="authPasswordInput" 
               name="authPassword"
-              placeholder="กำหนดรหัสผ่านความยาวไม่ต่ำกว่า 8 หลัก" 
+              [placeholder]="isEnglish ? 'Enter at least 8 characters' : 'กำหนดรหัสผ่านความยาวไม่ต่ำกว่า 8 หลัก'" 
               class="form-control" 
               required 
               minlength="8"
@@ -978,12 +989,12 @@
           </div>
 
           <div *ngIf="authTab === 'register'" class="form-group">
-            <label class="form-label">ยืนยันรหัสผ่านอีกครั้ง *</label>
+            <label class="form-label">{{ isEnglish ? 'Confirm Password *' : 'ยืนยันรหัสผ่านอีกครั้ง *' }}</label>
             <input 
               type="password" 
               [(ngModel)]="authConfirmPasswordInput" 
               name="authConfirmPassword"
-              placeholder="กรอกรหัสผ่านซ้ำอีกครั้งเพื่อความถูกต้อง" 
+              [placeholder]="isEnglish ? 'Repeat password for verification' : 'กรอกรหัสผ่านซ้ำอีกครั้งเพื่อความถูกต้อง'" 
               class="form-control" 
               required 
               minlength="8"
@@ -991,7 +1002,7 @@
           </div>
 
           <button type="submit" class="btn-submit-auth">
-            {{ authTab === 'register' ? 'ลงทะเบียนสมาชิกใหม่ (มาตรฐาน 8+ หลัก)' : 'เข้าสู่ระบบ Todaprime' }}
+            {{ authTab === 'register' ? (isEnglish ? 'Register Account (8+ chars)' : 'ลงทะเบียนสมาชิกใหม่ (มาตรฐาน 8+ หลัก)') : (isEnglish ? 'Sign In to Todaprime' : 'เข้าสู่ระบบ Todaprime') }}
           </button>
         </form>
       </div>
@@ -1004,7 +1015,7 @@
   <div *ngIf="isContactModalOpen" class="modal-backdrop" (click)="closeContactModal()">
     <div class="modal-box" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3 class="modal-title">📞 ติดต่อฝ่ายประสานงานและทีมพัฒนาระบบ</h3>
+        <h3 class="modal-title">{{ isEnglish ? '📞 Contact Development & Support Team' : '📞 ติดต่อฝ่ายประสานงานและทีมพัฒนาระบบ' }}</h3>
         <button (click)="closeContactModal()" class="btn-modal-close">✕</button>
       </div>
 
@@ -1015,19 +1026,19 @@
 
         <form (ngSubmit)="submitContact()" *ngIf="!contactSuccessMessage" class="contact-form">
           <div class="form-group">
-            <label class="form-label">ชื่อผู้ติดต่อ / หน่วยงาน *</label>
+            <label class="form-label">{{ isEnglish ? 'Your Name / Organization *' : 'ชื่อผู้ติดต่อ / หน่วยงาน *' }}</label>
             <input 
               type="text" 
               [(ngModel)]="contactName" 
               name="contactName" 
               class="form-control" 
-              placeholder="ระบุชื่อ-นามสกุล หรือหน่วยงานต้นสังกัด"
+              [placeholder]="isEnglish ? 'Enter your name or team' : 'ระบุชื่อ-นามสกุล หรือหน่วยงานต้นสังกัด'"
               required 
             />
           </div>
 
           <div class="form-group">
-            <label class="form-label">อีเมลสำหรับการติดต่อกลับ</label>
+            <label class="form-label">{{ isEnglish ? 'Reply Email Address' : 'อีเมลสำหรับการติดต่อกลับ' }}</label>
             <input 
               type="email" 
               [(ngModel)]="contactEmail" 
@@ -1038,31 +1049,31 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">หัวข้อการประสานงาน</label>
+            <label class="form-label">{{ isEnglish ? 'Inquiry Subject' : 'หัวข้อการประสานงาน' }}</label>
             <select [(ngModel)]="contactSubject" name="contactSubject" class="form-control">
-              <option value="สอบถามการใช้งานเชิงเทคนิค / ปรึกษาผู้พัฒนาระบบ">สอบถามการใช้งานเชิงเทคนิค / ปรึกษาผู้พัฒนาระบบ</option>
-              <option value="รายงานปัญหาข้อผิดพลาดระบบ (Technical Bug Report)">รายงานปัญหาข้อผิดพลาดระบบ (Technical Bug Report)</option>
-              <option value="ข้อเสนอแนะเชิงยุทธศาสตร์และการพัฒนาฟีเจอร์">ข้อเสนอแนะเชิงยุทธศาสตร์และการพัฒนาฟีเจอร์</option>
-              <option value="ประสานงานการสนับสนุนระบบทั่วไป">ประสานงานการสนับสนุนระบบทั่วไป</option>
+              <option value="สอบถามการใช้งานเชิงเทคนิค / ปรึกษาผู้พัฒนาระบบ">{{ isEnglish ? 'Technical inquiry & development feedback' : 'สอบถามการใช้งานเชิงเทคนิค / ปรึกษาผู้พัฒนาระบบ' }}</option>
+              <option value="รายงานปัญหาข้อผิดพลาดระบบ (Technical Bug Report)">{{ isEnglish ? 'Bug report & issue resolution' : 'รายงานปัญหาข้อผิดพลาดระบบ (Technical Bug Report)' }}</option>
+              <option value="ข้อเสนอแนะเชิงยุทธศาสตร์และการพัฒนาฟีเจอร์">{{ isEnglish ? 'Feature suggestions & roadmap' : 'ข้อเสนอแนะเชิงยุทธศาสตร์และการพัฒนาฟีเจอร์' }}</option>
+              <option value="ประสานงานการสนับสนุนระบบทั่วไป">{{ isEnglish ? 'General support & inquiries' : 'ประสานงานการสนับสนุนระบบทั่วไป' }}</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label">ข้อความและรายละเอียดที่ต้องการประสานงาน *</label>
+            <label class="form-label">{{ isEnglish ? 'Message & Specifications *' : 'ข้อความและรายละเอียดที่ต้องการประสานงาน *' }}</label>
             <textarea 
               [(ngModel)]="contactMessage" 
               name="contactMessage" 
               rows="4" 
               class="form-control" 
-              placeholder="กรุณาระบุสาระสำคัญหรือข้อสงสัยที่ต้องการให้ทีมงานดูแล..."
+              [placeholder]="isEnglish ? 'Please provide details or questions for our team...' : 'กรุณาระบุสาระสำคัญหรือข้อสงสัยที่ต้องการให้ทีมงานดูแล...'"
               required
             ></textarea>
           </div>
 
           <div class="modal-footer" style="padding: 0; margin-top: 1.5rem;">
-            <button type="button" (click)="closeContactModal()" class="btn-modal-cancel">ยกเลิก</button>
+            <button type="button" (click)="closeContactModal()" class="btn-modal-cancel">{{ isEnglish ? 'Cancel' : 'ยกเลิก' }}</button>
             <button type="submit" class="btn-modal-save">
-              📤 ส่งข้อมูลถึงฝ่ายพัฒนาระบบ
+              {{ isEnglish ? '📤 Send Message' : '📤 ส่งข้อมูลถึงฝ่ายพัฒนาระบบ' }}
             </button>
           </div>
         </form>

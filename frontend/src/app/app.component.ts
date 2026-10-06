@@ -21,6 +21,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly STORAGE_DATE_KEY = 'todaprime_ui_selected_date';
   private readonly STORAGE_THEME_KEY = 'todaprime_ui_theme';
   private readonly STORAGE_CAT_KEY = 'todaprime_ui_category';
+  private readonly STORAGE_LANG_KEY = 'todaprime_ui_lang';
 
   // Navigation View: 'landing' (เอกสารแนะนำระบบ) vs 'app' (ศูนย์ควบคุมและจัดการภารกิจ)
   public currentView: 'landing' | 'app' = 'landing';
@@ -30,6 +31,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Visual Theme (Dark & Light Mode)
   public isDarkMode: boolean = true;
+
+  // Language Toggle (Thai / English bilingual)
+  public isEnglish: boolean = false;
 
   // Drawer Menu & Modals State
   public isMenuOpen: boolean = false;
@@ -160,6 +164,12 @@ export class AppComponent implements OnInit, OnDestroy {
       this.selectedCategory = savedCat;
     }
 
+    // 5b. Restore Language Preference
+    const savedLang = localStorage.getItem(this.STORAGE_LANG_KEY);
+    if (savedLang === 'en') {
+      this.isEnglish = true;
+    }
+
     // 6. Setup Clock & Subscriptions
     this.updateClock();
     this.clockInterval = setInterval(() => this.updateClock(), 1000);
@@ -199,28 +209,47 @@ export class AppComponent implements OnInit, OnDestroy {
     this.currentTimeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 
-  // Formal Thai Date Formatting
+  // Formal Date Formatting (Bilingual Thai / English)
   public updateDisplayDateText(): void {
     const today = this.taskService.getTodayDateStr();
     const tomorrow = this.taskService.getDateOffsetStr(1);
     const dayAfter = this.taskService.getDateOffsetStr(2);
 
     const d = new Date(this.selectedDate + 'T00:00:00');
-    const thaiDateFull = d.toLocaleDateString('th-TH', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
 
-    if (this.selectedDate === today) {
-      this.displayDateText = `กำหนดการประจำวัน — ${thaiDateFull}`;
-    } else if (this.selectedDate === tomorrow) {
-      this.displayDateText = `กำหนดการวันพรุ่งนี้ — ${thaiDateFull}`;
-    } else if (this.selectedDate === dayAfter) {
-      this.displayDateText = `กำหนดการวันมะรืนนี้ — ${thaiDateFull}`;
+    if (this.isEnglish) {
+      const enDateFull = d.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+      if (this.selectedDate === today) {
+        this.displayDateText = `Today's Schedule — ${enDateFull}`;
+      } else if (this.selectedDate === tomorrow) {
+        this.displayDateText = `Tomorrow's Schedule — ${enDateFull}`;
+      } else if (this.selectedDate === dayAfter) {
+        this.displayDateText = `Day After Tomorrow — ${enDateFull}`;
+      } else {
+        this.displayDateText = `Schedule — ${enDateFull}`;
+      }
     } else {
-      this.displayDateText = `กำหนดการ — ${thaiDateFull}`;
+      const thaiDateFull = d.toLocaleDateString('th-TH', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      if (this.selectedDate === today) {
+        this.displayDateText = `กำหนดการประจำวัน — ${thaiDateFull}`;
+      } else if (this.selectedDate === tomorrow) {
+        this.displayDateText = `กำหนดการวันพรุ่งนี้ — ${thaiDateFull}`;
+      } else if (this.selectedDate === dayAfter) {
+        this.displayDateText = `กำหนดการวันมะรืนนี้ — ${thaiDateFull}`;
+      } else {
+        this.displayDateText = `กำหนดการ — ${thaiDateFull}`;
+      }
     }
   }
 
@@ -228,6 +257,13 @@ export class AppComponent implements OnInit, OnDestroy {
     if (!dateStr) return '';
     const today = this.taskService.getTodayDateStr();
     const tomorrow = this.taskService.getDateOffsetStr(1);
+
+    if (this.isEnglish) {
+      if (dateStr === today) return 'Today';
+      if (dateStr === tomorrow) return 'Tomorrow';
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
 
     if (dateStr === today) return 'วันนี้ (Today)';
     if (dateStr === tomorrow) return 'วันพรุ่งนี้ (Tomorrow)';
@@ -241,7 +277,7 @@ export class AppComponent implements OnInit, OnDestroy {
     return !!(task && task.end_date && task.end_date > task.due_date);
   }
 
-  // Format date range text in Thai
+  // Format date range text in Thai or English
   public formatTaskRangeText(task: Task): string {
     if (!task) return '';
     if (!this.isRangeTask(task)) {
@@ -258,9 +294,16 @@ export class AppComponent implements OnInit, OnDestroy {
     }
     const d1 = new Date(startDateStr + 'T00:00:00');
     const d2 = new Date(endDateStr + 'T00:00:00');
+    const diff = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+    if (this.isEnglish) {
+      const t1 = d1.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const t2 = d2.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      return `${t1} – ${t2} (${diff} day${diff > 1 ? 's' : ''})`;
+    }
+
     const t1 = d1.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
     const t2 = d2.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
-    const diff = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     return `${t1} – ${t2} (${diff} วัน)`;
   }
 
@@ -270,9 +313,29 @@ export class AppComponent implements OnInit, OnDestroy {
     const target = new Date(task.end_date + 'T00:00:00').getTime();
     const current = new Date(this.selectedDate + 'T00:00:00').getTime();
     const diffDays = Math.round((target - current) / (1000 * 60 * 60 * 24));
+
+    if (this.isEnglish) {
+      if (diffDays === 0) return 'Last day of schedule';
+      if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? 's' : ''} left`;
+      return 'Completed span';
+    }
+
     if (diffDays === 0) return 'วันสุดท้ายของกำหนดการ';
     if (diffDays > 0) return `เหลืออีก ${diffDays} วัน`;
     return `ครบกำหนดแล้ว`;
+  }
+
+  // Monthly title in English or Thai
+  public getMonthTitle(): string {
+    if (!this.monthlyStats) return '';
+    if (this.isEnglish) {
+      const monthNamesEn = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      return `${monthNamesEn[this.selectedMonth]} ${this.selectedYear}`;
+    }
+    return this.monthlyStats.monthName;
   }
 
   // Category Color & Pastel Styling Helper
@@ -325,6 +388,12 @@ export class AppComponent implements OnInit, OnDestroy {
   public toggleTheme(): void {
     this.isDarkMode = !this.isDarkMode;
     localStorage.setItem(this.STORAGE_THEME_KEY, this.isDarkMode ? 'dark' : 'light');
+  }
+
+  public toggleLanguage(): void {
+    this.isEnglish = !this.isEnglish;
+    localStorage.setItem(this.STORAGE_LANG_KEY, this.isEnglish ? 'en' : 'th');
+    this.refreshData();
   }
 
   // Date Selection Persistence
