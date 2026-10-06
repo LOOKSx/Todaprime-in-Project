@@ -176,6 +176,26 @@
           <div class="drawer-nav-desc">{{ isEnglish ? 'Technical support & feedback' : 'แนะนำและรายงานปัญหา' }}</div>
         </div>
       </button>
+
+      <!-- Data Management -->
+      <div class="drawer-nav-group-title mt-4">{{ isEnglish ? 'Data & Backup' : 'สำรองและกู้คืนข้อมูล' }}</div>
+
+      <button (click)="exportBackup()" class="drawer-nav-item">
+        <span class="drawer-nav-icon">💾</span>
+        <div class="drawer-nav-label">
+          <div class="drawer-nav-text">{{ isEnglish ? 'Export Backup (JSON)' : 'ดาวน์โหลดไฟล์สำรอง' }}</div>
+          <div class="drawer-nav-desc">{{ isEnglish ? 'Download your task history' : 'บันทึกข้อมูลเก็บไว้ในเครื่อง' }}</div>
+        </div>
+      </button>
+
+      <button (click)="triggerImportBackup()" class="drawer-nav-item">
+        <span class="drawer-nav-icon">📥</span>
+        <div class="drawer-nav-label">
+          <div class="drawer-nav-text">{{ isEnglish ? 'Restore from Backup' : 'กู้คืนข้อมูลจากไฟล์' }}</div>
+          <div class="drawer-nav-desc">{{ isEnglish ? 'Upload JSON backup file' : 'นำเข้าไฟล์สำรองเพื่อกู้คืน' }}</div>
+        </div>
+      </button>
+      <input type="file" id="backupFileInput" (change)="onBackupFileSelected($event)" accept=".json" style="display: none;" />
     </div>
 
     <!-- Drawer Footer -->
@@ -458,16 +478,52 @@
       <!-- Tasks Checklist For Selected Date -->
       <div class="tasks-checklist-container">
         <div class="section-title-row">
-          <h3 class="section-heading">
-            {{ isEnglish ? 'Task Execution Register — ' + dayTasks.length + ' item(s)' : 'ตารางรายการภารกิจที่ต้องดำเนินการ (Task Execution Register) — ' + dayTasks.length + ' รายการ' }}
-          </h3>
-          <span class="text-xs text-muted">{{ isEnglish ? 'Click checkbox to mark task as completed' : 'คลิกที่กล่องเพื่อบันทึกสถานะ "แล้วเสร็จ"' }}</span>
+          <div>
+            <h3 class="section-heading">
+              {{ isEnglish ? 'Task Execution Register' : 'ตารางรายการภารกิจที่ต้องดำเนินการ' }}
+            </h3>
+            <span class="text-xs text-muted">{{ isEnglish ? 'Click checkbox to mark task as completed' : 'คลิกที่กล่องเพื่อบันทึกสถานะ "แล้วเสร็จ"' }}</span>
+          </div>
+
+          <!-- Quick Status Filter Pills (All / Pending / Done) -->
+          <div class="status-filter-pills">
+            <button 
+              type="button" 
+              (click)="setTaskStatusFilter('all')" 
+              [class.active-filter]="taskStatusFilter === 'all'" 
+              class="btn-status-filter">
+              {{ isEnglish ? 'All' : 'ทั้งหมด' }} ({{ dayTasks.length }})
+            </button>
+            <button 
+              type="button" 
+              (click)="setTaskStatusFilter('active')" 
+              [class.active-filter]="taskStatusFilter === 'active'" 
+              class="btn-status-filter">
+              {{ isEnglish ? 'Pending' : 'ค้างอยู่' }} ({{ dayStats.pending_tasks }})
+            </button>
+            <button 
+              type="button" 
+              (click)="setTaskStatusFilter('completed')" 
+              [class.active-filter]="taskStatusFilter === 'completed'" 
+              class="btn-status-filter">
+              {{ isEnglish ? 'Done' : 'เสร็จแล้ว' }} ({{ dayStats.completed_tasks }})
+            </button>
+          </div>
+        </div>
+
+        <!-- 100% Completion Celebration Banner -->
+        <div *ngIf="dayTasks.length > 0 && dayStats.completion_rate === 100" class="celebration-banner">
+          <div class="celebration-icon">🎉</div>
+          <div class="celebration-info">
+            <div class="celebration-title">{{ isEnglish ? 'Outstanding! All tasks completed today.' : 'ยอดเยี่ยมมาก! วันนี้คุณสะสางภารกิจครบ 100% แล้ว' }}</div>
+            <div class="celebration-sub">{{ isEnglish ? 'Take a well-deserved rest or plan ahead for tomorrow.' : 'ดำเนินงานตามแผนงานลุล่วงครบทุกข้อ พักผ่อนได้อย่างสบายใจ!' }}</div>
+          </div>
         </div>
 
         <!-- Task Items -->
-        <div *ngIf="dayTasks.length > 0; else noTasks" class="task-items-list">
+        <div *ngIf="filteredDayTasks.length > 0; else noTasks" class="task-items-list">
           <div 
-            *ngFor="let task of dayTasks" 
+            *ngFor="let task of filteredDayTasks" 
             class="task-card" 
             [class.task-done]="task.is_completed"
             [class.priority-high-border]="task.priority === 'HIGH'"
@@ -528,6 +584,10 @@
 
             <!-- Action Buttons -->
             <div class="task-actions">
+              <!-- Quick Move to Tomorrow Button (if pending) -->
+              <button *ngIf="!task.is_completed" (click)="deferTaskToTomorrow(task, $event)" class="btn-action-defer" [title]="isEnglish ? 'Defer to tomorrow' : 'เลื่อนภารกิจนี้ไปวันพรุ่งนี้'">
+                ⏩ {{ isEnglish ? 'Tomorrow' : 'พรุ่งนี้' }}
+              </button>
               <button (click)="openEditModal(task, $event)" class="btn-action-edit" [title]="isEnglish ? 'Edit Task' : 'แก้ไขรายละเอียด'">
                 ✏️
               </button>

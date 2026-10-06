@@ -23,8 +23,11 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly STORAGE_CAT_KEY = 'todaprime_ui_category';
   private readonly STORAGE_LANG_KEY = 'todaprime_ui_lang';
 
-  // Navigation View: 'landing' (เอกสารแนะนำระบบ) vs 'app' (ศูนย์ควบคุมและจัดการภารกิจ)
-  public currentView: 'landing' | 'app' = 'landing';
+  // Navigation View: 'app' (ศูนย์ควบคุมและจัดการภารกิจ) vs 'landing' (เอกสารแนะนำระบบ)
+  public currentView: 'landing' | 'app' = 'app';
+
+  // Task Status Filter: 'all' | 'active' | 'completed'
+  public taskStatusFilter: 'all' | 'active' | 'completed' = 'all';
 
   // Dashboard Active Tab: 'planner' (ตารางภารกิจประจำวัน) vs 'monthly' (รายงานสถิติประจำเดือน)
   public activeTab: 'planner' | 'monthly' = 'planner';
@@ -136,7 +139,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (savedView === 'app' || savedView === 'landing') {
       this.currentView = savedView;
     } else {
-      this.currentView = 'landing';
+      this.currentView = 'app';
     }
 
     // 3. Restore Active Tab ('planner' vs 'monthly')
@@ -606,10 +609,74 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public deleteTask(task: Task, event?: Event): void {
     if (event) event.stopPropagation();
-    if (confirm(`คุณต้องการลบภารกิจ "${task.title}" หรือไม่?`)) {
+    const confirmMsg = this.isEnglish ? `Delete task "${task.title}"?` : `คุณต้องการลบภารกิจ "${task.title}" หรือไม่?`;
+    if (confirm(confirmMsg)) {
       this.taskService.deleteTask(task.id);
       this.refreshData();
     }
+  }
+
+  // Task Status Filter & Computed List
+  public get filteredDayTasks(): Task[] {
+    if (this.taskStatusFilter === 'active') {
+      return this.dayTasks.filter(t => !t.is_completed);
+    }
+    if (this.taskStatusFilter === 'completed') {
+      return this.dayTasks.filter(t => t.is_completed);
+    }
+    return this.dayTasks;
+  }
+
+  public setTaskStatusFilter(filter: 'all' | 'active' | 'completed'): void {
+    this.taskStatusFilter = filter;
+  }
+
+  // Defer Unfinished Task to Tomorrow in 1 Click
+  public deferTaskToTomorrow(task: Task, event?: Event): void {
+    if (event) event.stopPropagation();
+    const tomorrow = this.taskService.getDateOffsetStr(1);
+    this.taskService.updateTask(task.id, { due_date: tomorrow });
+    this.soundService.playTaskComplete();
+    this.refreshData();
+  }
+
+  // 1-Click Local Data Backup & Restore
+  public exportBackup(): void {
+    const tasks = this.taskService.getLocalTasks();
+    const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `todaprime-backup-${this.taskService.getTodayDateStr()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  public triggerImportBackup(): void {
+    const fileInput = document.getElementById('backupFileInput') as HTMLInputElement;
+    if (fileInput) fileInput.click();
+  }
+
+  public onBackupFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result as string);
+        if (Array.isArray(data)) {
+          this.taskService.saveLocalTasks(data);
+          this.refreshData();
+          alert(this.isEnglish ? 'Data restored successfully!' : 'กู้คืนข้อมูลสำเร็จเรียบร้อยแล้ว!');
+        } else {
+          throw new Error('Invalid format');
+        }
+      } catch (e) {
+        alert(this.isEnglish ? 'Invalid backup file!' : 'ไฟล์สำรองข้อมูลไม่ถูกต้อง!');
+      }
+    };
+    reader.readAsText(file);
   }
 
   // Full Task Modal

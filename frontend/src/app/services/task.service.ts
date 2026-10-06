@@ -48,7 +48,7 @@ export class TaskService {
     this.tasksSubject.next(localTasks);
   }
 
-  private getLocalTasks(): Task[] {
+  public getLocalTasks(): Task[] {
     try {
       const data = localStorage.getItem(this.STORAGE_KEY);
       return data ? JSON.parse(data) : [];
@@ -57,7 +57,7 @@ export class TaskService {
     }
   }
 
-  private saveLocalTasks(tasks: Task[]): void {
+  public saveLocalTasks(tasks: Task[]): void {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tasks));
       this.tasksSubject.next([...tasks]);
