@@ -1,63 +1,62 @@
 ---
 name: Todaprime
-description: Precision distraction-free daily planner and habit orchestrator
+description: Classic archival daily planner & executive journal with literary warmth
 colors:
-  primary: "#6366f1"
-  primary-hover: "#4f46e5"
-  primary-subtle: "rgba(99, 102, 241, 0.12)"
-  primary-glow: "rgba(99, 102, 241, 0.35)"
-  prime-gold: "#f59e0b"
-  prime-glow: "rgba(245, 158, 11, 0.4)"
-  accent: "#10b981"
-  accent-hover: "#059669"
-  accent-subtle: "rgba(16, 185, 129, 0.12)"
-  warning: "#f59e0b"
-  warning-subtle: "rgba(245, 158, 11, 0.12)"
-  danger: "#f43f5e"
-  danger-subtle: "rgba(244, 63, 94, 0.12)"
-  bg-app-dark: "#090d16"
-  bg-surface-dark: "#111827"
-  bg-surface-elevated-dark: "#1a2333"
-  text-main-dark: "#f8fafc"
-  text-secondary-dark: "#94a3b8"
-  text-muted-dark: "#64748b"
-  border-dark: "rgba(255, 255, 255, 0.08)"
-  bg-app-light: "#f6f8fb"
+  primary: "#1e3a5f"
+  primary-hover: "#152942"
+  primary-subtle: "rgba(30, 58, 95, 0.08)"
+  gold: "#996515"
+  gold-glow: "rgba(153, 101, 21, 0.25)"
+  accent: "#1e5138"
+  accent-hover: "#143826"
+  accent-subtle: "rgba(30, 81, 56, 0.08)"
+  warning: "#b45309"
+  warning-subtle: "rgba(180, 83, 9, 0.08)"
+  danger: "#9f1239"
+  danger-subtle: "rgba(159, 18, 57, 0.08)"
+  bg-app-dark: "#0f1216"
+  bg-surface-dark: "#181c22"
+  bg-surface-elevated-dark: "#222730"
+  text-main-dark: "#f5f2eb"
+  text-secondary-dark: "#c9c1b2"
+  text-muted-dark: "#857e72"
+  border-dark: "rgba(216, 207, 190, 0.12)"
+  bg-app-light: "#f7f4ed"
   bg-surface-light: "#ffffff"
-  bg-surface-elevated-light: "#f1f5f9"
-  text-main-light: "#0f172a"
-  text-secondary-light: "#334155"
-  text-muted-light: "#64748b"
-  border-light: "rgba(15, 23, 42, 0.09)"
+  bg-surface-elevated-light: "#efeae0"
+  text-main-light: "#1c1917"
+  text-secondary-light: "#57534e"
+  text-muted-light: "#8c827a"
+  border-light: "#d8cfbe"
 typography:
   display:
-    fontFamily: "Outfit, 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif"
-    fontSize: "clamp(1.75rem, 4vw, 2.5rem)"
-    fontWeight: 700
-    lineHeight: 1.2
-    letterSpacing: "-0.025em"
-  headline:
-    fontFamily: "Outfit, 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif"
-    fontSize: "1.25rem"
+    fontFamily: "'Lora', 'Noto Serif Thai', Georgia, 'Times New Roman', serif"
+    fontSize: "clamp(1.75rem, 3.5vw, 2.35rem)"
     fontWeight: 600
-    lineHeight: 1.35
+    lineHeight: 1.3
     letterSpacing: "-0.015em"
-  body:
-    fontFamily: "Outfit, 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif"
-    fontSize: "0.9375rem"
-    fontWeight: 400
-    lineHeight: 1.55
+  headline:
+    fontFamily: "'Lora', 'Noto Serif Thai', Georgia, 'Times New Roman', serif"
+    fontSize: "1.2rem"
+    fontWeight: 600
+    lineHeight: 1.4
     letterSpacing: "-0.01em"
+  body:
+    fontFamily: "'Sarabun', 'Lora', Georgia, -apple-system, BlinkMacSystemFont, serif"
+    fontSize: "0.95rem"
+    fontWeight: 400
+    lineHeight: 1.65
+    letterSpacing: "0.01em"
   label:
-    fontFamily: "Outfit, 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif"
+    fontFamily: "'Lora', 'Noto Serif Thai', Georgia, serif"
     fontSize: "0.8125rem"
     fontWeight: 500
     lineHeight: 1.4
-    letterSpacing: "0.01em"
+    letterSpacing: "0.02em"
 rounded:
-  sm: "8px"
-  md: "14px"
-  lg: "20px"
+  sm: "4px"
+  md: "8px"
+  lg: "12px"
   full: "9999px"
 spacing:
   xs: "4px"
@@ -70,7 +69,7 @@ components:
     backgroundColor: "{colors.primary}"
     textColor: "#ffffff"
     rounded: "{rounded.sm}"
-    padding: "10px 20px"
+    padding: "10px 22px"
   button-primary-hover:
     backgroundColor: "{colors.primary-hover}"
 ---
@@ -78,43 +77,38 @@ components:
 # Design System
 
 ## Overview
-Todaprime's design system embodies Swiss minimalism and tactile digital craftsmanship. It is tailored for high-frequency daily operation, prioritizing calm focus, scannability, and lightning-fast user interaction without visual clutter.
+Todaprime's Classic Archival design system departs from cold, generic AI-generated interfaces. It draws inspiration from fine British stationery, Oxford study rooms, leather-bound planners, and editorial journals. The atmosphere is warm, dignified, tactile, and deeply readable (น่าอ่าน สบายตา).
 
 ## Colors
-The color palette employs an Obsidian deep canvas in dark mode (`#090d16`) with subtle ambient atmospheric glows, and an Architectural Porcelain canvas in light mode (`#f6f8fb`).
-- **Primary Indigo (`#6366f1` / `#4338ca`)**: Focus actions, active tabs, timeline milestones.
-- **Prime Gold (`#f59e0b`)**: Premium highlights, achievement streaks, 100% completion celebration.
-- **Emerald Accent (`#10b981`)**: Completed tasks, healthy progress badges.
-- **Rose Danger (`#f43f5e`)**: Urgent priority, destructive confirmation.
-- **Contrast Ratios**: Exceeds WCAG AA standard with all body copy >= 4.5:1 against surface tokens.
+- **Warm Paper Vellum (`#f7f4ed`)**: In light mode, creates a soothing, non-fatiguing reading canvas reminiscent of antique book paper.
+- **Midnight Slate (`#0f1216` / `#181c22`)**: In dark mode, provides rich, deep mahogany-slate surfaces with warm parchment hairlines.
+- **Oxford Navy (`#1e3a5f`)**: Primary ink for authoritative headers, active navigation, and primary actions.
+- **Antique Gold (`#996515` / `#d4a359`)**: Accent highlights representing milestones, achievements, and warm brass book clasps.
+- **Evergreen Library Green (`#1e5138`)**: Completed task checkmarks, success seals, and healthy streaks.
+- **Wax Crimson (`#9f1239`)**: High priority warnings and critical deadlines.
 
 ## Typography
-Type pairings are centered around **Outfit** for clean geometric Latin characters with distinctive modern personality, seamlessly harmonized with **Noto Sans Thai** for optimal Thai baseline alignment and reading comfort.
-- Tight tracking on headings (`-0.025em`) for punchy editorial clarity.
-- Balanced line height (`1.55`) for tasks, descriptions, and daily notes to eliminate eye strain.
+- **Headings & Badges**: **Lora** (Latin) paired with **Noto Serif Thai**. Features handcrafted calligraphy serifs, balanced proportions, and dignified presence.
+- **Body & Tasks**: **Sarabun** (Thai) with tuned leading (1.65) and generous kerning for effortless reading comprehension.
 
 ## Layout
-- **Container Max-Width**: Centered 1360px grid with balanced fluid gutters.
-- **Multi-Device Responsiveness**: Fluid transition across mobile (<640px), tablet (<1024px), and desktop/ultrawide displays.
-- **Rhythm**: 8px baseline grid with consistent vertical rhythm.
+- Symmetrical, balanced grid with clear horizontal hairline dividers.
+- Thoughtful whitespace, reminiscent of classic book margins and journal pages.
 
 ## Elevation & Depth
-Depth is created through single elevation definitions rather than stacked borders and heavy shadows.
-- Dark mode utilizes soft translucent borders (`rgba(255, 255, 255, 0.08)`) with diffuse low-opacity shadows.
-- Light mode utilizes crisp hairline borders (`rgba(15, 23, 42, 0.09)`) with layered ambient diffusion.
+- Crisp 1px parchment/brass borders instead of blurry synthetic drop shadows.
+- Soft pressed paper feel (`box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.03)`).
 
 ## Shapes
-- Cards & Modals: `14px` to `20px` corner radii for gentle modern framing.
-- Small Controls & Badges: `8px` or full pill (`9999px`) for quick tactile thumb-friendly targets.
+- Disciplined corner radii (`4px` to `8px`), giving cards the feel of fine stationery index cards or leather notebook folios.
 
 ## Components
-- **Task Item Card**: Interactive state transitions, swipe/hover actions, strike-through completion animation, priority indicators.
-- **Day Timeline**: Visual schedule bar displaying daily density and completed milestones.
-- **Quick Action Bar**: Sticky or accessible bar for rapid task capture and status filtering.
+- **Task Cards**: Styled like entries in a personal leather diary or executive ledger, with a stamp-like checkmark and fine ink borders.
+- **Header & Banners**: Letterpress-inspired typography, subtle ornamental accents, and timeless editorial aesthetic.
 
 ## Do's and Don'ts
-- **Do**: Maintain crisp typographic hierarchy with distinct weight steps.
-- **Do**: Provide immediate visual and auditory feedback on task completion.
-- **Don't**: Introduce nested cards within cards.
-- **Don't**: Use raw generic gradients or uncalibrated high-saturation backgrounds.
-- **Don't**: Hide primary navigation behind unnecessary extra clicks.
+- **Do**: Use serif typography for headings to convey timeless warmth and human craft.
+- **Do**: Maintain generous line spacing and warm neutral paper contrast.
+- **Don't**: Use neon blues, purples, or synthetic gradients.
+- **Don't**: Over-round elements into cartoonish bubbles.
+- **Don't**: Make the UI look like generic SaaS or AI boilerplate.
