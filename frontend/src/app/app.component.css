@@ -44,8 +44,8 @@
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
-  --font-heading: 'Inter', 'Plus Jakarta Sans', 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-body: 'Noto Sans Thai', 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-heading: 'Outfit', 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body: 'Outfit', 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-family: var(--font-body);
 }
 
@@ -700,9 +700,8 @@
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1, #0ea5e9, #10b981);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--primary);
+  font-weight: 800;
 }
 
 .landing-hero-sub {
@@ -1064,13 +1063,7 @@
 }
 
 .selected-day-banner::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 5px;
-  height: 100%;
-  background: linear-gradient(180deg, #6366f1, #0ea5e9, #10b981);
+  display: none;
 }
 
 .day-banner-content {
@@ -1126,7 +1119,6 @@
   background: linear-gradient(90deg, #38bdf8 0%, #34d399 50%, #818cf8 100%);
   border-radius: 9999px;
   box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
-  transition: width 0.35s ease-out;
 }
 
 .btn-add-full-task {
@@ -1400,7 +1392,6 @@
 .task-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-left: 4px solid var(--primary);
   border-radius: var(--radius-md);
   padding: 1.15rem 1.45rem;
   display: flex;
@@ -1416,17 +1407,8 @@
   box-shadow: var(--shadow-hover);
 }
 
-/* Soft Category Left Borders */
-.task-card.cat-academic { border-left-color: #6366f1; }
-.task-card.cat-project { border-left-color: #0ea5e9; }
-.task-card.cat-exam { border-left-color: #f43f5e; }
-.task-card.cat-work { border-left-color: #f59e0b; }
-.task-card.cat-personal { border-left-color: #10b981; }
-.task-card.cat-health { border-left-color: #8b5cf6; }
-.task-card.cat-urgent { border-left-color: #ef4444; }
-
 .task-card.priority-high-border {
-  border-left-width: 5px;
+  border-color: rgba(244, 63, 94, 0.35);
 }
 
 .task-card.task-done {
@@ -1836,12 +1818,12 @@
 
 .celebration-icon {
   font-size: 1.85rem;
-  animation: bounceCelebration 1.5s infinite alternate;
+  animation: pulseCelebration 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite alternate;
 }
 
-@keyframes bounceCelebration {
+@keyframes pulseCelebration {
   0% { transform: scale(1); }
-  100% { transform: scale(1.15) rotate(8deg); }
+  100% { transform: scale(1.08); }
 }
 
 .celebration-title {
@@ -2432,7 +2414,6 @@
   height: 100%;
   background: linear-gradient(90deg, #6366f1, #0ea5e9, #10b981);
   border-radius: 9999px;
-  transition: width 0.35s ease-out;
 }
 
 /* ========================================================
