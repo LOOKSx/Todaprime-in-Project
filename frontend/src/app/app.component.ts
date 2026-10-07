@@ -19,7 +19,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly STORAGE_VIEW_KEY = 'todaprime_ui_view';
   private readonly STORAGE_TAB_KEY = 'todaprime_ui_tab';
   private readonly STORAGE_DATE_KEY = 'todaprime_ui_selected_date';
-  private readonly STORAGE_THEME_KEY = 'todaprime_ui_theme';
+  private readonly STORAGE_THEME_KEY = 'todaprime_ui_theme_v3';
   private readonly STORAGE_CAT_KEY = 'todaprime_ui_category';
   private readonly STORAGE_LANG_KEY = 'todaprime_ui_lang';
 
@@ -32,8 +32,8 @@ export class AppComponent implements OnInit, OnDestroy {
   // Dashboard Active Tab: 'planner' (ตารางภารกิจประจำวัน) vs 'monthly' (รายงานสถิติประจำเดือน)
   public activeTab: 'planner' | 'monthly' = 'planner';
 
-  // Visual Theme (Dark & Light Mode)
-  public isDarkMode: boolean = true;
+  // Visual Theme (Classic Archival Light & Midnight Study Dark)
+  public isDarkMode: boolean = false;
 
   // Language Toggle (Thai / English bilingual)
   public isEnglish: boolean = false;
@@ -131,8 +131,9 @@ export class AppComponent implements OnInit, OnDestroy {
     if (savedTheme) {
       this.isDarkMode = savedTheme === 'dark';
     } else {
-      this.isDarkMode = true; // Default to Obsidian Slate Dark
+      this.isDarkMode = false; // Default to Warm Archival Stationery (Parchment & Oxford Navy)
     }
+    this.applyDocumentTheme();
 
     // 2. Restore Current View ('app' vs 'landing')
     const savedView = localStorage.getItem(this.STORAGE_VIEW_KEY);
@@ -391,6 +392,23 @@ export class AppComponent implements OnInit, OnDestroy {
   public toggleTheme(): void {
     this.isDarkMode = !this.isDarkMode;
     localStorage.setItem(this.STORAGE_THEME_KEY, this.isDarkMode ? 'dark' : 'light');
+    this.applyDocumentTheme();
+  }
+
+  public applyDocumentTheme(): void {
+    if (typeof document !== 'undefined') {
+      if (this.isDarkMode) {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        document.body.classList.remove('light');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        document.body.classList.add('light');
+      }
+    }
   }
 
   public toggleLanguage(): void {

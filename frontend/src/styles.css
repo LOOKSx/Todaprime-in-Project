@@ -2,35 +2,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Noto+Serif+Thai:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* DARK MODE: MIDNIGHT STUDY & WARM MAHOGANY SLATE */
-  --bg-app: #0f1216;
-  --bg-surface: #181c22;
-  --bg-surface-elevated: #222730;
-  --text-main: #f5f2eb;
-  --text-secondary: #c9c1b2;
-  --text-muted: #857e72;
-  --border-color: rgba(216, 207, 190, 0.13);
-  --border-color-hover: rgba(216, 207, 190, 0.25);
-  --primary: #4a7bb0;
-  --primary-hover: #3b6694;
-  --primary-glow: rgba(74, 123, 176, 0.25);
-  --prime-gold: #d4a359;
-  --prime-glow: rgba(212, 163, 89, 0.25);
-  --success: #34835e;
-  --warning: #d97706;
-  --danger: #be123c;
-  --info: #0284c7;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 6px 18px -2px rgba(0, 0, 0, 0.4);
-}
-
-.light {
-  /* LIGHT MODE: WARM ARCHIVAL VELLUM & OXFORD NAVY INK */
+  /* DEFAULT THEME: WARM ARCHIVAL VELLUM & OXFORD NAVY INK (CLASSIC EDITORIAL) */
   --bg-app: #f7f4ed;
   --bg-surface: #ffffff;
   --bg-surface-elevated: #efeae0;
+  --bg-surface-hover: #e5ded0;
   --text-main: #1c1917;
   --text-secondary: #57534e;
   --text-muted: #8c827a;
@@ -38,14 +14,69 @@
   --border-color-hover: #b8ab96;
   --primary: #1e3a5f;
   --primary-hover: #152942;
+  --primary-subtle: rgba(30, 58, 95, 0.08);
   --primary-glow: rgba(30, 58, 95, 0.15);
+  --accent: #1e5138;
+  --accent-hover: #143826;
+  --accent-subtle: rgba(30, 81, 56, 0.09);
+  --warning: #b45309;
+  --warning-subtle: rgba(180, 83, 9, 0.1);
+  --danger: #9f1239;
+  --danger-subtle: rgba(159, 18, 57, 0.1);
+  --gold: #996515;
+  --gold-subtle: rgba(153, 101, 21, 0.12);
   --prime-gold: #996515;
   --prime-glow: rgba(153, 101, 21, 0.2);
   --success: #1e5138;
-  --warning: #b45309;
-  --danger: #9f1239;
   --info: #0369a1;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
   --shadow-card: 0 1px 3px rgba(28, 25, 23, 0.05), 0 6px 16px -2px rgba(28, 25, 23, 0.06);
+  --shadow-hover: 0 3px 6px -1px rgba(28, 25, 23, 0.07), 0 10px 22px -4px rgba(28, 25, 23, 0.08);
+  --ambient-1: rgba(153, 101, 21, 0.03);
+  --ambient-2: rgba(30, 58, 95, 0.02);
+  --ambient-3: rgba(30, 81, 56, 0.02);
+  --font-heading: 'Lora', 'Noto Serif Thai', Georgia, 'Times New Roman', serif;
+  --font-body: 'Sarabun', 'Lora', Georgia, -apple-system, BlinkMacSystemFont, serif;
+}
+
+html.dark,
+body.dark,
+:root.dark,
+.dark {
+  /* DARK THEME: MIDNIGHT STUDY & WARM MAHOGANY SLATE */
+  --bg-app: #12100e;
+  --bg-surface: #1a1714;
+  --bg-surface-elevated: #24201c;
+  --bg-surface-hover: #2f2a24;
+  --text-main: #f5f2eb;
+  --text-secondary: #c9c1b2;
+  --text-muted: #8a8274;
+  --border-color: rgba(212, 163, 89, 0.18);
+  --border-color-hover: rgba(212, 163, 89, 0.35);
+  --primary: #c59b50;
+  --primary-hover: #d4ab62;
+  --primary-subtle: rgba(197, 155, 80, 0.15);
+  --primary-glow: rgba(197, 155, 80, 0.25);
+  --accent: #34835e;
+  --accent-hover: #266b49;
+  --accent-subtle: rgba(52, 131, 94, 0.15);
+  --warning: #d97706;
+  --warning-subtle: rgba(217, 119, 6, 0.15);
+  --danger: #be123c;
+  --danger-subtle: rgba(190, 18, 60, 0.15);
+  --gold: #d4a359;
+  --gold-subtle: rgba(212, 163, 89, 0.15);
+  --prime-gold: #d4a359;
+  --prime-glow: rgba(212, 163, 89, 0.25);
+  --success: #34835e;
+  --info: #0284c7;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 6px 18px -2px rgba(0, 0, 0, 0.55);
+  --shadow-hover: 0 4px 8px -1px rgba(0, 0, 0, 0.45), 0 12px 24px -4px rgba(0, 0, 0, 0.65);
+  --ambient-1: rgba(212, 163, 89, 0.04);
+  --ambient-2: rgba(74, 123, 176, 0.03);
+  --ambient-3: rgba(52, 131, 94, 0.03);
 }
 
 * {

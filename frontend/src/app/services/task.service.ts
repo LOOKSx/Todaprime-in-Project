@@ -14,13 +14,13 @@ export class TaskService {
   public tasks$ = this.tasksSubject.asObservable();
 
   private categoriesSubject = new BehaviorSubject<Category[]>([
-    { id: 1, name: 'การศึกษา & วิชาการ', color: '#6366f1', icon: '📘' },
-    { id: 2, name: 'โครงงาน & วิจัย', color: '#0ea5e9', icon: '📑' },
-    { id: 3, name: 'การประเมิน & สอบ', color: '#e11d48', icon: '🎯' },
-    { id: 4, name: 'การบริหาร & งานอาชีพ', color: '#475569', icon: '💼' },
-    { id: 5, name: 'กิจการส่วนบุคคล', color: '#059669', icon: '🏛️' },
-    { id: 6, name: 'สุขภาวะ & สมรรถภาพ', color: '#0284c7', icon: '🌿' },
-    { id: 7, name: 'ภารกิจเร่งด่วนพิเศษ', color: '#dc2626', icon: '⚡' }
+    { id: 1, name: 'การศึกษา & วิชาการ', color: '#1e3a5f', icon: '📘' },
+    { id: 2, name: 'โครงงาน & วิจัย', color: '#164e63', icon: '📑' },
+    { id: 3, name: 'การประเมิน & สอบ', color: '#881337', icon: '🎯' },
+    { id: 4, name: 'การบริหาร & งานอาชีพ', color: '#57534e', icon: '💼' },
+    { id: 5, name: 'กิจการส่วนบุคคล', color: '#166534', icon: '🏛️' },
+    { id: 6, name: 'สุขภาวะ & สมรรถภาพ', color: '#0369a1', icon: '🌿' },
+    { id: 7, name: 'ภารกิจเร่งด่วนพิเศษ', color: '#b91c1c', icon: '⚡' }
   ]);
   public categories$ = this.categoriesSubject.asObservable();
 

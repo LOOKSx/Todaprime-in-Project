@@ -38,7 +38,7 @@
 
         <!-- User Profile Pill (if logged in) -->
         <div *ngIf="(authService.currentUser$ | async) as user" class="user-pill" (click)="toggleMenu()" title="บัญชีผู้ใช้งาน">
-          <img [src]="user.avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%236366f1' d='M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 12c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z'/%3E%3C/svg%3E" [alt]="user.name" class="user-pill-avatar" />
+          <img [src]="user.avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231e3a5f' d='M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 12c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z'/%3E%3C/svg%3E" [alt]="user.name" class="user-pill-avatar" />
           <span class="user-pill-name">{{ user.name }}</span>
         </div>
 
@@ -74,7 +74,7 @@
     <div class="drawer-user-section">
       <ng-container *ngIf="(authService.currentUser$ | async) as user; else notLoggedIn">
         <div class="user-card-drawer">
-          <img [src]="user.avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='8' r='4' fill='%236366f1'/%3E%3Cpath d='M4 20c0-4 4-6 8-6s8 2 8 6' fill='%236366f1'/%3E%3C/svg%3E" [alt]="user.name" class="user-drawer-avatar" />
+          <img [src]="user.avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='8' r='4' fill='%231e3a5f'/%3E%3Cpath d='M4 20c0-4 4-6 8-6s8 2 8 6' fill='%231e3a5f'/%3E%3C/svg%3E" [alt]="user.name" class="user-drawer-avatar" />
           <div class="user-drawer-info">
             <div class="user-drawer-name">{{ user.name }}</div>
             <div class="user-drawer-email">{{ user.email }}</div>
@@ -209,13 +209,13 @@
   <!-- ========================================== -->
   <main *ngIf="currentView === 'landing'" class="landing-container">
     <div class="landing-hero">
-      <div class="landing-badge">✦ {{ isEnglish ? 'Executive Task Management & Strategic Planning' : 'สถาปัตยกรรมเพื่อการบริหารจัดการภารกิจระดับมืออาชีพ' }}</div>
+      <div class="landing-badge">✦ {{ isEnglish ? 'Daily Archival Journal & Executive Ledger · Est. 2026' : 'สมุดบันทึกและระบบบริหารภารกิจเชิงยุทธศาสตร์ · Est. 2026' }}</div>
       <h1 class="landing-hero-title">
-        {{ isEnglish ? 'Strategic Task Planning' : 'ระบบวางแผนภารกิจเชิงยุทธศาสตร์' }} <br/>
-        <span class="gradient-text">{{ isEnglish ? '& Performance Analytics Platform' : 'และวิเคราะห์ประสิทธิภาพการดำเนินงาน' }}</span>
+        {{ isEnglish ? 'Strategic Archival Journal' : 'สมุดบันทึกภารกิจเชิงยุทธศาสตร์' }} <br/>
+        <span class="gradient-text">{{ isEnglish ? '& Executive Deliverable Register' : 'และระบบบันทึกผลงานระดับมืออาชีพ' }}</span>
       </h1>
       <p class="landing-hero-sub">
-        <strong>Todaprime</strong> {{ isEnglish ? 'is crafted with ergonomic clarity and Swiss Minimalism for executive productivity. Schedule deliverables, manage daily execution checklists, and track monthly completion rates effortlessly.' : 'ได้รับการออกแบบขึ้นตามหลักสรีรศาสตร์และ Swiss Minimalism เพื่อยกระดับการบริหารเวลาและภารกิจสำคัญอย่างเป็นระบบ รองรับการจัดตารางส่งมอบงาน การบ้าน และเป้าหมายล่วงหน้า พร้อมระบบตรวจรับผลงานรายวัน และแดชบอร์ดสรุปสถิติดัชนีชี้วัดผลงาน (Monthly Analytics)' }}
+        <strong>Todaprime</strong> {{ isEnglish ? 'is crafted with the dignified elegance of fine British stationery and classic archival ledgers. Schedule deliverables, manage daily execution checklists, and track monthly completion rates with serene clarity.' : 'ได้รับการออกแบบขึ้นด้วยความประณีตระดับงานพิมพ์ Classic Archival & Editorial Journal ดุจสมุดบันทึกชั้นเลิศที่น่าอ่าน สบายตา ปราศจากความสับสน รองรับการจัดตารางส่งมอบงาน การบ้าน และเป้าหมายล่วงหน้า พร้อมระบบตรวจรับผลงานรายวัน และแดชบอร์ดสรุปสถิติดัชนีชี้วัดผลงานรายเดือน' }}
       </p>
 
       <div class="landing-cta-buttons">
@@ -1003,7 +1003,7 @@
           </div>
 
           <div class="google-user-preview">
-            <img [src]="googleAccountAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='8' r='4' fill='%236366f1'/%3E%3Cpath d='M4 20c0-4 4-6 8-6s8 2 8 6' fill='%236366f1'/%3E%3C/svg%3E" alt="Google Avatar" class="google-avatar-img" />
+            <img [src]="googleAccountAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='8' r='4' fill='%231e3a5f'/%3E%3Cpath d='M4 20c0-4 4-6 8-6s8 2 8 6' fill='%231e3a5f'/%3E%3C/svg%3E" alt="Google Avatar" class="google-avatar-img" />
             <div class="google-preview-text">
               <input type="text" [(ngModel)]="googleAccountName" class="google-name-input" [placeholder]="isEnglish ? 'Google Account Name' : 'ชื่อ-นามสกุลในบัญชี Google'" />
               <input type="email" [(ngModel)]="googleAccountEmail" class="google-email-input" [placeholder]="isEnglish ? 'Google Email' : 'ที่อยู่อีเมล Google'" />
