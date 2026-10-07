@@ -167,6 +167,22 @@
   color: var(--text-main);
   line-height: 1.1;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.logo-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.45rem;
+  background-color: var(--primary-subtle);
+  color: var(--primary);
+  border: 1px solid var(--primary-glow);
+  border-radius: 9999px;
+  margin-left: 0.45rem;
+  line-height: 1;
 }
 
 .logo-subtitle {
@@ -1798,6 +1814,52 @@
   box-shadow: 0 2px 8px var(--primary-glow);
 }
 
+/* Quick Category Filter Chips Bar */
+.category-filter-chips-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.25rem 0.1rem;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.category-filter-chips-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.cat-chip-btn {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cat-chip-btn:hover {
+  color: var(--text-main);
+  border-color: var(--border-color-hover);
+  background-color: var(--bg-surface-hover);
+  transform: translateY(-1px);
+}
+
+.cat-chip-btn.active-cat-chip {
+  background-color: var(--primary-subtle);
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 700;
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+
 /* 100% Completion Celebration Banner */
 .celebration-banner {
   display: flex;
@@ -1857,24 +1919,59 @@
   box-shadow: var(--shadow-card);
 }
 
-.empty-icon {
-  font-size: 3.25rem;
-  margin-bottom: 0.85rem;
+.empty-icon-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.15rem;
+}
+
+.empty-illu-svg {
+  width: 52px;
+  height: 52px;
+  color: var(--primary);
+  opacity: 0.85;
 }
 
 .empty-title {
   font-family: var(--font-heading);
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-main);
   margin-bottom: 0.45rem;
 }
 
 .empty-desc {
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 540px;
+  margin: 0 auto 1.25rem;
+  line-height: 1.6;
+}
+
+.btn-empty-action {
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  padding: 0.65rem 1.45rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 4px 14px var(--primary-glow);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-empty-action:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-empty-action:active {
+  transform: scale(0.98);
 }
 
 /* Upcoming Milestones Section */

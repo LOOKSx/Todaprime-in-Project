@@ -9,7 +9,7 @@
       <div class="logo-group" (click)="switchToLanding()" style="cursor: pointer;" title="ภาพรวมระบบ Todaprime">
         <div class="logo-icon">✦</div>
         <div>
-          <h1 class="logo-title">Todaprime</h1>
+          <h1 class="logo-title">Todaprime <span class="logo-badge">Pro</span></h1>
           <p class="logo-subtitle">Executive Task Management & Strategic Planning</p>
         </div>
       </div>
@@ -511,6 +511,27 @@
           </div>
         </div>
 
+        <!-- Quick Category Filter Chips Bar (Instant Triage) -->
+        <div class="category-filter-chips-bar">
+          <button 
+            type="button" 
+            (click)="filterByCategory('All')" 
+            [class.active-cat-chip]="selectedCategory === 'All'" 
+            class="cat-chip-btn">
+            <span>🌐</span>
+            <span>{{ isEnglish ? 'All' : 'ทั้งหมด' }}</span>
+          </button>
+          <button 
+            *ngFor="let cat of categories" 
+            type="button" 
+            (click)="filterByCategory(cat.name)" 
+            [class.active-cat-chip]="selectedCategory === cat.name" 
+            class="cat-chip-btn">
+            <span>{{ cat.icon }}</span>
+            <span>{{ cat.name }}</span>
+          </button>
+        </div>
+
         <!-- 100% Completion Celebration Banner -->
         <div *ngIf="dayTasks.length > 0 && dayStats.completion_rate === 100" class="celebration-banner">
           <div class="celebration-icon">🎉</div>
@@ -600,11 +621,21 @@
 
         <ng-template #noTasks>
           <div class="empty-tasks-card">
-            <div class="empty-icon">📂</div>
+            <div class="empty-icon-wrap">
+              <svg class="empty-illu-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="10" width="32" height="28" rx="6" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"/>
+                <path d="M16 22H32M16 28H26" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="36" cy="12" r="5" fill="#10b981"/>
+                <path d="M34 12L35.5 13.5L38.5 10.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
             <div class="empty-title">{{ isEnglish ? 'No tasks scheduled for ' + formatThaiDateFormal(selectedDate) : 'ไม่มีรายการภารกิจสำหรับกำหนดการ ' + formatThaiDateFormal(selectedDate) }}</div>
             <p class="empty-desc">
-              {{ isEnglish ? 'Enter a new task in the quick add bar above or click "+ Detailed Task" to schedule your work.' : 'สามารถระบุภารกิจใหม่ในช่องบันทึกด้านบน หรือคลิกปุ่ม "+ บันทึกภารกิจอย่างละเอียด" เพื่อจัดสรรตารางการทำงาน' }}
+              {{ isEnglish ? 'Use the quick add bar above or click button below to organize your day.' : 'สามารถระบุภารกิจใหม่ในช่องบันทึกด้านบน หรือคลิกปุ่มด้านล่างเพื่อจัดสรรตารางการทำงาน' }}
             </p>
+            <button (click)="openCreateModal()" class="btn-empty-action">
+              {{ isEnglish ? '+ Add First Task' : '+ สร้างภารกิจแรกของวันนี้' }}
+            </button>
           </div>
         </ng-template>
       </div>
