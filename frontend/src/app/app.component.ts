@@ -190,6 +190,9 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     this.refreshData();
+
+    // 7. Pre-initialize Google Identity Services
+    setTimeout(() => this.initGoogleIdentity(), 800);
   }
 
   ngOnDestroy(): void {
@@ -781,6 +784,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authErrorMessage = '';
     this.authSuccessMessage = '';
     this.closeMenu();
+    setTimeout(() => this.initGoogleIdentity(), 120);
   }
 
   public closeLoginModal(): void {
@@ -790,11 +794,72 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authSuccessMessage = '';
   }
 
-  // 1. Google Identity Verification: Direct confirmation, pulls identity immediately (No OTP)
+  // 1. REAL GOOGLE IDENTITY SERVICES INITIALIZATION & CREDENTIAL HANDLER
+  public initGoogleIdentity(): void {
+    if (typeof window !== 'undefined' && (window as any).google?.accounts?.id) {
+      try {
+        (window as any).google.accounts.id.initialize({
+          client_id: this.authService.GOOGLE_CLIENT_ID,
+          callback: (response: any) => this.handleGoogleCredentialResponse(response),
+          auto_select: false,
+          cancel_on_tap_outside: true
+        });
+
+        const btnEl = document.getElementById('googleAuthOfficialBtn');
+        if (btnEl) {
+          btnEl.innerHTML = '';
+          (window as any).google.accounts.id.renderButton(btnEl, {
+            type: 'standard',
+            theme: this.isDarkMode ? 'filled_black' : 'outline',
+            size: 'large',
+            text: 'signin_with',
+            shape: 'rectangular',
+            logo_alignment: 'left',
+            width: 320
+          });
+        }
+      } catch (err) {
+        console.warn('Google Identity initialization error:', err);
+      }
+    }
+  }
+
+  public handleGoogleCredentialResponse(response: any): void {
+    if (!response || !response.credential) {
+      this.authErrorMessage = 'ไม่ได้รับข้อมูลยืนยันจาก Google กรุณาลองใหม่อีกครั้ง';
+      return;
+    }
+
+    const res = this.authService.loginWithGoogleJwt(response.credential);
+    if (res.success && res.user) {
+      this.authSuccessMessage = `ยืนยันตัวตนสำเร็จ! เชื่อมต่อบัญชี Google ของ "${res.user.name}" เรียบร้อยแล้ว`;
+      this.soundService.playTaskComplete();
+      setTimeout(() => {
+        this.closeLoginModal();
+      }, 1000);
+    } else {
+      this.authErrorMessage = res.message;
+    }
+  }
+
+  // 1.1 One-Click Google Trigger
   public triggerGoogleSignIn(): void {
-    this.showGooglePrompt = true;
     this.authErrorMessage = '';
     this.authSuccessMessage = '';
+
+    if (typeof window !== 'undefined' && (window as any).google?.accounts?.id) {
+      try {
+        (window as any).google.accounts.id.prompt((notification: any) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            this.showGooglePrompt = true;
+          }
+        });
+        return;
+      } catch (e) {
+        console.warn('Google prompt fallback:', e);
+      }
+    }
+    this.showGooglePrompt = true;
   }
 
   public confirmGoogleLogin(): void {

@@ -2673,6 +2673,22 @@
   font-size: 0.88rem;
 }
 
+.google-auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.google-official-mount {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+}
+
 .btn-google-primary {
   width: 100%;
   display: flex;

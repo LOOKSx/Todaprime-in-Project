@@ -58,11 +58,57 @@ export class AuthService {
     return this.currentUserSubject.value !== null;
   }
 
+  public readonly GOOGLE_CLIENT_ID = '953392232918-6ro73lc44iactdfu89e2ksdltkr9lbg9.apps.googleusercontent.com';
+
   public getCurrentUser(): UserProfile | null {
     return this.currentUserSubject.value;
   }
 
-  // 1. GOOGLE SIGN-IN: Direct confirm & pull Google account details (No OTP)
+  // 1.1 DECODE REAL GOOGLE JWT ID TOKEN (Without external library)
+  public decodeGoogleJwt(token: string): any {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      console.error('Failed to decode Google JWT token', e);
+      return null;
+    }
+  }
+
+  // 1.2 LOGIN WITH REAL GOOGLE OAUTH CREDENTIAL
+  public loginWithGoogleJwt(credential: string): { success: boolean; message: string; user?: UserProfile } {
+    const payload = this.decodeGoogleJwt(credential);
+    if (!payload || !payload.email) {
+      return { success: false, message: 'ไม่สามารถอ่านข้อมูลยืนยันจาก Google ได้ กรุณาลองใหม่อีกครั้ง' };
+    }
+
+    const name = payload.name || payload.given_name || 'Google User';
+    const email = payload.email.toLowerCase();
+    const avatar = payload.picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`;
+
+    const user: UserProfile = {
+      id: `google_${payload.sub || Date.now()}`,
+      name,
+      email,
+      avatar,
+      provider: 'google',
+      email_verified: payload.email_verified ?? true,
+      verified_at: new Date().toLocaleTimeString('th-TH')
+    };
+
+    localStorage.setItem(this.STORAGE_USER_KEY, JSON.stringify(user));
+    this.currentUserSubject.next(user);
+    return { success: true, message: 'ยืนยันตัวตนผ่าน Google สำเร็จ!', user };
+  }
+
+  // 1.3 GOOGLE SIGN-IN MANUAL CONFIRMATION FALLBACK (No OTP)
   public loginWithGoogleAccount(googleName: string, googleEmail: string, googleAvatar?: string): UserProfile {
     const name = googleName.trim() || 'Google User';
     const email = googleEmail.trim() || 'user@gmail.com';
