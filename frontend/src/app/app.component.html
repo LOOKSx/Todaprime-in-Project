@@ -16,16 +16,6 @@
 
       <!-- Top Right Actions -->
       <div class="header-right">
-        <!-- Quick Mode Switcher in Header (when in App view) -->
-        <div *ngIf="currentView === 'app'" class="header-nav-tabs">
-          <button (click)="setDashboardTab('planner')" [class.active]="activeTab === 'planner'" class="header-tab-btn">
-            {{ isEnglish ? '📋 Daily Planner' : '📋 ตารางภารกิจประจำวัน' }}
-          </button>
-          <button (click)="setDashboardTab('monthly')" [class.active]="activeTab === 'monthly'" class="header-tab-btn">
-            {{ isEnglish ? '📊 Monthly Report' : '📊 รายงานสถิติประจำเดือน' }}
-          </button>
-        </div>
-
         <!-- Theme Toggle -->
         <button (click)="toggleTheme()" class="btn-theme-toggle" [title]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
           {{ isDarkMode ? '☀️' : '🌙' }}
@@ -289,247 +279,207 @@
   <!-- ========================================== -->
   <main *ngIf="currentView === 'app'" class="app-main-container">
     
-    <!-- DASHBOARD VIEW SWITCHER (ตารางภารกิจประจำวัน vs รายงานสถิติประจำเดือน) -->
-    <div class="dashboard-tabs-bar">
-      <button 
-        (click)="setDashboardTab('planner')" 
-        [class.active]="activeTab === 'planner'" 
-        class="dash-tab-btn">
-        <span>{{ isEnglish ? '📋 Daily Planner & Tasks' : '📋 ตารางภารกิจประจำวัน & บันทึกผลงาน' }}</span>
-        <span class="tab-badge" *ngIf="dayTasks.length > 0">{{ dayTasks.length }}</span>
-      </button>
-
-      <button 
-        (click)="setDashboardTab('monthly')" 
-        [class.active]="activeTab === 'monthly'" 
-        class="dash-tab-btn">
-        <span>{{ isEnglish ? '📊 Monthly Analytics' : '📊 รายงานสถิติและดัชนีชี้วัดรายเดือน' }}</span>
-        <span class="tab-badge-accent" *ngIf="monthlyStats">{{ monthlyStats.completionRate }}%</span>
-      </button>
-    </div>
-
     <!-- ---------------------------------------------------- -->
     <!-- VIEW A: DAY PLANNER & EXECUTION REGISTER (ตารางภารกิจประจำวัน) -->
     <!-- ---------------------------------------------------- -->
     <section *ngIf="activeTab === 'planner'" class="planner-section">
 
-      <!-- Date Selector Toolbar -->
-      <div class="date-nav-card">
-        <div class="date-nav-controls">
-          <button (click)="offsetSelectedDate(-1)" class="btn-date-arrow" [title]="isEnglish ? 'Previous Day' : 'วันก่อนหน้า'">
-            {{ isEnglish ? '◀ Prev Day' : '◀ วันก่อนหน้า' }}
-          </button>
-          
-          <div class="quick-date-buttons">
-            <button (click)="setToday()" [class.active-date-btn]="selectedDate === taskService.getTodayDateStr()" class="btn-quick-date">
-              {{ isEnglish ? 'Today' : 'กำหนดการวันนี้' }}
+      <!-- 1. UNIFIED DAY BAR (วัน กำหนดการ และความคืบหน้าแบบรวมจุดเดียว) -->
+      <div class="unified-day-bar">
+        <div class="day-bar-left">
+          <!-- Stepper: Prev, Date Heading, Next -->
+          <div class="day-navigation">
+            <button (click)="offsetSelectedDate(-1)" class="btn-day-nav" [title]="isEnglish ? 'Previous Day' : 'วันก่อนหน้า'">
+              ‹
             </button>
-            <button (click)="setTomorrow()" [class.active-date-btn]="selectedDate === taskService.getDateOffsetStr(1)" class="btn-quick-date">
-              {{ isEnglish ? 'Tomorrow' : 'กำหนดการวันพรุ่งนี้' }}
-            </button>
-            <button (click)="setDayAfter()" [class.active-date-btn]="selectedDate === taskService.getDateOffsetStr(2)" class="btn-quick-date">
-              {{ isEnglish ? '+2 Days' : 'กำหนดการวันมะรืนนี้' }}
+
+            <div class="day-heading-block">
+              <h2 class="day-heading-title">{{ displayDateText }}</h2>
+              <div class="day-heading-actions">
+                <button *ngIf="selectedDate !== taskService.getTodayDateStr()" (click)="setToday()" class="btn-return-today">
+                  ↩ {{ isEnglish ? 'Today' : 'กลับสู่วันนี้' }}
+                </button>
+                <span *ngIf="selectedDate === taskService.getTodayDateStr()" class="badge-today-pill">
+                  ● {{ isEnglish ? 'Today' : 'วันนี้' }}
+                </span>
+
+                <label class="btn-pick-date-custom" [title]="isEnglish ? 'Pick date' : 'เลือกวันที่จากปฏิทิน'">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                  <span>{{ isEnglish ? 'Calendar' : 'ปฏิทิน' }}</span>
+                  <input 
+                    type="date" 
+                    [ngModel]="selectedDate" 
+                    (ngModelChange)="selectDate($event)" 
+                    class="stepper-hidden-date-input" 
+                  />
+                </label>
+              </div>
+            </div>
+
+            <button (click)="offsetSelectedDate(1)" class="btn-day-nav" [title]="isEnglish ? 'Next Day' : 'วันถัดไป'">
+              ›
             </button>
           </div>
-
-          <button (click)="offsetSelectedDate(1)" class="btn-date-arrow" [title]="isEnglish ? 'Next Day' : 'วันถัดไป'">
-            {{ isEnglish ? 'Next Day ▶' : 'วันถัดไป ▶' }}
-          </button>
         </div>
 
-        <!-- Custom Date Input Picker -->
-        <div class="custom-date-picker-group">
-          <label class="date-picker-label">{{ isEnglish ? '🗓️ Target Date:' : '🗓️ เลือกกำหนดการเป้าหมาย:' }}</label>
-          <input 
-            type="date" 
-            [ngModel]="selectedDate" 
-            (ngModelChange)="selectDate($event)" 
-            class="date-input-field" 
-          />
+        <div class="day-bar-right">
+          <!-- Progress pill -->
+          <div class="day-progress-pill" *ngIf="dayTasks.length > 0">
+            <div class="progress-pill-info">
+              <span>{{ dayStats.completed_tasks }}/{{ dayStats.total_tasks }} {{ isEnglish ? 'done' : 'สำเร็จ' }}</span>
+              <strong class="progress-pct">{{ dayStats.completion_rate }}%</strong>
+            </div>
+            <div class="progress-pill-track">
+              <div class="progress-pill-fill" [style.width.%]="dayStats.completion_rate"></div>
+            </div>
+          </div>
+
+          <!-- Quick Navigation to Monthly & Detailed Task Modal -->
+          <button (click)="setDashboardTab('monthly')" class="btn-subtle-nav" [title]="isEnglish ? 'View monthly analytics' : 'ดูรายงานสถิติประจำเดือน'">
+            📊 {{ isEnglish ? 'Monthly Report' : 'รายงานสถิติ' }}
+          </button>
+          <button (click)="openCreateModal()" class="btn-primary-compact">
+            + {{ isEnglish ? 'Detailed Task' : 'ภารกิจละเอียด' }}
+          </button>
         </div>
       </div>
 
-      <!-- Current Selected Day Executive Banner -->
-      <div class="selected-day-banner">
-        <div class="day-banner-content">
-          <div class="day-title-badge">
-            <span class="day-icon">🗓️</span>
-            <div>
-              <h2 class="day-title-text">{{ displayDateText }}</h2>
-              <p class="day-date-raw">{{ isEnglish ? 'Schedule Code: ' + selectedDate + ' | Current Time: ' + currentTimeStr : 'รหัสกำหนดการ: ' + selectedDate + ' | เวลาปัจจุบัน: ' + currentTimeStr + ' น.' }}</p>
-            </div>
+      <!-- 2. STREAMLINED JOURNAL QUICK-ADD (ช่องบันทึกภารกิจสไตล์สมุดบันทึก ไม่รกตา) -->
+      <div class="quick-add-bar">
+        <form (ngSubmit)="submitQuickAdd()" class="quick-add-form-clean">
+          <div class="quick-input-row">
+            <span class="quick-lead-icon">✍️</span>
+            <input 
+              type="text" 
+              [(ngModel)]="quickTitle" 
+              name="quickTitle"
+              [placeholder]="isEnglish ? 'What needs to be done today? (Type & press Enter)...' : 'พิมพ์ภารกิจที่ต้องทำวันนี้... แล้วกด Enter เพื่อบันทึก'" 
+              class="quick-input-main"
+              required
+              autocomplete="off"
+            />
+            <button type="submit" class="btn-quick-add" [disabled]="!quickTitle.trim()">
+              {{ isEnglish ? '+ Add' : '+ บันทึก' }}
+            </button>
           </div>
 
-          <!-- Daily Progress Bar -->
-          <div class="day-progress-group">
-            <div class="day-progress-text">
-              {{ isEnglish ? 'Execution Rate: ' : 'ดัชนีความสำเร็จ: ' }}<strong>{{ dayStats.completed_tasks }} / {{ dayStats.total_tasks }}</strong> {{ isEnglish ? 'tasks' : 'ภารกิจ' }}
-              <span class="text-accent font-bold">({{ dayStats.completion_rate }}%)</span>
-            </div>
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill" [style.width.%]="dayStats.completion_rate"></div>
-            </div>
-          </div>
-        </div>
+          <!-- Compact Metadata Tags -->
+          <div class="quick-tags-strip">
+            <!-- Time Tag -->
+            <label class="quick-tag-pill" [title]="isEnglish ? 'Due Time' : 'กำหนดเวลา'">
+              <span class="tag-label-icon">⏰</span>
+              <input type="time" [(ngModel)]="quickDueTime" name="quickDueTime" class="tag-field-time" />
+            </label>
 
-        <button (click)="openCreateModal()" class="btn-add-full-task">
-          {{ isEnglish ? '+ Detailed Task' : '+ บันทึกภารกิจอย่างละเอียด' }}
-        </button>
-      </div>
-
-      <!-- Quick Add Task Card -->
-      <!-- Quick Add Task Card (รองรับการกำหนดช่วงเวลา วันนี้ถึงวันไหน) -->
-      <div class="quick-add-card">
-        <div class="quick-add-header">
-          <div class="quick-add-header-left">
-            <span class="quick-add-icon">⚡</span>
-            <span>{{ isEnglish ? 'Schedule for: ' : 'บันทึกภารกิจสำหรับกำหนดการ: ' }}<strong>{{ formatThaiDateFormal(selectedDate) }}</strong></span>
-          </div>
-
-          <!-- Quick Range Toggle Button (กำหนดช่วงเวลา วันนี้ถึงวันไหน) -->
-          <button 
-            type="button" 
-            (click)="toggleQuickRange()" 
-            class="btn-toggle-range"
-            [class.active-range-toggle]="quickIsRange"
-            [title]="isEnglish ? 'Set multi-day date range' : 'กำหนดช่วงเวลาปฏิบัติการ (วันนี้ถึงวันไหน)'">
-            <span>{{ quickIsRange ? (isEnglish ? '✓ Date Range Active' : '✓ กำหนดช่วงเวลา (วันนี้ถึงวันไหน)') : (isEnglish ? '🗓️ + Date Range' : '🗓️ + กำหนดช่วงเวลา (วันนี้ถึงวันไหน)') }}</span>
-          </button>
-        </div>
-
-        <form (ngSubmit)="submitQuickAdd()" class="quick-add-form">
-          <input 
-            type="text" 
-            [(ngModel)]="quickTitle" 
-            name="quickTitle"
-            [placeholder]="isEnglish ? 'Enter task title (e.g. Submit project summary, review milestone)...' : 'ระบุชื่อภารกิจ เช่น จัดทำรายงานสรุปผลการวิจัย, ส่งมอบโครงงานระบบคอมพิวเตอร์...'" 
-            class="quick-input-title"
-            required
-          />
-
-          <!-- Quick Range Sub-bar (ถ้าเปิดใช้งานโหมด วันนี้ถึงวันไหน) -->
-          <div *ngIf="quickIsRange" class="quick-range-bar">
-            <div class="quick-range-label">
-              <span class="range-flag-icon">🚩</span>
-              <span>{{ isEnglish ? 'From ' : 'จาก ' }}<strong>{{ formatThaiDateFormal(selectedDate) }}</strong>{{ isEnglish ? ' until date:' : ' ถึงวันไหน:' }}</span>
-            </div>
-
-            <div class="quick-range-input-wrap">
-              <input 
-                type="date" 
-                [(ngModel)]="quickEndDate" 
-                name="quickEndDate"
-                [min]="selectedDate" 
-                class="quick-range-date-input" 
-              />
-            </div>
-
-            <div class="quick-range-presets">
-              <button type="button" (click)="setQuickRangeOffset(1)" class="btn-range-preset">{{ isEnglish ? '+1 Day (Tomorrow)' : '+1 วัน (ถึงพรุ่งนี้)' }}</button>
-              <button type="button" (click)="setQuickRangeOffset(3)" class="btn-range-preset">{{ isEnglish ? '+3 Days' : '+3 วัน' }}</button>
-              <button type="button" (click)="setQuickRangeOffset(7)" class="btn-range-preset">{{ isEnglish ? '+7 Days (1 Week)' : '+7 วัน (1 สัปดาห์)' }}</button>
-            </div>
-
-            <span *ngIf="quickEndDate" class="quick-range-summary-tag">
-              🗓️ {{ formatRangeSpan(selectedDate, quickEndDate) }}
-            </span>
-          </div>
-
-          <div class="quick-add-meta">
-            <!-- Time Picker -->
-            <div class="quick-field">
-              <label>{{ isEnglish ? '⏰ Due Time:' : '⏰ กำหนดเวลา:' }}</label>
-              <input type="time" [(ngModel)]="quickDueTime" name="quickDueTime" class="quick-input-time" />
-            </div>
-
-            <!-- Category Picker -->
-            <div class="quick-field">
-              <label>{{ isEnglish ? '🏷️ Category:' : '🏷️ หมวดหมู่ภารกิจ:' }}</label>
-              <select [(ngModel)]="quickCategory" name="quickCategory" class="quick-select">
+            <!-- Category Tag -->
+            <label class="quick-tag-pill" [title]="isEnglish ? 'Category' : 'หมวดหมู่'">
+              <span class="tag-label-icon">🏷️</span>
+              <select [(ngModel)]="quickCategory" name="quickCategory" class="tag-field-select">
                 <option *ngFor="let cat of categories" [value]="cat.name">
                   {{ cat.icon }} {{ cat.name }}
                 </option>
               </select>
-            </div>
+            </label>
 
-            <!-- Priority Picker -->
-            <div class="quick-field">
-              <label>{{ isEnglish ? '🎯 Priority:' : '🎯 ระดับความสำคัญ:' }}</label>
-              <select [(ngModel)]="quickPriority" name="quickPriority" class="quick-select">
-                <option value="HIGH">{{ isEnglish ? '🔴 Critical Priority' : '🔴 ระดับวิกฤต (Critical Priority)' }}</option>
-                <option value="MEDIUM">{{ isEnglish ? '🟡 High Importance' : '🟡 ระดับสำคัญ (High Importance)' }}</option>
-                <option value="LOW">{{ isEnglish ? '🟢 Standard Routine' : '🟢 ระดับมาตรฐาน (Standard Routine)' }}</option>
+            <!-- Priority Tag -->
+            <label class="quick-tag-pill" [title]="isEnglish ? 'Priority' : 'ระดับความสำคัญ'">
+              <span class="tag-label-icon">🎯</span>
+              <select [(ngModel)]="quickPriority" name="quickPriority" class="tag-field-select">
+                <option value="HIGH">{{ isEnglish ? 'Critical' : 'วิกฤต' }}</option>
+                <option value="MEDIUM">{{ isEnglish ? 'Important' : 'สำคัญ' }}</option>
+                <option value="LOW">{{ isEnglish ? 'Routine' : 'ทั่วไป' }}</option>
               </select>
-            </div>
+            </label>
 
-            <button type="submit" class="btn-submit-quick">
-              {{ isEnglish ? '+ Add Task' : '+ บันทึกข้อมูล' }}
+            <!-- Multi-day Range Toggle -->
+            <button 
+              type="button" 
+              (click)="toggleQuickRange()" 
+              class="quick-tag-toggle"
+              [class.active-range-toggle]="quickIsRange"
+              [title]="isEnglish ? 'Set date range span' : 'กำหนดช่วงเวลาหลายวัน (วันนี้ถึงวันไหน)'">
+              <span>🗓️ {{ quickIsRange ? (isEnglish ? 'Range On' : 'ช่วงวันเปิดอยู่') : (isEnglish ? '+ Range' : '+ ช่วงเวลา') }}</span>
             </button>
+
+            <!-- Range Preview Chip -->
+            <span *ngIf="quickIsRange && quickEndDate" class="tag-range-badge">
+              → {{ formatThaiDateFormal(quickEndDate) }}
+            </span>
+          </div>
+
+          <!-- Quick Range Expand Row (if active) -->
+          <div *ngIf="quickIsRange" class="quick-range-expand-strip">
+            <span class="range-expand-hint">{{ isEnglish ? 'From today until:' : 'จากวันนี้ถึงวันที่:' }}</span>
+            <input 
+              type="date" 
+              [(ngModel)]="quickEndDate" 
+              name="quickEndDate"
+              [min]="selectedDate" 
+              class="range-expand-date" 
+            />
+            <div class="range-presets-list">
+              <button type="button" (click)="setQuickRangeOffset(1)" class="btn-range-chip">+1 {{ isEnglish ? 'day' : 'วัน' }}</button>
+              <button type="button" (click)="setQuickRangeOffset(3)" class="btn-range-chip">+3 {{ isEnglish ? 'days' : 'วัน' }}</button>
+              <button type="button" (click)="setQuickRangeOffset(7)" class="btn-range-chip">+7 {{ isEnglish ? 'days' : 'วัน' }}</button>
+            </div>
+            <span *ngIf="quickEndDate" class="range-span-tag">
+              🗓️ {{ formatRangeSpan(selectedDate, quickEndDate) }}
+            </span>
           </div>
         </form>
       </div>
 
-      <!-- Active Filter Banner (if filtering by category) -->
-      <div *ngIf="selectedCategory !== 'All'" class="filter-indicator-bar">
-        <span>{{ isEnglish ? '🔍 Filtered by Category: ' : '🔍 กรองเฉพาะกลุ่มภารกิจ: ' }}<strong>{{ selectedCategory }}</strong></span>
-        <button (click)="clearCategoryFilter()" class="btn-clear-filter">{{ isEnglish ? 'Show All ✖' : 'แสดงทั้งหมด ✖' }}</button>
-      </div>
-
-      <!-- Tasks Checklist For Selected Date -->
+      <!-- 3. UNIFIED TASK LIST TRIAGE & FILTER TOOLBAR (แถบสถานะและหมวดหมู่บรรทัดเดียว ไม่รก) -->
       <div class="tasks-checklist-container">
-        <div class="section-title-row">
-          <div>
-            <h3 class="section-heading">
-              {{ isEnglish ? 'Task Execution Register' : 'ตารางรายการภารกิจที่ต้องดำเนินการ' }}
-            </h3>
-            <span class="text-xs text-muted">{{ isEnglish ? 'Click checkbox to mark task as completed' : 'คลิกที่กล่องเพื่อบันทึกสถานะ "แล้วเสร็จ"' }}</span>
-          </div>
-
-          <!-- Quick Status Filter Pills (All / Pending / Done) -->
-          <div class="status-filter-pills">
+        <div class="tasks-triage-bar">
+          <div class="triage-status-group">
             <button 
               type="button" 
               (click)="setTaskStatusFilter('all')" 
-              [class.active-filter]="taskStatusFilter === 'all'" 
-              class="btn-status-filter">
-              {{ isEnglish ? 'All' : 'ทั้งหมด' }} ({{ dayTasks.length }})
+              [class.active-status]="taskStatusFilter === 'all'" 
+              class="btn-status-tab">
+              {{ isEnglish ? 'All' : 'ทั้งหมด' }}
+              <span class="status-tab-count">{{ dayTasks.length }}</span>
             </button>
             <button 
               type="button" 
               (click)="setTaskStatusFilter('active')" 
-              [class.active-filter]="taskStatusFilter === 'active'" 
-              class="btn-status-filter">
-              {{ isEnglish ? 'Pending' : 'ค้างอยู่' }} ({{ dayStats.pending_tasks }})
+              [class.active-status]="taskStatusFilter === 'active'" 
+              class="btn-status-tab">
+              {{ isEnglish ? 'Pending' : 'ค้างอยู่' }}
+              <span class="status-tab-count" *ngIf="dayStats.pending_tasks > 0">{{ dayStats.pending_tasks }}</span>
             </button>
             <button 
               type="button" 
               (click)="setTaskStatusFilter('completed')" 
-              [class.active-filter]="taskStatusFilter === 'completed'" 
-              class="btn-status-filter">
-              {{ isEnglish ? 'Done' : 'เสร็จแล้ว' }} ({{ dayStats.completed_tasks }})
+              [class.active-status]="taskStatusFilter === 'completed'" 
+              class="btn-status-tab">
+              {{ isEnglish ? 'Done' : 'เสร็จแล้ว' }}
+              <span class="status-tab-count" *ngIf="dayStats.completed_tasks > 0">{{ dayStats.completed_tasks }}</span>
             </button>
           </div>
-        </div>
 
-        <!-- Quick Category Filter Chips Bar (Instant Triage) -->
-        <div class="category-filter-chips-bar">
-          <button 
-            type="button" 
-            (click)="filterByCategory('All')" 
-            [class.active-cat-chip]="selectedCategory === 'All'" 
-            class="cat-chip-btn">
-            <span>🌐</span>
-            <span>{{ isEnglish ? 'All' : 'ทั้งหมด' }}</span>
-          </button>
-          <button 
-            *ngFor="let cat of categories" 
-            type="button" 
-            (click)="filterByCategory(cat.name)" 
-            [class.active-cat-chip]="selectedCategory === cat.name" 
-            class="cat-chip-btn">
-            <span>{{ cat.icon }}</span>
-            <span>{{ cat.name }}</span>
-          </button>
+          <div class="triage-category-group">
+            <div class="category-select-pill">
+              <span class="cat-pill-icon">🏷️</span>
+              <select 
+                [ngModel]="selectedCategory" 
+                (ngModelChange)="filterByCategory($event)" 
+                class="cat-select-inline">
+                <option value="All">{{ isEnglish ? 'All Categories' : 'ทุกหมวดหมู่' }}</option>
+                <option *ngFor="let cat of categories" [value]="cat.name">
+                  {{ cat.icon }} {{ cat.name }}
+                </option>
+              </select>
+              <button 
+                *ngIf="selectedCategory !== 'All'" 
+                (click)="clearCategoryFilter()" 
+                class="btn-clear-cat-inline" 
+                [title]="isEnglish ? 'Clear category filter' : 'ล้างตัวกรองหมวดหมู่'">
+                ✕
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- 100% Completion Celebration Banner -->
@@ -699,9 +649,14 @@
           </button>
         </div>
 
-        <button (click)="nextMonth()" class="btn-month-nav" [title]="isEnglish ? 'Next Month' : 'เดือนถัดไป'">
-          {{ isEnglish ? 'Next Month ▶' : 'เดือนถัดไป ▶' }}
-        </button>
+        <div class="monthly-header-actions">
+          <button (click)="nextMonth()" class="btn-month-nav" [title]="isEnglish ? 'Next Month' : 'เดือนถัดไป'">
+            {{ isEnglish ? 'Next Month ▶' : 'เดือนถัดไป ▶' }}
+          </button>
+          <button (click)="setDashboardTab('planner')" class="btn-subtle-nav" [title]="isEnglish ? 'Back to Daily Planner' : 'กลับสู่ตารางภารกิจประจำวัน'">
+            📋 {{ isEnglish ? 'Daily Planner' : 'ตารางภารกิจ' }}
+          </button>
+        </div>
       </div>
 
       <!-- 4 Monthly Metric Summary Cards with Soft Pastel Tints -->

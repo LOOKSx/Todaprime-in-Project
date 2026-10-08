@@ -841,295 +841,187 @@
   padding: 2rem 1.75rem 5rem;
 }
 
-.dashboard-tabs-bar {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.75rem;
-  background-color: var(--bg-surface);
-  padding: 0.35rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-card);
-  width: fit-content;
-}
-
-.dash-tab-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--text-secondary);
-  font-family: var(--font-heading);
-  font-size: 0.92rem;
-  font-weight: 600;
-  padding: 0.6rem 1.35rem;
-  min-height: 42px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-}
-
-.dash-tab-btn:hover {
-  color: var(--text-main);
-  background-color: var(--bg-surface-elevated);
-}
-
-.dash-tab-btn.active {
-  background-color: var(--primary);
-  border-color: var(--primary);
-  color: #ffffff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-}
-
-.tab-badge {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  padding: 1px 7px;
-  border-radius: 3px;
-  font-family: var(--font-heading);
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.tab-badge-accent {
-  background-color: var(--prime-gold);
-  color: #ffffff;
-  padding: 1px 7px;
-  border-radius: 3px;
-  font-family: var(--font-heading);
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
 /* ========================================================
-   VIEW A: DAY PLANNER & EXECUTION REGISTER
+   VIEW A: DAY PLANNER & EXECUTION REGISTER (UNCLUTTERED)
 ======================================================== */
 .planner-section {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 1.25rem;
 }
 
-/* Date Toolbar */
-.date-nav-card {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  padding: 1.15rem 1.5rem;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
+/* 1. UNIFIED DAY BAR (Clean, Serene Editorial Date & Progress Bar) */
+.unified-day-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1.25rem 1.6rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.day-bar-left {
+  display: flex;
+  align-items: center;
   gap: 1rem;
 }
 
-.date-nav-controls {
+.day-navigation {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  flex-wrap: wrap;
+  gap: 0.85rem;
 }
 
-.btn-date-arrow {
+.btn-day-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
   background-color: var(--bg-surface-elevated);
   border: 1px solid var(--border-color);
-  color: var(--text-main);
-  font-size: 0.88rem;
-  font-weight: 600;
-  padding: 0.55rem 1rem;
-  min-height: 42px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s;
-}
-
-.btn-date-arrow:hover {
-  background-color: var(--bg-surface-hover);
-  border-color: var(--border-color-hover);
-}
-
-.quick-date-buttons {
-  display: flex;
-  gap: 0.4rem;
-}
-
-.btn-quick-date {
-  background: transparent;
-  border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  font-size: 0.88rem;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-day-nav:hover {
+  background-color: var(--primary-subtle);
+  border-color: var(--primary);
+  color: var(--text-main);
+}
+
+.day-heading-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.day-heading-title {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.day-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.btn-return-today {
+  background-color: var(--primary-subtle);
+  color: var(--primary);
+  border: 1px solid var(--border-color);
+  font-size: 0.78rem;
   font-weight: 600;
-  padding: 0.55rem 1.1rem;
-  min-height: 42px;
+  padding: 0.2rem 0.65rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s;
 }
 
-.btn-quick-date:hover {
-  color: var(--text-main);
-  background-color: var(--bg-surface-elevated);
-}
-
-.btn-quick-date.active-date-btn {
+.btn-return-today:hover {
   background-color: var(--primary);
   color: #ffffff;
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px var(--primary-glow);
 }
 
-.custom-date-picker-group {
-  display: flex;
+.badge-today-pill {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--prime-gold);
+  background-color: var(--gold-subtle);
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.3rem;
 }
 
-.date-picker-label {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
+.btn-pick-date-custom {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  white-space: nowrap;
-}
-
-.date-input-field {
+  color: var(--text-secondary);
   background-color: var(--bg-surface-elevated);
   border: 1px solid var(--border-color);
-  color: var(--text-main);
-  font-size: 0.88rem;
-  padding: 0.55rem 0.85rem;
-  min-height: 42px;
+  padding: 0.2rem 0.65rem;
   border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-pick-date-custom:hover {
+  color: var(--text-main);
+  border-color: var(--border-color-hover);
+}
+
+.stepper-hidden-date-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
   cursor: pointer;
 }
 
-/* Executive Day Banner — Classic Stationery */
-.selected-day-banner {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 1.5rem 1.85rem;
-  box-shadow: var(--shadow-card);
+.day-bar-right {
   display: flex;
   align-items: center;
+  gap: 0.9rem;
+}
+
+.day-progress-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 150px;
+}
+
+.progress-pill-info {
+  display: flex;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  position: relative;
-}
-
-.selected-day-banner::before {
-  display: none;
-}
-
-.day-banner-content {
-  display: flex;
   align-items: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-.day-title-badge {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.day-icon {
-  font-size: 2.2rem;
-}
-
-.day-title-text {
-  font-family: var(--font-heading);
-  font-size: 1.45rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--text-main);
-}
-
-.day-date-raw {
   font-size: 0.82rem;
-  font-family: var(--font-body);
-  color: var(--text-muted);
-}
-
-.day-progress-group {
-  min-width: 250px;
-}
-
-.day-progress-text {
-  font-size: 0.9rem;
-  font-family: var(--font-body);
   color: var(--text-secondary);
-  margin-bottom: 0.45rem;
 }
 
-.progress-bar-track {
+.progress-pct {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.progress-pill-track {
   width: 100%;
-  height: 8px;
+  height: 6px;
   background-color: var(--bg-surface-elevated);
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
   border: 1px solid var(--border-color);
 }
 
-.progress-bar-fill {
+.progress-pill-fill {
   height: 100%;
   background: var(--accent);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
-.btn-add-full-task {
-  background-color: var(--primary);
-  color: #ffffff;
-  border: 1px solid var(--border-color);
-  font-family: var(--font-heading);
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 0.65rem 1.35rem;
-  min-height: 42px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.15s, transform 0.15s;
-}
-
-.btn-add-full-task:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
-}
-
-/* Quick Add Task Card */
-.quick-add-card {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 1.35rem 1.75rem;
-  box-shadow: var(--shadow-card);
-}
-
-.quick-add-header {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.85rem;
-  flex-wrap: wrap;
-}
-
-.quick-add-header-left {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-/* Quick Range Toggle & Controls (กำหนดช่วงเวลา วันนี้ถึงวันไหน) */
-.btn-toggle-range {
+.btn-subtle-nav {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -1138,210 +1030,356 @@
   color: var(--text-secondary);
   font-size: 0.84rem;
   font-weight: 600;
-  padding: 0.4rem 0.85rem;
+  padding: 0.45rem 0.85rem;
+  min-height: 38px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.btn-toggle-range:hover {
+.btn-subtle-nav:hover {
+  background-color: var(--bg-surface-hover);
   color: var(--text-main);
-  border-color: var(--primary);
-  background-color: var(--primary-subtle);
+  border-color: var(--border-color-hover);
 }
 
-.btn-toggle-range.active-range-toggle {
-  background-color: var(--primary-subtle);
-  border-color: var(--primary);
-  color: var(--primary);
-  font-weight: 700;
+.btn-primary-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: var(--primary);
+  color: #ffffff;
+  border: 1px solid var(--border-color);
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 0.45rem 0.95rem;
+  min-height: 38px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.quick-range-bar {
+.btn-primary-compact:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* 2. STREAMLINED JOURNAL QUICK-ADD BAR */
+.quick-add-bar {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 0.85rem 1.15rem;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s;
+}
+
+.quick-add-bar:focus-within {
+  border-color: var(--primary);
+}
+
+.quick-add-form-clean {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.quick-input-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+.quick-lead-icon {
+  font-size: 1.25rem;
+  opacity: 0.85;
+}
+
+.quick-input-main {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 1.02rem;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  padding: 0.4rem 0;
+}
+
+.quick-input-main::placeholder {
+  color: var(--text-muted);
+}
+
+.btn-quick-add {
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  font-size: 0.86rem;
+  font-weight: 600;
+  padding: 0.45rem 1.1rem;
+  min-height: 36px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-quick-add:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-quick-add:not(:disabled):hover {
+  background-color: var(--primary-hover);
+}
+
+/* Tags Strip Below Quick Input */
+.quick-tags-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   flex-wrap: wrap;
-  padding: 0.75rem 1rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.quick-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.55rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.quick-tag-pill:hover {
+  border-color: var(--border-color-hover);
+}
+
+.tag-label-icon {
+  font-size: 0.85rem;
+}
+
+.tag-field-time,
+.tag-field-select {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.82rem;
+  color: var(--text-main);
+  cursor: pointer;
+  padding: 0;
+}
+
+.tag-field-select option {
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+}
+
+.quick-tag-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.quick-tag-toggle:hover {
+  border-color: var(--primary);
+  color: var(--text-main);
+}
+
+.quick-tag-toggle.active-range-toggle {
+  background-color: var(--primary-subtle);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.tag-range-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary);
+  background-color: var(--primary-subtle);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Range Expander */
+.quick-range-expand-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  padding: 0.55rem 0.85rem;
   background-color: var(--bg-surface-elevated);
   border: 1px dashed var(--border-color);
   border-radius: var(--radius-sm);
-  margin-bottom: 0.25rem;
   animation: fadeIn 0.2s ease;
 }
 
-.quick-range-label {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.86rem;
+.range-expand-hint {
+  font-size: 0.82rem;
   color: var(--text-secondary);
 }
 
-.quick-range-input-wrap {
-  display: flex;
-  align-items: center;
-}
-
-.quick-range-date-input {
-  background-color: var(--bg-surface-elevated);
+.range-expand-date {
+  background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   color: var(--text-main);
-  font-size: 0.86rem;
-  padding: 0.45rem 0.75rem;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.6rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
-.quick-range-presets {
+.range-presets-list {
   display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
+  gap: 0.35rem;
 }
 
-.btn-range-preset {
-  background-color: var(--bg-surface-elevated);
+.btn-range-chip {
+  background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
-  padding: 0.35rem 0.65rem;
+  padding: 0.25rem 0.55rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s;
 }
 
-.btn-range-preset:hover {
+.btn-range-chip:hover {
   background-color: var(--primary-subtle);
   border-color: var(--primary);
   color: var(--primary);
 }
 
-.quick-range-summary-tag {
-  font-size: 0.82rem;
-  font-family: var(--font-heading);
+.range-span-tag {
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--primary);
-  background-color: var(--primary-subtle);
-  padding: 0.25rem 0.65rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
   margin-left: auto;
 }
 
-.quick-add-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-}
-
-.quick-input-title {
-  width: 100%;
-  background-color: var(--bg-surface-elevated);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  padding: 0.9rem 1.25rem;
-  min-height: 48px;
-  border-radius: var(--radius-md);
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.quick-input-title:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-subtle);
-}
-
-.quick-add-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.95rem;
-  flex-wrap: wrap;
-}
-
-.quick-field {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.88rem;
-  color: var(--text-muted);
-}
-
-.quick-input-time,
-.quick-select {
-  background-color: var(--bg-surface-elevated);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  padding: 0.55rem 0.85rem;
-  min-height: 42px;
-  border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.btn-submit-quick {
-  margin-left: auto;
-  background-color: var(--primary);
-  color: #ffffff;
-  border: none;
-  font-size: 0.9rem;
-  font-weight: 700;
-  padding: 0.65rem 1.55rem;
-  min-height: 44px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  box-shadow: 0 2px 8px var(--primary-glow);
-  transition: background-color 0.15s;
-}
-
-.btn-submit-quick:hover {
-  background-color: var(--primary-hover);
-}
-
-/* Category Filter Indicator */
-.filter-indicator-bar {
-  background-color: var(--primary-subtle);
-  border: 1px solid var(--border-color);
-  padding: 0.7rem 1.15rem;
-  border-radius: var(--radius-sm);
+/* 3. UNIFIED TASK LIST TRIAGE & FILTER TOOLBAR */
+.tasks-triage-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  padding: 0.25rem 0;
+}
+
+.triage-status-group {
+  display: inline-flex;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 3px;
+}
+
+.btn-status-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-heading);
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-status-tab:hover {
+  color: var(--text-main);
+  background-color: var(--bg-surface-elevated);
+}
+
+.btn-status-tab.active-status {
+  background-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.status-tab-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.25);
+  padding: 0 5px;
+  border-radius: 3px;
+}
+
+.btn-status-tab:not(.active-status) .status-tab-count {
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.triage-category-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.category-select-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.84rem;
+}
+
+.cat-pill-icon {
   font-size: 0.88rem;
+}
+
+.cat-select-inline {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-main);
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding-right: 0.5rem;
+}
+
+.cat-select-inline option {
+  background-color: var(--bg-surface);
   color: var(--text-main);
 }
 
-.btn-clear-filter {
+.btn-clear-cat-inline {
   background: transparent;
   border: none;
   color: var(--danger);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
-}
-
-/* Checklist of Tasks */
-.tasks-checklist-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-}
-
-.section-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-}
-
-.section-heading {
-  font-family: var(--font-heading);
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--text-main);
+  padding: 0 0.2rem;
+  line-height: 1;
 }
 
 .task-items-list {
@@ -1997,6 +2035,12 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1.15rem;
+}
+
+.monthly-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
 }
 
 .btn-month-nav {
@@ -3167,20 +3211,59 @@
     padding: 0.85rem 0.65rem 3rem;
   }
 
-  .dashboard-tabs-bar {
-    width: 100%;
-    display: flex;
+  .unified-day-bar {
+    padding: 1rem;
+    gap: 0.85rem;
   }
 
-  .dash-tab-btn {
+  .day-navigation {
+    gap: 0.5rem;
+  }
+
+  .day-heading-title {
+    font-size: 1.15rem;
+  }
+
+  .day-bar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .day-progress-pill {
     flex: 1;
-    font-size: 0.85rem;
-    padding: 0.55rem 0.65rem;
+    min-width: 120px;
+  }
+
+  .quick-add-bar {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .quick-tags-strip {
+    gap: 0.4rem;
+  }
+
+  .tasks-triage-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .triage-status-group {
+    width: 100%;
+  }
+
+  .btn-status-tab {
+    flex: 1;
     justify-content: center;
   }
 
-  .day-title-text {
-    font-size: 1.2rem;
+  .triage-category-group {
+    width: 100%;
+  }
+
+  .category-select-pill {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .task-card {
@@ -3226,17 +3309,6 @@
     min-height: 34px;
     padding: 0.35rem;
     font-size: 0.85rem;
-  }
-
-  .status-filter-pills {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .quick-add-meta {
-    grid-template-columns: 1fr;
   }
 
   .calendar-day-cell {
@@ -3289,13 +3361,13 @@
     grid-template-columns: 1fr; /* Single column on tiny screens */
   }
 
-  .btn-date-arrow {
-    padding: 0.45rem 0.65rem;
-    font-size: 0.8rem;
+  .btn-day-nav {
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
   }
 
-  .btn-quick-date {
-    padding: 0.45rem 0.4rem;
-    font-size: 0.78rem;
+  .day-heading-title {
+    font-size: 1.05rem;
   }
 }
